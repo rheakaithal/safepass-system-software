@@ -1,0 +1,3734 @@
+[
+  {
+    "id": 1,
+    "PoleID": 1,
+    "waterlevel": 0.17,
+    "created_at": "2025-12-10 13:31:25"
+  },
+  {
+    "id": 2,
+    "PoleID": 2,
+    "waterlevel": 5.2,
+    "created_at": "2025-12-10 13:31:25"
+  },
+  {
+    "id": 3,
+    "PoleID": 1,
+    "waterlevel": 0.3,
+    "created_at": "2025-12-10 13:31:26"
+  },
+  {
+    "id": 4,
+    "PoleID": 2,
+    "waterlevel": 5.43,
+    "created_at": "2025-12-10 13:31:26"
+  },
+  {
+    "id": 5,
+    "PoleID": 1,
+    "waterlevel": 0.48,
+    "created_at": "2025-12-10 13:31:27"
+  },
+  {
+    "id": 6,
+    "PoleID": 2,
+    "waterlevel": 5.71,
+    "created_at": "2025-12-10 13:31:27"
+  },
+  {
+    "id": 7,
+    "PoleID": 1,
+    "waterlevel": 0.65,
+    "created_at": "2025-12-10 13:31:28"
+  },
+  {
+    "id": 8,
+    "PoleID": 2,
+    "waterlevel": 5.98,
+    "created_at": "2025-12-10 13:31:28"
+  },
+  {
+    "id": 9,
+    "PoleID": 1,
+    "waterlevel": 0.83,
+    "created_at": "2025-12-10 13:31:29"
+  },
+  {
+    "id": 10,
+    "PoleID": 2,
+    "waterlevel": 6.26,
+    "created_at": "2025-12-10 13:31:29"
+  },
+  {
+    "id": 11,
+    "PoleID": 1,
+    "waterlevel": 0.99,
+    "created_at": "2025-12-10 13:31:30"
+  },
+  {
+    "id": 12,
+    "PoleID": 2,
+    "waterlevel": 6.52,
+    "created_at": "2025-12-10 13:31:30"
+  },
+  {
+    "id": 13,
+    "PoleID": 1,
+    "waterlevel": 1.17,
+    "created_at": "2025-12-10 13:31:31"
+  },
+  {
+    "id": 14,
+    "PoleID": 2,
+    "waterlevel": 6.74,
+    "created_at": "2025-12-10 13:31:31"
+  },
+  {
+    "id": 15,
+    "PoleID": 1,
+    "waterlevel": 1.31,
+    "created_at": "2025-12-10 13:31:32"
+  },
+  {
+    "id": 16,
+    "PoleID": 2,
+    "waterlevel": 6.97,
+    "created_at": "2025-12-10 13:31:32"
+  },
+  {
+    "id": 17,
+    "PoleID": 1,
+    "waterlevel": 1.45,
+    "created_at": "2025-12-10 13:31:33"
+  },
+  {
+    "id": 18,
+    "PoleID": 2,
+    "waterlevel": 7.18,
+    "created_at": "2025-12-10 13:31:33"
+  },
+  {
+    "id": 19,
+    "PoleID": 1,
+    "waterlevel": 1.63,
+    "created_at": "2025-12-10 13:31:34"
+  },
+  {
+    "id": 20,
+    "PoleID": 2,
+    "waterlevel": 7.37,
+    "created_at": "2025-12-10 13:31:34"
+  },
+  {
+    "id": 21,
+    "PoleID": 1,
+    "waterlevel": 1.77,
+    "created_at": "2025-12-10 13:31:35"
+  },
+  {
+    "id": 22,
+    "PoleID": 2,
+    "waterlevel": 7.56,
+    "created_at": "2025-12-10 13:31:35"
+  },
+  {
+    "id": 23,
+    "PoleID": 1,
+    "waterlevel": 1.91,
+    "created_at": "2025-12-10 13:31:36"
+  },
+  {
+    "id": 24,
+    "PoleID": 2,
+    "waterlevel": 7.77,
+    "created_at": "2025-12-10 13:31:36"
+  },
+  {
+    "id": 25,
+    "PoleID": 1,
+    "waterlevel": 2.1,
+    "created_at": "2025-12-10 13:31:37"
+  },
+  {
+    "id": 26,
+    "PoleID": 2,
+    "waterlevel": 8.02,
+    "created_at": "2025-12-10 13:31:37"
+  },
+  {
+    "id": 27,
+    "PoleID": 1,
+    "waterlevel": 2.26,
+    "created_at": "2025-12-10 13:31:38"
+  },
+  {
+    "id": 28,
+    "PoleID": 2,
+    "waterlevel": 8.21,
+    "created_at": "2025-12-10 13:31:38"
+  },
+  {
+    "id": 29,
+    "PoleID": 1,
+    "waterlevel": 2.43,
+    "created_at": "2025-12-10 13:31:39"
+  },
+  {
+    "id": 30,
+    "PoleID": 2,
+    "waterlevel": 8.39,
+    "created_at": "2025-12-10 13:31:39"
+  },
+  {
+    "id": 31,
+    "PoleID": 1,
+    "waterlevel": 2.57,
+    "created_at": "2025-12-10 13:31:40"
+  },
+  {
+    "id": 32,
+    "PoleID": 2,
+    "waterlevel": 8.65,
+    "created_at": "2025-12-10 13:31:40"
+  },
+  {
+    "id": 33,
+    "PoleID": 1,
+    "waterlevel": 2.77,
+    "created_at": "2025-12-10 13:31:41"
+  },
+  {
+    "id": 34,
+    "PoleID": 2,
+    "waterlevel": 8.87,
+    "created_at": "2025-12-10 13:31:41"
+  },
+  {
+    "id": 35,
+    "PoleID": 1,
+    "waterlevel": 2.95,
+    "created_at": "2025-12-10 13:31:42"
+  },
+  {
+    "id": 36,
+    "PoleID": 2,
+    "waterlevel": 9.08,
+    "created_at": "2025-12-10 13:31:42"
+  },
+  {
+    "id": 37,
+    "PoleID": 1,
+    "waterlevel": 3.06,
+    "created_at": "2025-12-10 13:31:43"
+  },
+  {
+    "id": 38,
+    "PoleID": 2,
+    "waterlevel": 9.3,
+    "created_at": "2025-12-10 13:31:43"
+  },
+  {
+    "id": 39,
+    "PoleID": 1,
+    "waterlevel": 3.21,
+    "created_at": "2025-12-10 13:31:44"
+  },
+  {
+    "id": 40,
+    "PoleID": 2,
+    "waterlevel": 9.57,
+    "created_at": "2025-12-10 13:31:44"
+  },
+  {
+    "id": 41,
+    "PoleID": 1,
+    "waterlevel": 3.34,
+    "created_at": "2025-12-10 13:31:45"
+  },
+  {
+    "id": 42,
+    "PoleID": 2,
+    "waterlevel": 9.83,
+    "created_at": "2025-12-10 13:31:45"
+  },
+  {
+    "id": 43,
+    "PoleID": 1,
+    "waterlevel": 3.49,
+    "created_at": "2025-12-10 13:31:46"
+  },
+  {
+    "id": 44,
+    "PoleID": 2,
+    "waterlevel": 10.08,
+    "created_at": "2025-12-10 13:31:46"
+  },
+  {
+    "id": 45,
+    "PoleID": 1,
+    "waterlevel": 3.65,
+    "created_at": "2025-12-10 13:31:47"
+  },
+  {
+    "id": 46,
+    "PoleID": 2,
+    "waterlevel": 10.29,
+    "created_at": "2025-12-10 13:31:47"
+  },
+  {
+    "id": 47,
+    "PoleID": 1,
+    "waterlevel": 3.78,
+    "created_at": "2025-12-10 13:31:48"
+  },
+  {
+    "id": 48,
+    "PoleID": 2,
+    "waterlevel": 10.47,
+    "created_at": "2025-12-10 13:31:48"
+  },
+  {
+    "id": 49,
+    "PoleID": 1,
+    "waterlevel": 3.94,
+    "created_at": "2025-12-10 13:31:49"
+  },
+  {
+    "id": 50,
+    "PoleID": 2,
+    "waterlevel": 10.71,
+    "created_at": "2025-12-10 13:31:49"
+  },
+  {
+    "id": 51,
+    "PoleID": 1,
+    "waterlevel": 4.13,
+    "created_at": "2025-12-10 13:31:50"
+  },
+  {
+    "id": 52,
+    "PoleID": 2,
+    "waterlevel": 10.94,
+    "created_at": "2025-12-10 13:31:50"
+  },
+  {
+    "id": 53,
+    "PoleID": 1,
+    "waterlevel": 4.28,
+    "created_at": "2025-12-10 13:31:51"
+  },
+  {
+    "id": 54,
+    "PoleID": 2,
+    "waterlevel": 11.21,
+    "created_at": "2025-12-10 13:31:51"
+  },
+  {
+    "id": 55,
+    "PoleID": 1,
+    "waterlevel": 4.39,
+    "created_at": "2025-12-10 13:31:52"
+  },
+  {
+    "id": 56,
+    "PoleID": 2,
+    "waterlevel": 11.41,
+    "created_at": "2025-12-10 13:31:52"
+  },
+  {
+    "id": 57,
+    "PoleID": 1,
+    "waterlevel": 4.56,
+    "created_at": "2025-12-10 13:31:53"
+  },
+  {
+    "id": 58,
+    "PoleID": 2,
+    "waterlevel": 11.59,
+    "created_at": "2025-12-10 13:31:53"
+  },
+  {
+    "id": 59,
+    "PoleID": 1,
+    "waterlevel": 4.72,
+    "created_at": "2025-12-10 13:31:54"
+  },
+  {
+    "id": 60,
+    "PoleID": 2,
+    "waterlevel": 11.78,
+    "created_at": "2025-12-10 13:31:54"
+  },
+  {
+    "id": 61,
+    "PoleID": 1,
+    "waterlevel": 4.92,
+    "created_at": "2025-12-10 13:31:55"
+  },
+  {
+    "id": 62,
+    "PoleID": 2,
+    "waterlevel": 12.03,
+    "created_at": "2025-12-10 13:31:55"
+  },
+  {
+    "id": 63,
+    "PoleID": 1,
+    "waterlevel": 5.08,
+    "created_at": "2025-12-10 13:31:56"
+  },
+  {
+    "id": 64,
+    "PoleID": 2,
+    "waterlevel": 12.23,
+    "created_at": "2025-12-10 13:31:56"
+  },
+  {
+    "id": 65,
+    "PoleID": 1,
+    "waterlevel": 5.23,
+    "created_at": "2025-12-10 13:31:57"
+  },
+  {
+    "id": 66,
+    "PoleID": 2,
+    "waterlevel": 12.42,
+    "created_at": "2025-12-10 13:31:57"
+  },
+  {
+    "id": 67,
+    "PoleID": 1,
+    "waterlevel": 5.42,
+    "created_at": "2025-12-10 13:31:58"
+  },
+  {
+    "id": 68,
+    "PoleID": 2,
+    "waterlevel": 12.66,
+    "created_at": "2025-12-10 13:31:58"
+  },
+  {
+    "id": 69,
+    "PoleID": 1,
+    "waterlevel": 5.57,
+    "created_at": "2025-12-10 13:31:59"
+  },
+  {
+    "id": 70,
+    "PoleID": 2,
+    "waterlevel": 12.92,
+    "created_at": "2025-12-10 13:31:59"
+  },
+  {
+    "id": 71,
+    "PoleID": 1,
+    "waterlevel": 5.71,
+    "created_at": "2025-12-10 13:32:00"
+  },
+  {
+    "id": 72,
+    "PoleID": 2,
+    "waterlevel": 13.12,
+    "created_at": "2025-12-10 13:32:00"
+  },
+  {
+    "id": 73,
+    "PoleID": 1,
+    "waterlevel": 5.89,
+    "created_at": "2025-12-10 13:32:01"
+  },
+  {
+    "id": 74,
+    "PoleID": 2,
+    "waterlevel": 13.35,
+    "created_at": "2025-12-10 13:32:01"
+  },
+  {
+    "id": 75,
+    "PoleID": 1,
+    "waterlevel": 6.1,
+    "created_at": "2025-12-10 13:32:02"
+  },
+  {
+    "id": 76,
+    "PoleID": 2,
+    "waterlevel": 13.56,
+    "created_at": "2025-12-10 13:32:02"
+  },
+  {
+    "id": 77,
+    "PoleID": 1,
+    "waterlevel": 6.3,
+    "created_at": "2025-12-10 13:32:03"
+  },
+  {
+    "id": 78,
+    "PoleID": 2,
+    "waterlevel": 13.8,
+    "created_at": "2025-12-10 13:32:03"
+  },
+  {
+    "id": 79,
+    "PoleID": 1,
+    "waterlevel": 6.48,
+    "created_at": "2025-12-10 13:32:04"
+  },
+  {
+    "id": 80,
+    "PoleID": 2,
+    "waterlevel": 14.02,
+    "created_at": "2025-12-10 13:32:04"
+  },
+  {
+    "id": 81,
+    "PoleID": 1,
+    "waterlevel": 6.68,
+    "created_at": "2025-12-10 13:32:05"
+  },
+  {
+    "id": 82,
+    "PoleID": 2,
+    "waterlevel": 14.21,
+    "created_at": "2025-12-10 13:32:05"
+  },
+  {
+    "id": 83,
+    "PoleID": 1,
+    "waterlevel": 6.79,
+    "created_at": "2025-12-10 13:32:06"
+  },
+  {
+    "id": 84,
+    "PoleID": 2,
+    "waterlevel": 14.45,
+    "created_at": "2025-12-10 13:32:06"
+  },
+  {
+    "id": 85,
+    "PoleID": 1,
+    "waterlevel": 6.97,
+    "created_at": "2025-12-10 13:32:07"
+  },
+  {
+    "id": 86,
+    "PoleID": 2,
+    "waterlevel": 14.68,
+    "created_at": "2025-12-10 13:32:07"
+  },
+  {
+    "id": 87,
+    "PoleID": 1,
+    "waterlevel": 7.14,
+    "created_at": "2025-12-10 13:32:08"
+  },
+  {
+    "id": 88,
+    "PoleID": 2,
+    "waterlevel": 14.86,
+    "created_at": "2025-12-10 13:32:08"
+  },
+  {
+    "id": 89,
+    "PoleID": 1,
+    "waterlevel": 7.27,
+    "created_at": "2025-12-10 13:32:09"
+  },
+  {
+    "id": 90,
+    "PoleID": 2,
+    "waterlevel": 15.1,
+    "created_at": "2025-12-10 13:32:09"
+  },
+  {
+    "id": 91,
+    "PoleID": 1,
+    "waterlevel": 7.41,
+    "created_at": "2025-12-10 13:32:10"
+  },
+  {
+    "id": 92,
+    "PoleID": 2,
+    "waterlevel": 15.28,
+    "created_at": "2025-12-10 13:32:10"
+  },
+  {
+    "id": 93,
+    "PoleID": 1,
+    "waterlevel": 7.59,
+    "created_at": "2025-12-10 13:32:11"
+  },
+  {
+    "id": 94,
+    "PoleID": 2,
+    "waterlevel": 15.55,
+    "created_at": "2025-12-10 13:32:11"
+  },
+  {
+    "id": 95,
+    "PoleID": 1,
+    "waterlevel": 7.72,
+    "created_at": "2025-12-10 13:32:12"
+  },
+  {
+    "id": 96,
+    "PoleID": 2,
+    "waterlevel": 15.81,
+    "created_at": "2025-12-10 13:32:12"
+  },
+  {
+    "id": 97,
+    "PoleID": 1,
+    "waterlevel": 7.83,
+    "created_at": "2025-12-10 13:32:13"
+  },
+  {
+    "id": 98,
+    "PoleID": 2,
+    "waterlevel": 16.01,
+    "created_at": "2025-12-10 13:32:13"
+  },
+  {
+    "id": 99,
+    "PoleID": 1,
+    "waterlevel": 7.95,
+    "created_at": "2025-12-10 13:32:14"
+  },
+  {
+    "id": 100,
+    "PoleID": 2,
+    "waterlevel": 16.22,
+    "created_at": "2025-12-10 13:32:14"
+  },
+  {
+    "id": 101,
+    "PoleID": 1,
+    "waterlevel": 8.14,
+    "created_at": "2025-12-10 13:32:15"
+  },
+  {
+    "id": 102,
+    "PoleID": 2,
+    "waterlevel": 16.48,
+    "created_at": "2025-12-10 13:32:15"
+  },
+  {
+    "id": 103,
+    "PoleID": 1,
+    "waterlevel": 8.27,
+    "created_at": "2025-12-10 13:32:16"
+  },
+  {
+    "id": 104,
+    "PoleID": 2,
+    "waterlevel": 16.73,
+    "created_at": "2025-12-10 13:32:16"
+  },
+  {
+    "id": 105,
+    "PoleID": 1,
+    "waterlevel": 8.46,
+    "created_at": "2025-12-10 13:32:17"
+  },
+  {
+    "id": 106,
+    "PoleID": 2,
+    "waterlevel": 16.97,
+    "created_at": "2025-12-10 13:32:17"
+  },
+  {
+    "id": 107,
+    "PoleID": 1,
+    "waterlevel": 8.61,
+    "created_at": "2025-12-10 13:32:18"
+  },
+  {
+    "id": 108,
+    "PoleID": 2,
+    "waterlevel": 17.2,
+    "created_at": "2025-12-10 13:32:18"
+  },
+  {
+    "id": 109,
+    "PoleID": 1,
+    "waterlevel": 8.72,
+    "created_at": "2025-12-10 13:32:19"
+  },
+  {
+    "id": 110,
+    "PoleID": 2,
+    "waterlevel": 17.44,
+    "created_at": "2025-12-10 13:32:19"
+  },
+  {
+    "id": 111,
+    "PoleID": 1,
+    "waterlevel": 8.84,
+    "created_at": "2025-12-10 13:32:20"
+  },
+  {
+    "id": 112,
+    "PoleID": 2,
+    "waterlevel": 17.69,
+    "created_at": "2025-12-10 13:32:20"
+  },
+  {
+    "id": 113,
+    "PoleID": 1,
+    "waterlevel": 9.0,
+    "created_at": "2025-12-10 13:32:21"
+  },
+  {
+    "id": 114,
+    "PoleID": 2,
+    "waterlevel": 17.93,
+    "created_at": "2025-12-10 13:32:21"
+  },
+  {
+    "id": 115,
+    "PoleID": 1,
+    "waterlevel": 9.19,
+    "created_at": "2025-12-10 13:32:22"
+  },
+  {
+    "id": 116,
+    "PoleID": 2,
+    "waterlevel": 18.17,
+    "created_at": "2025-12-10 13:32:22"
+  },
+  {
+    "id": 117,
+    "PoleID": 1,
+    "waterlevel": 9.34,
+    "created_at": "2025-12-10 13:32:23"
+  },
+  {
+    "id": 118,
+    "PoleID": 2,
+    "waterlevel": 18.43,
+    "created_at": "2025-12-10 13:32:23"
+  },
+  {
+    "id": 119,
+    "PoleID": 1,
+    "waterlevel": 9.47,
+    "created_at": "2025-12-10 13:32:24"
+  },
+  {
+    "id": 120,
+    "PoleID": 2,
+    "waterlevel": 18.66,
+    "created_at": "2025-12-10 13:32:24"
+  },
+  {
+    "id": 121,
+    "PoleID": 1,
+    "waterlevel": 9.63,
+    "created_at": "2025-12-10 13:32:25"
+  },
+  {
+    "id": 122,
+    "PoleID": 2,
+    "waterlevel": 18.94,
+    "created_at": "2025-12-10 13:32:25"
+  },
+  {
+    "id": 123,
+    "PoleID": 1,
+    "waterlevel": 9.76,
+    "created_at": "2025-12-10 13:32:26"
+  },
+  {
+    "id": 124,
+    "PoleID": 2,
+    "waterlevel": 19.14,
+    "created_at": "2025-12-10 13:32:26"
+  },
+  {
+    "id": 125,
+    "PoleID": 1,
+    "waterlevel": 9.92,
+    "created_at": "2025-12-10 13:32:27"
+  },
+  {
+    "id": 126,
+    "PoleID": 2,
+    "waterlevel": 19.36,
+    "created_at": "2025-12-10 13:32:27"
+  },
+  {
+    "id": 127,
+    "PoleID": 1,
+    "waterlevel": 10.04,
+    "created_at": "2025-12-10 13:32:28"
+  },
+  {
+    "id": 128,
+    "PoleID": 2,
+    "waterlevel": 19.59,
+    "created_at": "2025-12-10 13:32:28"
+  },
+  {
+    "id": 129,
+    "PoleID": 1,
+    "waterlevel": 10.17,
+    "created_at": "2025-12-10 13:32:29"
+  },
+  {
+    "id": 130,
+    "PoleID": 2,
+    "waterlevel": 19.78,
+    "created_at": "2025-12-10 13:32:29"
+  },
+  {
+    "id": 131,
+    "PoleID": 1,
+    "waterlevel": 10.29,
+    "created_at": "2025-12-10 13:32:30"
+  },
+  {
+    "id": 132,
+    "PoleID": 2,
+    "waterlevel": 20.04,
+    "created_at": "2025-12-10 13:32:30"
+  },
+  {
+    "id": 133,
+    "PoleID": 1,
+    "waterlevel": 10.43,
+    "created_at": "2025-12-10 13:32:31"
+  },
+  {
+    "id": 134,
+    "PoleID": 2,
+    "waterlevel": 20.24,
+    "created_at": "2025-12-10 13:32:31"
+  },
+  {
+    "id": 135,
+    "PoleID": 1,
+    "waterlevel": 10.63,
+    "created_at": "2025-12-10 13:32:32"
+  },
+  {
+    "id": 136,
+    "PoleID": 2,
+    "waterlevel": 20.51,
+    "created_at": "2025-12-10 13:32:32"
+  },
+  {
+    "id": 137,
+    "PoleID": 1,
+    "waterlevel": 10.8,
+    "created_at": "2025-12-10 13:32:33"
+  },
+  {
+    "id": 138,
+    "PoleID": 2,
+    "waterlevel": 20.74,
+    "created_at": "2025-12-10 13:32:33"
+  },
+  {
+    "id": 139,
+    "PoleID": 1,
+    "waterlevel": 10.93,
+    "created_at": "2025-12-10 13:32:34"
+  },
+  {
+    "id": 140,
+    "PoleID": 2,
+    "waterlevel": 20.95,
+    "created_at": "2025-12-10 13:32:34"
+  },
+  {
+    "id": 141,
+    "PoleID": 1,
+    "waterlevel": 11.06,
+    "created_at": "2025-12-10 13:32:35"
+  },
+  {
+    "id": 142,
+    "PoleID": 2,
+    "waterlevel": 21.18,
+    "created_at": "2025-12-10 13:32:35"
+  },
+  {
+    "id": 143,
+    "PoleID": 1,
+    "waterlevel": 11.25,
+    "created_at": "2025-12-10 13:32:36"
+  },
+  {
+    "id": 144,
+    "PoleID": 2,
+    "waterlevel": 21.45,
+    "created_at": "2025-12-10 13:32:36"
+  },
+  {
+    "id": 145,
+    "PoleID": 1,
+    "waterlevel": 11.4,
+    "created_at": "2025-12-10 13:32:37"
+  },
+  {
+    "id": 146,
+    "PoleID": 2,
+    "waterlevel": 21.7,
+    "created_at": "2025-12-10 13:32:37"
+  },
+  {
+    "id": 147,
+    "PoleID": 1,
+    "waterlevel": 11.54,
+    "created_at": "2025-12-10 13:32:38"
+  },
+  {
+    "id": 148,
+    "PoleID": 2,
+    "waterlevel": 21.95,
+    "created_at": "2025-12-10 13:32:38"
+  },
+  {
+    "id": 149,
+    "PoleID": 1,
+    "waterlevel": 11.7,
+    "created_at": "2025-12-10 13:32:39"
+  },
+  {
+    "id": 150,
+    "PoleID": 2,
+    "waterlevel": 22.17,
+    "created_at": "2025-12-10 13:32:39"
+  },
+  {
+    "id": 151,
+    "PoleID": 1,
+    "waterlevel": 11.81,
+    "created_at": "2025-12-10 13:32:40"
+  },
+  {
+    "id": 152,
+    "PoleID": 2,
+    "waterlevel": 22.44,
+    "created_at": "2025-12-10 13:32:40"
+  },
+  {
+    "id": 153,
+    "PoleID": 1,
+    "waterlevel": 11.99,
+    "created_at": "2025-12-10 13:32:41"
+  },
+  {
+    "id": 154,
+    "PoleID": 2,
+    "waterlevel": 22.66,
+    "created_at": "2025-12-10 13:32:41"
+  },
+  {
+    "id": 155,
+    "PoleID": 1,
+    "waterlevel": 12.14,
+    "created_at": "2025-12-10 13:32:42"
+  },
+  {
+    "id": 156,
+    "PoleID": 2,
+    "waterlevel": 22.9,
+    "created_at": "2025-12-10 13:32:42"
+  },
+  {
+    "id": 157,
+    "PoleID": 1,
+    "waterlevel": 12.26,
+    "created_at": "2025-12-10 13:32:43"
+  },
+  {
+    "id": 158,
+    "PoleID": 2,
+    "waterlevel": 23.16,
+    "created_at": "2025-12-10 13:32:43"
+  },
+  {
+    "id": 159,
+    "PoleID": 1,
+    "waterlevel": 12.41,
+    "created_at": "2025-12-10 13:32:44"
+  },
+  {
+    "id": 160,
+    "PoleID": 2,
+    "waterlevel": 23.38,
+    "created_at": "2025-12-10 13:32:44"
+  },
+  {
+    "id": 161,
+    "PoleID": 1,
+    "waterlevel": 12.53,
+    "created_at": "2025-12-10 13:32:45"
+  },
+  {
+    "id": 162,
+    "PoleID": 2,
+    "waterlevel": 23.6,
+    "created_at": "2025-12-10 13:32:45"
+  },
+  {
+    "id": 163,
+    "PoleID": 1,
+    "waterlevel": 12.67,
+    "created_at": "2025-12-10 13:32:46"
+  },
+  {
+    "id": 164,
+    "PoleID": 2,
+    "waterlevel": 23.81,
+    "created_at": "2025-12-10 13:32:46"
+  },
+  {
+    "id": 165,
+    "PoleID": 1,
+    "waterlevel": 12.82,
+    "created_at": "2025-12-10 13:32:47"
+  },
+  {
+    "id": 166,
+    "PoleID": 2,
+    "waterlevel": 24.03,
+    "created_at": "2025-12-10 13:32:47"
+  },
+  {
+    "id": 167,
+    "PoleID": 1,
+    "waterlevel": 12.94,
+    "created_at": "2025-12-10 13:32:48"
+  },
+  {
+    "id": 168,
+    "PoleID": 2,
+    "waterlevel": 24.25,
+    "created_at": "2025-12-10 13:32:48"
+  },
+  {
+    "id": 169,
+    "PoleID": 1,
+    "waterlevel": 13.13,
+    "created_at": "2025-12-10 13:32:49"
+  },
+  {
+    "id": 170,
+    "PoleID": 2,
+    "waterlevel": 24.5,
+    "created_at": "2025-12-10 13:32:49"
+  },
+  {
+    "id": 171,
+    "PoleID": 1,
+    "waterlevel": 13.29,
+    "created_at": "2025-12-10 13:32:50"
+  },
+  {
+    "id": 172,
+    "PoleID": 2,
+    "waterlevel": 24.77,
+    "created_at": "2025-12-10 13:32:50"
+  },
+  {
+    "id": 173,
+    "PoleID": 1,
+    "waterlevel": 13.44,
+    "created_at": "2025-12-10 13:32:51"
+  },
+  {
+    "id": 174,
+    "PoleID": 2,
+    "waterlevel": 25.03,
+    "created_at": "2025-12-10 13:32:51"
+  },
+  {
+    "id": 175,
+    "PoleID": 1,
+    "waterlevel": 13.58,
+    "created_at": "2025-12-10 13:32:52"
+  },
+  {
+    "id": 176,
+    "PoleID": 2,
+    "waterlevel": 25.25,
+    "created_at": "2025-12-10 13:32:52"
+  },
+  {
+    "id": 177,
+    "PoleID": 1,
+    "waterlevel": 13.75,
+    "created_at": "2025-12-10 13:32:53"
+  },
+  {
+    "id": 178,
+    "PoleID": 2,
+    "waterlevel": 25.46,
+    "created_at": "2025-12-10 13:32:53"
+  },
+  {
+    "id": 179,
+    "PoleID": 1,
+    "waterlevel": 13.92,
+    "created_at": "2025-12-10 13:32:54"
+  },
+  {
+    "id": 180,
+    "PoleID": 2,
+    "waterlevel": 25.66,
+    "created_at": "2025-12-10 13:32:54"
+  },
+  {
+    "id": 181,
+    "PoleID": 1,
+    "waterlevel": 14.03,
+    "created_at": "2025-12-10 13:32:55"
+  },
+  {
+    "id": 182,
+    "PoleID": 2,
+    "waterlevel": 25.91,
+    "created_at": "2025-12-10 13:32:55"
+  },
+  {
+    "id": 183,
+    "PoleID": 1,
+    "waterlevel": 14.16,
+    "created_at": "2025-12-10 13:32:56"
+  },
+  {
+    "id": 184,
+    "PoleID": 2,
+    "waterlevel": 26.13,
+    "created_at": "2025-12-10 13:32:56"
+  },
+  {
+    "id": 185,
+    "PoleID": 1,
+    "waterlevel": 14.3,
+    "created_at": "2025-12-10 13:32:57"
+  },
+  {
+    "id": 186,
+    "PoleID": 2,
+    "waterlevel": 26.32,
+    "created_at": "2025-12-10 13:32:57"
+  },
+  {
+    "id": 187,
+    "PoleID": 1,
+    "waterlevel": 14.41,
+    "created_at": "2025-12-10 13:32:58"
+  },
+  {
+    "id": 188,
+    "PoleID": 2,
+    "waterlevel": 26.55,
+    "created_at": "2025-12-10 13:32:58"
+  },
+  {
+    "id": 189,
+    "PoleID": 1,
+    "waterlevel": 14.52,
+    "created_at": "2025-12-10 13:32:59"
+  },
+  {
+    "id": 190,
+    "PoleID": 2,
+    "waterlevel": 26.83,
+    "created_at": "2025-12-10 13:32:59"
+  },
+  {
+    "id": 191,
+    "PoleID": 1,
+    "waterlevel": 14.69,
+    "created_at": "2025-12-10 13:33:00"
+  },
+  {
+    "id": 192,
+    "PoleID": 2,
+    "waterlevel": 27.07,
+    "created_at": "2025-12-10 13:33:00"
+  },
+  {
+    "id": 193,
+    "PoleID": 1,
+    "waterlevel": 14.84,
+    "created_at": "2025-12-10 13:33:01"
+  },
+  {
+    "id": 194,
+    "PoleID": 2,
+    "waterlevel": 27.28,
+    "created_at": "2025-12-10 13:33:01"
+  },
+  {
+    "id": 195,
+    "PoleID": 1,
+    "waterlevel": 14.96,
+    "created_at": "2025-12-10 13:33:02"
+  },
+  {
+    "id": 196,
+    "PoleID": 2,
+    "waterlevel": 27.52,
+    "created_at": "2025-12-10 13:33:02"
+  },
+  {
+    "id": 197,
+    "PoleID": 1,
+    "waterlevel": 15.1,
+    "created_at": "2025-12-10 13:33:03"
+  },
+  {
+    "id": 198,
+    "PoleID": 2,
+    "waterlevel": 27.79,
+    "created_at": "2025-12-10 13:33:03"
+  },
+  {
+    "id": 199,
+    "PoleID": 1,
+    "waterlevel": 15.31,
+    "created_at": "2025-12-10 13:33:04"
+  },
+  {
+    "id": 200,
+    "PoleID": 2,
+    "waterlevel": 28.03,
+    "created_at": "2025-12-10 13:33:04"
+  },
+  {
+    "id": 201,
+    "PoleID": 1,
+    "waterlevel": 15.49,
+    "created_at": "2025-12-10 13:33:05"
+  },
+  {
+    "id": 202,
+    "PoleID": 2,
+    "waterlevel": 28.25,
+    "created_at": "2025-12-10 13:33:05"
+  },
+  {
+    "id": 203,
+    "PoleID": 1,
+    "waterlevel": 15.59,
+    "created_at": "2025-12-10 13:33:06"
+  },
+  {
+    "id": 204,
+    "PoleID": 2,
+    "waterlevel": 28.44,
+    "created_at": "2025-12-10 13:33:06"
+  },
+  {
+    "id": 205,
+    "PoleID": 1,
+    "waterlevel": 15.76,
+    "created_at": "2025-12-10 13:33:07"
+  },
+  {
+    "id": 206,
+    "PoleID": 2,
+    "waterlevel": 28.69,
+    "created_at": "2025-12-10 13:33:07"
+  },
+  {
+    "id": 207,
+    "PoleID": 1,
+    "waterlevel": 15.94,
+    "created_at": "2025-12-10 13:33:08"
+  },
+  {
+    "id": 208,
+    "PoleID": 2,
+    "waterlevel": 28.91,
+    "created_at": "2025-12-10 13:33:08"
+  },
+  {
+    "id": 209,
+    "PoleID": 1,
+    "waterlevel": 16.11,
+    "created_at": "2025-12-10 13:33:09"
+  },
+  {
+    "id": 210,
+    "PoleID": 2,
+    "waterlevel": 29.15,
+    "created_at": "2025-12-10 13:33:09"
+  },
+  {
+    "id": 211,
+    "PoleID": 1,
+    "waterlevel": 16.3,
+    "created_at": "2025-12-10 13:33:10"
+  },
+  {
+    "id": 212,
+    "PoleID": 2,
+    "waterlevel": 29.33,
+    "created_at": "2025-12-10 13:33:10"
+  },
+  {
+    "id": 213,
+    "PoleID": 1,
+    "waterlevel": 16.45,
+    "created_at": "2025-12-10 13:33:11"
+  },
+  {
+    "id": 214,
+    "PoleID": 2,
+    "waterlevel": 29.61,
+    "created_at": "2025-12-10 13:33:11"
+  },
+  {
+    "id": 215,
+    "PoleID": 1,
+    "waterlevel": 16.65,
+    "created_at": "2025-12-10 13:33:12"
+  },
+  {
+    "id": 216,
+    "PoleID": 2,
+    "waterlevel": 29.85,
+    "created_at": "2025-12-10 13:33:12"
+  },
+  {
+    "id": 217,
+    "PoleID": 1,
+    "waterlevel": 16.84,
+    "created_at": "2025-12-10 13:33:13"
+  },
+  {
+    "id": 218,
+    "PoleID": 2,
+    "waterlevel": 30.12,
+    "created_at": "2025-12-10 13:33:13"
+  },
+  {
+    "id": 219,
+    "PoleID": 1,
+    "waterlevel": 16.98,
+    "created_at": "2025-12-10 13:33:14"
+  },
+  {
+    "id": 220,
+    "PoleID": 2,
+    "waterlevel": 30.38,
+    "created_at": "2025-12-10 13:33:14"
+  },
+  {
+    "id": 221,
+    "PoleID": 1,
+    "waterlevel": 17.14,
+    "created_at": "2025-12-10 13:33:15"
+  },
+  {
+    "id": 222,
+    "PoleID": 2,
+    "waterlevel": 30.61,
+    "created_at": "2025-12-10 13:33:15"
+  },
+  {
+    "id": 223,
+    "PoleID": 1,
+    "waterlevel": 17.29,
+    "created_at": "2025-12-10 13:33:16"
+  },
+  {
+    "id": 224,
+    "PoleID": 2,
+    "waterlevel": 30.82,
+    "created_at": "2025-12-10 13:33:16"
+  },
+  {
+    "id": 225,
+    "PoleID": 1,
+    "waterlevel": 17.45,
+    "created_at": "2025-12-10 13:33:17"
+  },
+  {
+    "id": 226,
+    "PoleID": 2,
+    "waterlevel": 31.06,
+    "created_at": "2025-12-10 13:33:17"
+  },
+  {
+    "id": 227,
+    "PoleID": 1,
+    "waterlevel": 17.63,
+    "created_at": "2025-12-10 13:33:18"
+  },
+  {
+    "id": 228,
+    "PoleID": 2,
+    "waterlevel": 31.34,
+    "created_at": "2025-12-10 13:33:18"
+  },
+  {
+    "id": 229,
+    "PoleID": 1,
+    "waterlevel": 17.78,
+    "created_at": "2025-12-10 13:33:19"
+  },
+  {
+    "id": 230,
+    "PoleID": 2,
+    "waterlevel": 31.57,
+    "created_at": "2025-12-10 13:33:19"
+  },
+  {
+    "id": 231,
+    "PoleID": 1,
+    "waterlevel": 17.97,
+    "created_at": "2025-12-10 13:33:20"
+  },
+  {
+    "id": 232,
+    "PoleID": 2,
+    "waterlevel": 31.83,
+    "created_at": "2025-12-10 13:33:20"
+  },
+  {
+    "id": 233,
+    "PoleID": 1,
+    "waterlevel": 18.15,
+    "created_at": "2025-12-10 13:33:21"
+  },
+  {
+    "id": 234,
+    "PoleID": 2,
+    "waterlevel": 32.05,
+    "created_at": "2025-12-10 13:33:21"
+  },
+  {
+    "id": 235,
+    "PoleID": 1,
+    "waterlevel": 18.31,
+    "created_at": "2025-12-10 13:33:22"
+  },
+  {
+    "id": 236,
+    "PoleID": 2,
+    "waterlevel": 32.29,
+    "created_at": "2025-12-10 13:33:22"
+  },
+  {
+    "id": 237,
+    "PoleID": 1,
+    "waterlevel": 18.47,
+    "created_at": "2025-12-10 13:33:23"
+  },
+  {
+    "id": 238,
+    "PoleID": 2,
+    "waterlevel": 32.52,
+    "created_at": "2025-12-10 13:33:23"
+  },
+  {
+    "id": 239,
+    "PoleID": 1,
+    "waterlevel": 18.65,
+    "created_at": "2025-12-10 13:33:24"
+  },
+  {
+    "id": 240,
+    "PoleID": 2,
+    "waterlevel": 32.8,
+    "created_at": "2025-12-10 13:33:24"
+  },
+  {
+    "id": 241,
+    "PoleID": 1,
+    "waterlevel": 18.79,
+    "created_at": "2025-12-10 13:33:25"
+  },
+  {
+    "id": 242,
+    "PoleID": 2,
+    "waterlevel": 33.05,
+    "created_at": "2025-12-10 13:33:25"
+  },
+  {
+    "id": 243,
+    "PoleID": 1,
+    "waterlevel": 18.94,
+    "created_at": "2025-12-10 13:33:26"
+  },
+  {
+    "id": 244,
+    "PoleID": 2,
+    "waterlevel": 33.25,
+    "created_at": "2025-12-10 13:33:26"
+  },
+  {
+    "id": 245,
+    "PoleID": 1,
+    "waterlevel": 19.13,
+    "created_at": "2025-12-10 13:33:27"
+  },
+  {
+    "id": 246,
+    "PoleID": 2,
+    "waterlevel": 33.47,
+    "created_at": "2025-12-10 13:33:27"
+  },
+  {
+    "id": 247,
+    "PoleID": 1,
+    "waterlevel": 19.31,
+    "created_at": "2025-12-10 13:33:28"
+  },
+  {
+    "id": 248,
+    "PoleID": 2,
+    "waterlevel": 33.75,
+    "created_at": "2025-12-10 13:33:28"
+  },
+  {
+    "id": 249,
+    "PoleID": 1,
+    "waterlevel": 19.42,
+    "created_at": "2025-12-10 13:33:29"
+  },
+  {
+    "id": 250,
+    "PoleID": 2,
+    "waterlevel": 33.99,
+    "created_at": "2025-12-10 13:33:29"
+  },
+  {
+    "id": 251,
+    "PoleID": 1,
+    "waterlevel": 19.59,
+    "created_at": "2025-12-10 13:33:30"
+  },
+  {
+    "id": 252,
+    "PoleID": 2,
+    "waterlevel": 34.27,
+    "created_at": "2025-12-10 13:33:30"
+  },
+  {
+    "id": 253,
+    "PoleID": 1,
+    "waterlevel": 19.79,
+    "created_at": "2025-12-10 13:33:31"
+  },
+  {
+    "id": 254,
+    "PoleID": 2,
+    "waterlevel": 34.52,
+    "created_at": "2025-12-10 13:33:31"
+  },
+  {
+    "id": 255,
+    "PoleID": 1,
+    "waterlevel": 19.94,
+    "created_at": "2025-12-10 13:33:32"
+  },
+  {
+    "id": 256,
+    "PoleID": 2,
+    "waterlevel": 34.71,
+    "created_at": "2025-12-10 13:33:32"
+  },
+  {
+    "id": 257,
+    "PoleID": 1,
+    "waterlevel": 20.1,
+    "created_at": "2025-12-10 13:33:33"
+  },
+  {
+    "id": 258,
+    "PoleID": 2,
+    "waterlevel": 34.96,
+    "created_at": "2025-12-10 13:33:33"
+  },
+  {
+    "id": 259,
+    "PoleID": 1,
+    "waterlevel": 20.27,
+    "created_at": "2025-12-10 13:33:34"
+  },
+  {
+    "id": 260,
+    "PoleID": 2,
+    "waterlevel": 35.17,
+    "created_at": "2025-12-10 13:33:34"
+  },
+  {
+    "id": 261,
+    "PoleID": 1,
+    "waterlevel": 20.42,
+    "created_at": "2025-12-10 13:33:35"
+  },
+  {
+    "id": 262,
+    "PoleID": 2,
+    "waterlevel": 35.36,
+    "created_at": "2025-12-10 13:33:35"
+  },
+  {
+    "id": 263,
+    "PoleID": 1,
+    "waterlevel": 20.57,
+    "created_at": "2025-12-10 13:33:36"
+  },
+  {
+    "id": 264,
+    "PoleID": 2,
+    "waterlevel": 35.59,
+    "created_at": "2025-12-10 13:33:36"
+  },
+  {
+    "id": 265,
+    "PoleID": 1,
+    "waterlevel": 20.7,
+    "created_at": "2025-12-10 13:33:37"
+  },
+  {
+    "id": 266,
+    "PoleID": 2,
+    "waterlevel": 35.83,
+    "created_at": "2025-12-10 13:33:37"
+  },
+  {
+    "id": 267,
+    "PoleID": 1,
+    "waterlevel": 20.88,
+    "created_at": "2025-12-10 13:33:38"
+  },
+  {
+    "id": 268,
+    "PoleID": 2,
+    "waterlevel": 36.11,
+    "created_at": "2025-12-10 13:33:38"
+  },
+  {
+    "id": 269,
+    "PoleID": 1,
+    "waterlevel": 21.02,
+    "created_at": "2025-12-10 13:33:39"
+  },
+  {
+    "id": 270,
+    "PoleID": 2,
+    "waterlevel": 36.31,
+    "created_at": "2025-12-10 13:33:39"
+  },
+  {
+    "id": 271,
+    "PoleID": 1,
+    "waterlevel": 21.13,
+    "created_at": "2025-12-10 13:33:40"
+  },
+  {
+    "id": 272,
+    "PoleID": 2,
+    "waterlevel": 36.58,
+    "created_at": "2025-12-10 13:33:40"
+  },
+  {
+    "id": 273,
+    "PoleID": 1,
+    "waterlevel": 21.24,
+    "created_at": "2025-12-10 13:33:41"
+  },
+  {
+    "id": 274,
+    "PoleID": 2,
+    "waterlevel": 36.81,
+    "created_at": "2025-12-10 13:33:41"
+  },
+  {
+    "id": 275,
+    "PoleID": 1,
+    "waterlevel": 21.41,
+    "created_at": "2025-12-10 13:33:42"
+  },
+  {
+    "id": 276,
+    "PoleID": 2,
+    "waterlevel": 37.05,
+    "created_at": "2025-12-10 13:33:42"
+  },
+  {
+    "id": 277,
+    "PoleID": 1,
+    "waterlevel": 21.59,
+    "created_at": "2025-12-10 13:33:43"
+  },
+  {
+    "id": 278,
+    "PoleID": 2,
+    "waterlevel": 37.23,
+    "created_at": "2025-12-10 13:33:43"
+  },
+  {
+    "id": 279,
+    "PoleID": 1,
+    "waterlevel": 21.74,
+    "created_at": "2025-12-10 13:33:44"
+  },
+  {
+    "id": 280,
+    "PoleID": 2,
+    "waterlevel": 37.49,
+    "created_at": "2025-12-10 13:33:44"
+  },
+  {
+    "id": 281,
+    "PoleID": 1,
+    "waterlevel": 21.93,
+    "created_at": "2025-12-10 13:33:45"
+  },
+  {
+    "id": 282,
+    "PoleID": 2,
+    "waterlevel": 37.74,
+    "created_at": "2025-12-10 13:33:45"
+  },
+  {
+    "id": 283,
+    "PoleID": 1,
+    "waterlevel": 22.12,
+    "created_at": "2025-12-10 13:33:46"
+  },
+  {
+    "id": 284,
+    "PoleID": 2,
+    "waterlevel": 37.95,
+    "created_at": "2025-12-10 13:33:46"
+  },
+  {
+    "id": 285,
+    "PoleID": 1,
+    "waterlevel": 22.28,
+    "created_at": "2025-12-10 13:33:47"
+  },
+  {
+    "id": 286,
+    "PoleID": 2,
+    "waterlevel": 38.23,
+    "created_at": "2025-12-10 13:33:47"
+  },
+  {
+    "id": 287,
+    "PoleID": 1,
+    "waterlevel": 22.46,
+    "created_at": "2025-12-10 13:33:48"
+  },
+  {
+    "id": 288,
+    "PoleID": 2,
+    "waterlevel": 38.44,
+    "created_at": "2025-12-10 13:33:48"
+  },
+  {
+    "id": 289,
+    "PoleID": 1,
+    "waterlevel": 22.64,
+    "created_at": "2025-12-10 13:33:49"
+  },
+  {
+    "id": 290,
+    "PoleID": 2,
+    "waterlevel": 38.68,
+    "created_at": "2025-12-10 13:33:49"
+  },
+  {
+    "id": 291,
+    "PoleID": 1,
+    "waterlevel": 22.81,
+    "created_at": "2025-12-10 13:33:50"
+  },
+  {
+    "id": 292,
+    "PoleID": 2,
+    "waterlevel": 38.93,
+    "created_at": "2025-12-10 13:33:50"
+  },
+  {
+    "id": 293,
+    "PoleID": 1,
+    "waterlevel": 22.97,
+    "created_at": "2025-12-10 13:33:51"
+  },
+  {
+    "id": 294,
+    "PoleID": 2,
+    "waterlevel": 39.14,
+    "created_at": "2025-12-10 13:33:51"
+  },
+  {
+    "id": 295,
+    "PoleID": 1,
+    "waterlevel": 23.11,
+    "created_at": "2025-12-10 13:33:52"
+  },
+  {
+    "id": 296,
+    "PoleID": 2,
+    "waterlevel": 39.33,
+    "created_at": "2025-12-10 13:33:52"
+  },
+  {
+    "id": 297,
+    "PoleID": 1,
+    "waterlevel": 23.29,
+    "created_at": "2025-12-10 13:33:53"
+  },
+  {
+    "id": 298,
+    "PoleID": 2,
+    "waterlevel": 39.6,
+    "created_at": "2025-12-10 13:33:53"
+  },
+  {
+    "id": 299,
+    "PoleID": 1,
+    "waterlevel": 23.45,
+    "created_at": "2025-12-10 13:33:54"
+  },
+  {
+    "id": 300,
+    "PoleID": 2,
+    "waterlevel": 39.85,
+    "created_at": "2025-12-10 13:33:54"
+  },
+  {
+    "id": 301,
+    "PoleID": 1,
+    "waterlevel": 23.62,
+    "created_at": "2025-12-10 13:33:55"
+  },
+  {
+    "id": 302,
+    "PoleID": 2,
+    "waterlevel": 40.07,
+    "created_at": "2025-12-10 13:33:55"
+  },
+  {
+    "id": 303,
+    "PoleID": 1,
+    "waterlevel": 23.77,
+    "created_at": "2025-12-10 13:33:56"
+  },
+  {
+    "id": 304,
+    "PoleID": 2,
+    "waterlevel": 40.27,
+    "created_at": "2025-12-10 13:33:56"
+  },
+  {
+    "id": 305,
+    "PoleID": 1,
+    "waterlevel": 23.91,
+    "created_at": "2025-12-10 13:33:57"
+  },
+  {
+    "id": 306,
+    "PoleID": 2,
+    "waterlevel": 40.47,
+    "created_at": "2025-12-10 13:33:57"
+  },
+  {
+    "id": 307,
+    "PoleID": 1,
+    "waterlevel": 24.05,
+    "created_at": "2025-12-10 13:37:47"
+  },
+  {
+    "id": 308,
+    "PoleID": 2,
+    "waterlevel": 40.74,
+    "created_at": "2025-12-10 13:37:47"
+  },
+  {
+    "id": 309,
+    "PoleID": 1,
+    "waterlevel": 24.23,
+    "created_at": "2025-12-10 13:37:48"
+  },
+  {
+    "id": 310,
+    "PoleID": 2,
+    "waterlevel": 41.01,
+    "created_at": "2025-12-10 13:37:48"
+  },
+  {
+    "id": 311,
+    "PoleID": 1,
+    "waterlevel": 24.4,
+    "created_at": "2025-12-10 13:37:49"
+  },
+  {
+    "id": 312,
+    "PoleID": 2,
+    "waterlevel": 41.28,
+    "created_at": "2025-12-10 13:37:49"
+  },
+  {
+    "id": 313,
+    "PoleID": 1,
+    "waterlevel": 24.55,
+    "created_at": "2025-12-10 13:37:50"
+  },
+  {
+    "id": 314,
+    "PoleID": 2,
+    "waterlevel": 41.47,
+    "created_at": "2025-12-10 13:37:50"
+  },
+  {
+    "id": 315,
+    "PoleID": 1,
+    "waterlevel": 24.68,
+    "created_at": "2025-12-10 13:37:51"
+  },
+  {
+    "id": 316,
+    "PoleID": 2,
+    "waterlevel": 41.73,
+    "created_at": "2025-12-10 13:37:51"
+  },
+  {
+    "id": 317,
+    "PoleID": 1,
+    "waterlevel": 24.86,
+    "created_at": "2025-12-10 15:09:10"
+  },
+  {
+    "id": 318,
+    "PoleID": 2,
+    "waterlevel": 41.93,
+    "created_at": "2025-12-10 15:09:10"
+  },
+  {
+    "id": 319,
+    "PoleID": 1,
+    "waterlevel": 25.05,
+    "created_at": "2025-12-10 15:09:11"
+  },
+  {
+    "id": 320,
+    "PoleID": 2,
+    "waterlevel": 42.12,
+    "created_at": "2025-12-10 15:09:11"
+  },
+  {
+    "id": 321,
+    "PoleID": 1,
+    "waterlevel": 25.2,
+    "created_at": "2025-12-10 15:09:12"
+  },
+  {
+    "id": 322,
+    "PoleID": 2,
+    "waterlevel": 42.32,
+    "created_at": "2025-12-10 15:09:12"
+  },
+  {
+    "id": 323,
+    "PoleID": 1,
+    "waterlevel": 25.31,
+    "created_at": "2025-12-10 15:09:13"
+  },
+  {
+    "id": 324,
+    "PoleID": 2,
+    "waterlevel": 42.57,
+    "created_at": "2025-12-10 15:09:13"
+  },
+  {
+    "id": 325,
+    "PoleID": 1,
+    "waterlevel": 25.51,
+    "created_at": "2025-12-10 15:09:14"
+  },
+  {
+    "id": 326,
+    "PoleID": 2,
+    "waterlevel": 42.82,
+    "created_at": "2025-12-10 15:09:14"
+  },
+  {
+    "id": 327,
+    "PoleID": 1,
+    "waterlevel": 25.69,
+    "created_at": "2025-12-10 15:09:15"
+  },
+  {
+    "id": 328,
+    "PoleID": 2,
+    "waterlevel": 43.06,
+    "created_at": "2025-12-10 15:09:15"
+  },
+  {
+    "id": 329,
+    "PoleID": 1,
+    "waterlevel": 25.82,
+    "created_at": "2025-12-10 15:09:16"
+  },
+  {
+    "id": 330,
+    "PoleID": 2,
+    "waterlevel": 43.33,
+    "created_at": "2025-12-10 15:09:16"
+  },
+  {
+    "id": 331,
+    "PoleID": 1,
+    "waterlevel": 25.98,
+    "created_at": "2025-12-10 15:09:17"
+  },
+  {
+    "id": 332,
+    "PoleID": 2,
+    "waterlevel": 43.52,
+    "created_at": "2025-12-10 15:09:17"
+  },
+  {
+    "id": 333,
+    "PoleID": 1,
+    "waterlevel": 26.15,
+    "created_at": "2025-12-10 15:09:18"
+  },
+  {
+    "id": 334,
+    "PoleID": 2,
+    "waterlevel": 43.78,
+    "created_at": "2025-12-10 15:09:18"
+  },
+  {
+    "id": 335,
+    "PoleID": 1,
+    "waterlevel": 26.29,
+    "created_at": "2025-12-10 15:09:19"
+  },
+  {
+    "id": 336,
+    "PoleID": 2,
+    "waterlevel": 44.02,
+    "created_at": "2025-12-10 15:09:19"
+  },
+  {
+    "id": 337,
+    "PoleID": 1,
+    "waterlevel": 26.49,
+    "created_at": "2025-12-10 15:09:20"
+  },
+  {
+    "id": 338,
+    "PoleID": 2,
+    "waterlevel": 44.26,
+    "created_at": "2025-12-10 15:09:20"
+  },
+  {
+    "id": 339,
+    "PoleID": 1,
+    "waterlevel": 26.66,
+    "created_at": "2025-12-10 15:09:21"
+  },
+  {
+    "id": 340,
+    "PoleID": 2,
+    "waterlevel": 44.47,
+    "created_at": "2025-12-10 15:09:21"
+  },
+  {
+    "id": 341,
+    "PoleID": 1,
+    "waterlevel": 26.78,
+    "created_at": "2025-12-10 15:09:22"
+  },
+  {
+    "id": 342,
+    "PoleID": 2,
+    "waterlevel": 44.66,
+    "created_at": "2025-12-10 15:09:22"
+  },
+  {
+    "id": 343,
+    "PoleID": 1,
+    "waterlevel": 26.9,
+    "created_at": "2025-12-10 15:09:23"
+  },
+  {
+    "id": 344,
+    "PoleID": 2,
+    "waterlevel": 44.87,
+    "created_at": "2025-12-10 15:09:23"
+  },
+  {
+    "id": 345,
+    "PoleID": 1,
+    "waterlevel": 27.08,
+    "created_at": "2025-12-10 15:09:24"
+  },
+  {
+    "id": 346,
+    "PoleID": 2,
+    "waterlevel": 45.15,
+    "created_at": "2025-12-10 15:09:24"
+  },
+  {
+    "id": 347,
+    "PoleID": 1,
+    "waterlevel": 27.25,
+    "created_at": "2025-12-10 15:09:25"
+  },
+  {
+    "id": 348,
+    "PoleID": 2,
+    "waterlevel": 45.43,
+    "created_at": "2025-12-10 15:09:25"
+  },
+  {
+    "id": 349,
+    "PoleID": 1,
+    "waterlevel": 27.43,
+    "created_at": "2025-12-10 15:09:26"
+  },
+  {
+    "id": 350,
+    "PoleID": 2,
+    "waterlevel": 45.7,
+    "created_at": "2025-12-10 15:09:26"
+  },
+  {
+    "id": 351,
+    "PoleID": 1,
+    "waterlevel": 27.55,
+    "created_at": "2025-12-10 15:09:27"
+  },
+  {
+    "id": 352,
+    "PoleID": 2,
+    "waterlevel": 45.95,
+    "created_at": "2025-12-10 15:09:27"
+  },
+  {
+    "id": 353,
+    "PoleID": 1,
+    "waterlevel": 27.66,
+    "created_at": "2025-12-10 15:09:28"
+  },
+  {
+    "id": 354,
+    "PoleID": 2,
+    "waterlevel": 46.21,
+    "created_at": "2025-12-10 15:09:28"
+  },
+  {
+    "id": 355,
+    "PoleID": 1,
+    "waterlevel": 27.77,
+    "created_at": "2025-12-10 15:09:29"
+  },
+  {
+    "id": 356,
+    "PoleID": 2,
+    "waterlevel": 46.4,
+    "created_at": "2025-12-10 15:09:29"
+  },
+  {
+    "id": 357,
+    "PoleID": 1,
+    "waterlevel": 27.91,
+    "created_at": "2025-12-10 15:09:30"
+  },
+  {
+    "id": 358,
+    "PoleID": 2,
+    "waterlevel": 46.58,
+    "created_at": "2025-12-10 15:09:30"
+  },
+  {
+    "id": 359,
+    "PoleID": 1,
+    "waterlevel": 28.08,
+    "created_at": "2025-12-10 15:09:31"
+  },
+  {
+    "id": 360,
+    "PoleID": 2,
+    "waterlevel": 46.85,
+    "created_at": "2025-12-10 15:09:31"
+  },
+  {
+    "id": 361,
+    "PoleID": 1,
+    "waterlevel": 28.21,
+    "created_at": "2025-12-10 15:09:32"
+  },
+  {
+    "id": 362,
+    "PoleID": 2,
+    "waterlevel": 47.03,
+    "created_at": "2025-12-10 15:09:32"
+  },
+  {
+    "id": 363,
+    "PoleID": 1,
+    "waterlevel": 28.41,
+    "created_at": "2025-12-10 15:09:33"
+  },
+  {
+    "id": 364,
+    "PoleID": 2,
+    "waterlevel": 47.3,
+    "created_at": "2025-12-10 15:09:33"
+  },
+  {
+    "id": 365,
+    "PoleID": 1,
+    "waterlevel": 28.59,
+    "created_at": "2025-12-10 15:09:34"
+  },
+  {
+    "id": 366,
+    "PoleID": 2,
+    "waterlevel": 47.5,
+    "created_at": "2025-12-10 15:09:34"
+  },
+  {
+    "id": 367,
+    "PoleID": 1,
+    "waterlevel": 28.78,
+    "created_at": "2025-12-10 15:09:36"
+  },
+  {
+    "id": 368,
+    "PoleID": 2,
+    "waterlevel": 47.76,
+    "created_at": "2025-12-10 15:09:36"
+  },
+  {
+    "id": 369,
+    "PoleID": 1,
+    "waterlevel": 28.94,
+    "created_at": "2025-12-10 15:09:37"
+  },
+  {
+    "id": 370,
+    "PoleID": 2,
+    "waterlevel": 48.02,
+    "created_at": "2025-12-10 15:09:37"
+  },
+  {
+    "id": 371,
+    "PoleID": 1,
+    "waterlevel": 29.1,
+    "created_at": "2025-12-10 15:09:38"
+  },
+  {
+    "id": 372,
+    "PoleID": 2,
+    "waterlevel": 48.27,
+    "created_at": "2025-12-10 15:09:38"
+  },
+  {
+    "id": 373,
+    "PoleID": 1,
+    "waterlevel": 29.26,
+    "created_at": "2025-12-10 15:09:39"
+  },
+  {
+    "id": 374,
+    "PoleID": 2,
+    "waterlevel": 48.5,
+    "created_at": "2025-12-10 15:09:39"
+  },
+  {
+    "id": 375,
+    "PoleID": 1,
+    "waterlevel": 29.39,
+    "created_at": "2025-12-10 15:09:40"
+  },
+  {
+    "id": 376,
+    "PoleID": 2,
+    "waterlevel": 48.69,
+    "created_at": "2025-12-10 15:09:40"
+  },
+  {
+    "id": 377,
+    "PoleID": 1,
+    "waterlevel": 29.56,
+    "created_at": "2025-12-10 15:09:41"
+  },
+  {
+    "id": 378,
+    "PoleID": 2,
+    "waterlevel": 48.93,
+    "created_at": "2025-12-10 15:09:41"
+  },
+  {
+    "id": 379,
+    "PoleID": 1,
+    "waterlevel": 29.76,
+    "created_at": "2025-12-10 15:09:42"
+  },
+  {
+    "id": 380,
+    "PoleID": 2,
+    "waterlevel": 49.19,
+    "created_at": "2025-12-10 15:09:42"
+  },
+  {
+    "id": 381,
+    "PoleID": 1,
+    "waterlevel": 29.95,
+    "created_at": "2025-12-10 15:09:43"
+  },
+  {
+    "id": 382,
+    "PoleID": 2,
+    "waterlevel": 49.4,
+    "created_at": "2025-12-10 15:09:43"
+  },
+  {
+    "id": 383,
+    "PoleID": 1,
+    "waterlevel": 30.14,
+    "created_at": "2025-12-10 15:09:44"
+  },
+  {
+    "id": 384,
+    "PoleID": 2,
+    "waterlevel": 49.63,
+    "created_at": "2025-12-10 15:09:44"
+  },
+  {
+    "id": 385,
+    "PoleID": 1,
+    "waterlevel": 30.25,
+    "created_at": "2025-12-10 15:09:45"
+  },
+  {
+    "id": 386,
+    "PoleID": 2,
+    "waterlevel": 49.82,
+    "created_at": "2025-12-10 15:09:45"
+  },
+  {
+    "id": 387,
+    "PoleID": 1,
+    "waterlevel": 30.43,
+    "created_at": "2025-12-10 15:09:46"
+  },
+  {
+    "id": 388,
+    "PoleID": 2,
+    "waterlevel": 50.08,
+    "created_at": "2025-12-10 15:09:46"
+  },
+  {
+    "id": 389,
+    "PoleID": 1,
+    "waterlevel": 30.54,
+    "created_at": "2025-12-10 15:09:47"
+  },
+  {
+    "id": 390,
+    "PoleID": 2,
+    "waterlevel": 50.34,
+    "created_at": "2025-12-10 15:09:47"
+  },
+  {
+    "id": 391,
+    "PoleID": 1,
+    "waterlevel": 30.73,
+    "created_at": "2025-12-10 15:09:48"
+  },
+  {
+    "id": 392,
+    "PoleID": 2,
+    "waterlevel": 50.61,
+    "created_at": "2025-12-10 15:09:48"
+  },
+  {
+    "id": 393,
+    "PoleID": 1,
+    "waterlevel": 30.87,
+    "created_at": "2025-12-10 15:09:49"
+  },
+  {
+    "id": 394,
+    "PoleID": 2,
+    "waterlevel": 50.8,
+    "created_at": "2025-12-10 15:09:49"
+  },
+  {
+    "id": 395,
+    "PoleID": 1,
+    "waterlevel": 31.02,
+    "created_at": "2025-12-10 15:09:50"
+  },
+  {
+    "id": 396,
+    "PoleID": 2,
+    "waterlevel": 51.06,
+    "created_at": "2025-12-10 15:09:50"
+  },
+  {
+    "id": 397,
+    "PoleID": 1,
+    "waterlevel": 31.14,
+    "created_at": "2025-12-10 15:09:51"
+  },
+  {
+    "id": 398,
+    "PoleID": 2,
+    "waterlevel": 51.3,
+    "created_at": "2025-12-10 15:09:51"
+  },
+  {
+    "id": 399,
+    "PoleID": 1,
+    "waterlevel": 31.29,
+    "created_at": "2025-12-10 15:09:52"
+  },
+  {
+    "id": 400,
+    "PoleID": 2,
+    "waterlevel": 51.51,
+    "created_at": "2025-12-10 15:09:52"
+  },
+  {
+    "id": 401,
+    "PoleID": 1,
+    "waterlevel": 31.47,
+    "created_at": "2025-12-10 15:09:53"
+  },
+  {
+    "id": 402,
+    "PoleID": 2,
+    "waterlevel": 51.75,
+    "created_at": "2025-12-10 15:09:53"
+  },
+  {
+    "id": 403,
+    "PoleID": 1,
+    "waterlevel": 31.66,
+    "created_at": "2025-12-10 15:09:54"
+  },
+  {
+    "id": 404,
+    "PoleID": 2,
+    "waterlevel": 51.99,
+    "created_at": "2025-12-10 15:09:54"
+  },
+  {
+    "id": 405,
+    "PoleID": 1,
+    "waterlevel": 31.77,
+    "created_at": "2025-12-10 15:09:55"
+  },
+  {
+    "id": 406,
+    "PoleID": 2,
+    "waterlevel": 52.26,
+    "created_at": "2025-12-10 15:09:55"
+  },
+  {
+    "id": 407,
+    "PoleID": 1,
+    "waterlevel": 31.95,
+    "created_at": "2025-12-10 15:09:56"
+  },
+  {
+    "id": 408,
+    "PoleID": 2,
+    "waterlevel": 52.5,
+    "created_at": "2025-12-10 15:09:56"
+  },
+  {
+    "id": 409,
+    "PoleID": 1,
+    "waterlevel": 32.13,
+    "created_at": "2025-12-10 15:09:57"
+  },
+  {
+    "id": 410,
+    "PoleID": 2,
+    "waterlevel": 52.69,
+    "created_at": "2025-12-10 15:09:57"
+  },
+  {
+    "id": 411,
+    "PoleID": 1,
+    "waterlevel": 32.24,
+    "created_at": "2025-12-10 15:09:58"
+  },
+  {
+    "id": 412,
+    "PoleID": 2,
+    "waterlevel": 52.96,
+    "created_at": "2025-12-10 15:09:58"
+  },
+  {
+    "id": 413,
+    "PoleID": 1,
+    "waterlevel": 32.35,
+    "created_at": "2025-12-10 15:09:59"
+  },
+  {
+    "id": 414,
+    "PoleID": 2,
+    "waterlevel": 53.18,
+    "created_at": "2025-12-10 15:09:59"
+  },
+  {
+    "id": 415,
+    "PoleID": 1,
+    "waterlevel": 32.51,
+    "created_at": "2025-12-10 15:10:00"
+  },
+  {
+    "id": 416,
+    "PoleID": 2,
+    "waterlevel": 53.4,
+    "created_at": "2025-12-10 15:10:00"
+  },
+  {
+    "id": 417,
+    "PoleID": 1,
+    "waterlevel": 32.72,
+    "created_at": "2025-12-10 15:10:01"
+  },
+  {
+    "id": 418,
+    "PoleID": 2,
+    "waterlevel": 53.6,
+    "created_at": "2025-12-10 15:10:01"
+  },
+  {
+    "id": 419,
+    "PoleID": 1,
+    "waterlevel": 32.91,
+    "created_at": "2025-12-10 15:10:02"
+  },
+  {
+    "id": 420,
+    "PoleID": 2,
+    "waterlevel": 53.87,
+    "created_at": "2025-12-10 15:10:02"
+  },
+  {
+    "id": 421,
+    "PoleID": 1,
+    "waterlevel": 33.07,
+    "created_at": "2025-12-10 15:10:03"
+  },
+  {
+    "id": 422,
+    "PoleID": 2,
+    "waterlevel": 54.07,
+    "created_at": "2025-12-10 15:10:03"
+  },
+  {
+    "id": 423,
+    "PoleID": 1,
+    "waterlevel": 33.22,
+    "created_at": "2025-12-10 15:10:04"
+  },
+  {
+    "id": 424,
+    "PoleID": 2,
+    "waterlevel": 54.31,
+    "created_at": "2025-12-10 15:10:04"
+  },
+  {
+    "id": 425,
+    "PoleID": 1,
+    "waterlevel": 33.34,
+    "created_at": "2025-12-10 15:10:05"
+  },
+  {
+    "id": 426,
+    "PoleID": 2,
+    "waterlevel": 54.54,
+    "created_at": "2025-12-10 15:10:05"
+  },
+  {
+    "id": 427,
+    "PoleID": 1,
+    "waterlevel": 33.5,
+    "created_at": "2025-12-10 15:10:06"
+  },
+  {
+    "id": 428,
+    "PoleID": 2,
+    "waterlevel": 54.79,
+    "created_at": "2025-12-10 15:10:06"
+  },
+  {
+    "id": 429,
+    "PoleID": 1,
+    "waterlevel": 33.66,
+    "created_at": "2025-12-10 15:10:07"
+  },
+  {
+    "id": 430,
+    "PoleID": 2,
+    "waterlevel": 55.01,
+    "created_at": "2025-12-10 15:10:07"
+  },
+  {
+    "id": 431,
+    "PoleID": 1,
+    "waterlevel": 33.85,
+    "created_at": "2025-12-10 15:10:08"
+  },
+  {
+    "id": 432,
+    "PoleID": 2,
+    "waterlevel": 54.8,
+    "created_at": "2025-12-10 15:10:08"
+  },
+  {
+    "id": 433,
+    "PoleID": 1,
+    "waterlevel": 33.98,
+    "created_at": "2025-12-10 15:10:09"
+  },
+  {
+    "id": 434,
+    "PoleID": 2,
+    "waterlevel": 54.52,
+    "created_at": "2025-12-10 15:10:09"
+  },
+  {
+    "id": 435,
+    "PoleID": 1,
+    "waterlevel": 34.11,
+    "created_at": "2025-12-10 15:10:10"
+  },
+  {
+    "id": 436,
+    "PoleID": 2,
+    "waterlevel": 54.28,
+    "created_at": "2025-12-10 15:10:10"
+  },
+  {
+    "id": 437,
+    "PoleID": 1,
+    "waterlevel": 34.27,
+    "created_at": "2025-12-10 15:10:11"
+  },
+  {
+    "id": 438,
+    "PoleID": 2,
+    "waterlevel": 54.0,
+    "created_at": "2025-12-10 15:10:11"
+  },
+  {
+    "id": 439,
+    "PoleID": 1,
+    "waterlevel": 34.44,
+    "created_at": "2025-12-10 15:10:12"
+  },
+  {
+    "id": 440,
+    "PoleID": 2,
+    "waterlevel": 53.81,
+    "created_at": "2025-12-10 15:10:12"
+  },
+  {
+    "id": 441,
+    "PoleID": 1,
+    "waterlevel": 34.57,
+    "created_at": "2025-12-10 15:10:13"
+  },
+  {
+    "id": 442,
+    "PoleID": 2,
+    "waterlevel": 53.54,
+    "created_at": "2025-12-10 15:10:13"
+  },
+  {
+    "id": 443,
+    "PoleID": 1,
+    "waterlevel": 34.71,
+    "created_at": "2025-12-10 15:10:14"
+  },
+  {
+    "id": 444,
+    "PoleID": 2,
+    "waterlevel": 53.34,
+    "created_at": "2025-12-10 15:10:14"
+  },
+  {
+    "id": 445,
+    "PoleID": 1,
+    "waterlevel": 34.85,
+    "created_at": "2025-12-10 15:10:15"
+  },
+  {
+    "id": 446,
+    "PoleID": 2,
+    "waterlevel": 53.07,
+    "created_at": "2025-12-10 15:10:15"
+  },
+  {
+    "id": 447,
+    "PoleID": 1,
+    "waterlevel": 35.06,
+    "created_at": "2025-12-10 15:10:16"
+  },
+  {
+    "id": 448,
+    "PoleID": 2,
+    "waterlevel": 52.85,
+    "created_at": "2025-12-10 15:10:16"
+  },
+  {
+    "id": 449,
+    "PoleID": 1,
+    "waterlevel": 35.16,
+    "created_at": "2025-12-10 15:10:17"
+  },
+  {
+    "id": 450,
+    "PoleID": 2,
+    "waterlevel": 52.61,
+    "created_at": "2025-12-10 15:10:17"
+  },
+  {
+    "id": 451,
+    "PoleID": 1,
+    "waterlevel": 35.34,
+    "created_at": "2025-12-10 15:10:18"
+  },
+  {
+    "id": 452,
+    "PoleID": 2,
+    "waterlevel": 52.42,
+    "created_at": "2025-12-10 15:10:18"
+  },
+  {
+    "id": 453,
+    "PoleID": 1,
+    "waterlevel": 35.48,
+    "created_at": "2025-12-10 15:10:19"
+  },
+  {
+    "id": 454,
+    "PoleID": 2,
+    "waterlevel": 52.23,
+    "created_at": "2025-12-10 15:10:19"
+  },
+  {
+    "id": 455,
+    "PoleID": 1,
+    "waterlevel": 35.65,
+    "created_at": "2025-12-10 15:10:20"
+  },
+  {
+    "id": 456,
+    "PoleID": 2,
+    "waterlevel": 52.01,
+    "created_at": "2025-12-10 15:10:20"
+  },
+  {
+    "id": 457,
+    "PoleID": 1,
+    "waterlevel": 35.84,
+    "created_at": "2025-12-10 15:10:21"
+  },
+  {
+    "id": 458,
+    "PoleID": 2,
+    "waterlevel": 51.79,
+    "created_at": "2025-12-10 15:10:21"
+  },
+  {
+    "id": 459,
+    "PoleID": 1,
+    "waterlevel": 36.0,
+    "created_at": "2025-12-10 15:10:22"
+  },
+  {
+    "id": 460,
+    "PoleID": 2,
+    "waterlevel": 51.56,
+    "created_at": "2025-12-10 15:10:22"
+  },
+  {
+    "id": 461,
+    "PoleID": 1,
+    "waterlevel": 36.12,
+    "created_at": "2025-12-10 15:10:23"
+  },
+  {
+    "id": 462,
+    "PoleID": 2,
+    "waterlevel": 51.36,
+    "created_at": "2025-12-10 15:10:23"
+  },
+  {
+    "id": 463,
+    "PoleID": 1,
+    "waterlevel": 36.28,
+    "created_at": "2025-12-10 15:10:24"
+  },
+  {
+    "id": 464,
+    "PoleID": 2,
+    "waterlevel": 51.15,
+    "created_at": "2025-12-10 15:10:24"
+  },
+  {
+    "id": 465,
+    "PoleID": 1,
+    "waterlevel": 36.47,
+    "created_at": "2025-12-10 15:10:25"
+  },
+  {
+    "id": 466,
+    "PoleID": 2,
+    "waterlevel": 50.95,
+    "created_at": "2025-12-10 15:10:25"
+  },
+  {
+    "id": 467,
+    "PoleID": 1,
+    "waterlevel": 36.64,
+    "created_at": "2025-12-10 15:10:26"
+  },
+  {
+    "id": 468,
+    "PoleID": 2,
+    "waterlevel": 50.75,
+    "created_at": "2025-12-10 15:10:26"
+  },
+  {
+    "id": 469,
+    "PoleID": 1,
+    "waterlevel": 36.81,
+    "created_at": "2025-12-10 15:10:27"
+  },
+  {
+    "id": 470,
+    "PoleID": 2,
+    "waterlevel": 50.48,
+    "created_at": "2025-12-10 15:10:27"
+  },
+  {
+    "id": 471,
+    "PoleID": 1,
+    "waterlevel": 36.97,
+    "created_at": "2025-12-10 15:10:28"
+  },
+  {
+    "id": 472,
+    "PoleID": 2,
+    "waterlevel": 50.25,
+    "created_at": "2025-12-10 15:10:28"
+  },
+  {
+    "id": 473,
+    "PoleID": 1,
+    "waterlevel": 37.14,
+    "created_at": "2025-12-10 15:10:29"
+  },
+  {
+    "id": 474,
+    "PoleID": 2,
+    "waterlevel": 50.05,
+    "created_at": "2025-12-10 15:10:29"
+  },
+  {
+    "id": 475,
+    "PoleID": 1,
+    "waterlevel": 37.25,
+    "created_at": "2025-12-10 15:10:30"
+  },
+  {
+    "id": 476,
+    "PoleID": 2,
+    "waterlevel": 49.81,
+    "created_at": "2025-12-10 15:10:30"
+  },
+  {
+    "id": 477,
+    "PoleID": 1,
+    "waterlevel": 37.38,
+    "created_at": "2025-12-10 15:10:31"
+  },
+  {
+    "id": 478,
+    "PoleID": 2,
+    "waterlevel": 49.55,
+    "created_at": "2025-12-10 15:10:31"
+  },
+  {
+    "id": 479,
+    "PoleID": 1,
+    "waterlevel": 37.58,
+    "created_at": "2025-12-10 15:10:32"
+  },
+  {
+    "id": 480,
+    "PoleID": 2,
+    "waterlevel": 49.3,
+    "created_at": "2025-12-10 15:10:32"
+  },
+  {
+    "id": 481,
+    "PoleID": 1,
+    "waterlevel": 37.75,
+    "created_at": "2025-12-10 15:10:33"
+  },
+  {
+    "id": 482,
+    "PoleID": 2,
+    "waterlevel": 49.05,
+    "created_at": "2025-12-10 15:10:33"
+  },
+  {
+    "id": 483,
+    "PoleID": 1,
+    "waterlevel": 37.86,
+    "created_at": "2025-12-10 15:10:34"
+  },
+  {
+    "id": 484,
+    "PoleID": 2,
+    "waterlevel": 48.83,
+    "created_at": "2025-12-10 15:10:34"
+  },
+  {
+    "id": 485,
+    "PoleID": 1,
+    "waterlevel": 38.06,
+    "created_at": "2025-12-10 15:10:35"
+  },
+  {
+    "id": 486,
+    "PoleID": 2,
+    "waterlevel": 48.58,
+    "created_at": "2025-12-10 15:10:35"
+  },
+  {
+    "id": 487,
+    "PoleID": 1,
+    "waterlevel": 38.17,
+    "created_at": "2025-12-10 15:10:36"
+  },
+  {
+    "id": 488,
+    "PoleID": 2,
+    "waterlevel": 48.38,
+    "created_at": "2025-12-10 15:10:36"
+  },
+  {
+    "id": 489,
+    "PoleID": 1,
+    "waterlevel": 38.36,
+    "created_at": "2025-12-10 15:10:37"
+  },
+  {
+    "id": 490,
+    "PoleID": 2,
+    "waterlevel": 48.15,
+    "created_at": "2025-12-10 15:10:37"
+  },
+  {
+    "id": 491,
+    "PoleID": 1,
+    "waterlevel": 38.54,
+    "created_at": "2025-12-10 15:10:38"
+  },
+  {
+    "id": 492,
+    "PoleID": 2,
+    "waterlevel": 47.95,
+    "created_at": "2025-12-10 15:10:38"
+  },
+  {
+    "id": 493,
+    "PoleID": 1,
+    "waterlevel": 38.73,
+    "created_at": "2025-12-10 15:10:39"
+  },
+  {
+    "id": 494,
+    "PoleID": 2,
+    "waterlevel": 47.68,
+    "created_at": "2025-12-10 15:10:39"
+  },
+  {
+    "id": 495,
+    "PoleID": 1,
+    "waterlevel": 38.92,
+    "created_at": "2025-12-10 15:10:40"
+  },
+  {
+    "id": 496,
+    "PoleID": 2,
+    "waterlevel": 47.42,
+    "created_at": "2025-12-10 15:10:40"
+  },
+  {
+    "id": 497,
+    "PoleID": 1,
+    "waterlevel": 39.11,
+    "created_at": "2025-12-10 15:10:41"
+  },
+  {
+    "id": 498,
+    "PoleID": 2,
+    "waterlevel": 47.15,
+    "created_at": "2025-12-10 15:10:41"
+  },
+  {
+    "id": 499,
+    "PoleID": 1,
+    "waterlevel": 39.26,
+    "created_at": "2025-12-10 15:10:42"
+  },
+  {
+    "id": 500,
+    "PoleID": 2,
+    "waterlevel": 46.93,
+    "created_at": "2025-12-10 15:10:42"
+  },
+  {
+    "id": 501,
+    "PoleID": 1,
+    "waterlevel": 39.36,
+    "created_at": "2025-12-10 15:10:43"
+  },
+  {
+    "id": 502,
+    "PoleID": 2,
+    "waterlevel": 46.68,
+    "created_at": "2025-12-10 15:10:43"
+  },
+  {
+    "id": 503,
+    "PoleID": 1,
+    "waterlevel": 39.54,
+    "created_at": "2025-12-10 15:10:44"
+  },
+  {
+    "id": 504,
+    "PoleID": 2,
+    "waterlevel": 46.42,
+    "created_at": "2025-12-10 15:10:44"
+  },
+  {
+    "id": 505,
+    "PoleID": 1,
+    "waterlevel": 39.68,
+    "created_at": "2025-12-10 15:10:45"
+  },
+  {
+    "id": 506,
+    "PoleID": 2,
+    "waterlevel": 46.2,
+    "created_at": "2025-12-10 15:10:45"
+  },
+  {
+    "id": 507,
+    "PoleID": 1,
+    "waterlevel": 39.83,
+    "created_at": "2025-12-10 15:10:46"
+  },
+  {
+    "id": 508,
+    "PoleID": 2,
+    "waterlevel": 45.93,
+    "created_at": "2025-12-10 15:10:46"
+  },
+  {
+    "id": 509,
+    "PoleID": 1,
+    "waterlevel": 39.95,
+    "created_at": "2025-12-10 15:10:47"
+  },
+  {
+    "id": 510,
+    "PoleID": 2,
+    "waterlevel": 45.67,
+    "created_at": "2025-12-10 15:10:47"
+  },
+  {
+    "id": 511,
+    "PoleID": 1,
+    "waterlevel": 40.15,
+    "created_at": "2025-12-10 15:10:48"
+  },
+  {
+    "id": 512,
+    "PoleID": 2,
+    "waterlevel": 45.42,
+    "created_at": "2025-12-10 15:10:48"
+  },
+  {
+    "id": 513,
+    "PoleID": 1,
+    "waterlevel": 40.26,
+    "created_at": "2025-12-10 15:10:49"
+  },
+  {
+    "id": 514,
+    "PoleID": 2,
+    "waterlevel": 45.17,
+    "created_at": "2025-12-10 15:10:49"
+  },
+  {
+    "id": 515,
+    "PoleID": 1,
+    "waterlevel": 40.37,
+    "created_at": "2025-12-10 15:10:50"
+  },
+  {
+    "id": 516,
+    "PoleID": 2,
+    "waterlevel": 44.9,
+    "created_at": "2025-12-10 15:10:50"
+  },
+  {
+    "id": 517,
+    "PoleID": 1,
+    "waterlevel": 40.49,
+    "created_at": "2025-12-10 15:10:51"
+  },
+  {
+    "id": 518,
+    "PoleID": 2,
+    "waterlevel": 44.7,
+    "created_at": "2025-12-10 15:10:51"
+  },
+  {
+    "id": 519,
+    "PoleID": 1,
+    "waterlevel": 40.66,
+    "created_at": "2025-12-10 15:10:52"
+  },
+  {
+    "id": 520,
+    "PoleID": 2,
+    "waterlevel": 44.45,
+    "created_at": "2025-12-10 15:10:52"
+  },
+  {
+    "id": 521,
+    "PoleID": 1,
+    "waterlevel": 40.8,
+    "created_at": "2025-12-10 15:10:53"
+  },
+  {
+    "id": 522,
+    "PoleID": 2,
+    "waterlevel": 44.25,
+    "created_at": "2025-12-10 15:10:53"
+  },
+  {
+    "id": 523,
+    "PoleID": 1,
+    "waterlevel": 40.91,
+    "created_at": "2025-12-10 15:10:54"
+  },
+  {
+    "id": 524,
+    "PoleID": 2,
+    "waterlevel": 44.02,
+    "created_at": "2025-12-10 15:10:54"
+  },
+  {
+    "id": 525,
+    "PoleID": 1,
+    "waterlevel": 41.06,
+    "created_at": "2025-12-10 15:10:55"
+  },
+  {
+    "id": 526,
+    "PoleID": 2,
+    "waterlevel": 43.81,
+    "created_at": "2025-12-10 15:10:55"
+  },
+  {
+    "id": 527,
+    "PoleID": 1,
+    "waterlevel": 41.26,
+    "created_at": "2025-12-10 15:10:56"
+  },
+  {
+    "id": 528,
+    "PoleID": 2,
+    "waterlevel": 43.53,
+    "created_at": "2025-12-10 15:10:56"
+  },
+  {
+    "id": 529,
+    "PoleID": 1,
+    "waterlevel": 41.45,
+    "created_at": "2025-12-10 15:10:57"
+  },
+  {
+    "id": 530,
+    "PoleID": 2,
+    "waterlevel": 43.3,
+    "created_at": "2025-12-10 15:10:57"
+  },
+  {
+    "id": 531,
+    "PoleID": 1,
+    "waterlevel": 41.65,
+    "created_at": "2025-12-10 15:10:58"
+  },
+  {
+    "id": 532,
+    "PoleID": 2,
+    "waterlevel": 43.04,
+    "created_at": "2025-12-10 15:10:58"
+  },
+  {
+    "id": 533,
+    "PoleID": 1,
+    "waterlevel": 41.8,
+    "created_at": "2025-12-10 15:10:59"
+  },
+  {
+    "id": 534,
+    "PoleID": 2,
+    "waterlevel": 42.79,
+    "created_at": "2025-12-10 15:10:59"
+  },
+  {
+    "id": 535,
+    "PoleID": 1,
+    "waterlevel": 41.91,
+    "created_at": "2025-12-10 15:11:00"
+  },
+  {
+    "id": 536,
+    "PoleID": 2,
+    "waterlevel": 42.56,
+    "created_at": "2025-12-10 15:11:00"
+  },
+  {
+    "id": 537,
+    "PoleID": 1,
+    "waterlevel": 42.06,
+    "created_at": "2025-12-10 15:11:01"
+  },
+  {
+    "id": 538,
+    "PoleID": 2,
+    "waterlevel": 42.3,
+    "created_at": "2025-12-10 15:11:01"
+  },
+  {
+    "id": 539,
+    "PoleID": 1,
+    "waterlevel": 42.22,
+    "created_at": "2025-12-10 15:11:02"
+  },
+  {
+    "id": 540,
+    "PoleID": 2,
+    "waterlevel": 42.05,
+    "created_at": "2025-12-10 15:11:02"
+  },
+  {
+    "id": 541,
+    "PoleID": 1,
+    "waterlevel": 42.42,
+    "created_at": "2025-12-10 15:11:03"
+  },
+  {
+    "id": 542,
+    "PoleID": 2,
+    "waterlevel": 41.81,
+    "created_at": "2025-12-10 15:11:03"
+  },
+  {
+    "id": 543,
+    "PoleID": 1,
+    "waterlevel": 42.56,
+    "created_at": "2025-12-10 15:11:04"
+  },
+  {
+    "id": 544,
+    "PoleID": 2,
+    "waterlevel": 41.61,
+    "created_at": "2025-12-10 15:11:04"
+  },
+  {
+    "id": 545,
+    "PoleID": 1,
+    "waterlevel": 42.67,
+    "created_at": "2025-12-10 15:11:05"
+  },
+  {
+    "id": 546,
+    "PoleID": 2,
+    "waterlevel": 41.4,
+    "created_at": "2025-12-10 15:11:05"
+  },
+  {
+    "id": 547,
+    "PoleID": 1,
+    "waterlevel": 42.82,
+    "created_at": "2025-12-10 15:11:06"
+  },
+  {
+    "id": 548,
+    "PoleID": 2,
+    "waterlevel": 41.16,
+    "created_at": "2025-12-10 15:11:06"
+  },
+  {
+    "id": 549,
+    "PoleID": 1,
+    "waterlevel": 43.01,
+    "created_at": "2025-12-10 15:11:07"
+  },
+  {
+    "id": 550,
+    "PoleID": 2,
+    "waterlevel": 40.91,
+    "created_at": "2025-12-10 15:11:07"
+  },
+  {
+    "id": 551,
+    "PoleID": 1,
+    "waterlevel": 43.18,
+    "created_at": "2025-12-10 15:11:08"
+  },
+  {
+    "id": 552,
+    "PoleID": 2,
+    "waterlevel": 40.7,
+    "created_at": "2025-12-10 15:11:08"
+  },
+  {
+    "id": 553,
+    "PoleID": 1,
+    "waterlevel": 43.31,
+    "created_at": "2025-12-10 15:11:09"
+  },
+  {
+    "id": 554,
+    "PoleID": 2,
+    "waterlevel": 40.5,
+    "created_at": "2025-12-10 15:11:09"
+  },
+  {
+    "id": 555,
+    "PoleID": 1,
+    "waterlevel": 43.49,
+    "created_at": "2025-12-10 15:11:10"
+  },
+  {
+    "id": 556,
+    "PoleID": 2,
+    "waterlevel": 40.24,
+    "created_at": "2025-12-10 15:11:10"
+  },
+  {
+    "id": 557,
+    "PoleID": 1,
+    "waterlevel": 43.59,
+    "created_at": "2025-12-10 15:11:11"
+  },
+  {
+    "id": 558,
+    "PoleID": 2,
+    "waterlevel": 39.99,
+    "created_at": "2025-12-10 15:11:11"
+  },
+  {
+    "id": 559,
+    "PoleID": 1,
+    "waterlevel": 43.76,
+    "created_at": "2025-12-10 15:11:12"
+  },
+  {
+    "id": 560,
+    "PoleID": 2,
+    "waterlevel": 39.8,
+    "created_at": "2025-12-10 15:11:12"
+  },
+  {
+    "id": 561,
+    "PoleID": 1,
+    "waterlevel": 43.88,
+    "created_at": "2025-12-10 15:11:13"
+  },
+  {
+    "id": 562,
+    "PoleID": 2,
+    "waterlevel": 39.54,
+    "created_at": "2025-12-10 15:11:13"
+  },
+  {
+    "id": 563,
+    "PoleID": 1,
+    "waterlevel": 44.01,
+    "created_at": "2025-12-10 15:11:14"
+  },
+  {
+    "id": 564,
+    "PoleID": 2,
+    "waterlevel": 39.26,
+    "created_at": "2025-12-10 15:11:14"
+  },
+  {
+    "id": 565,
+    "PoleID": 1,
+    "waterlevel": 44.14,
+    "created_at": "2025-12-10 15:11:15"
+  },
+  {
+    "id": 566,
+    "PoleID": 2,
+    "waterlevel": 39.05,
+    "created_at": "2025-12-10 15:11:15"
+  },
+  {
+    "id": 567,
+    "PoleID": 1,
+    "waterlevel": 44.31,
+    "created_at": "2025-12-10 15:11:16"
+  },
+  {
+    "id": 568,
+    "PoleID": 2,
+    "waterlevel": 38.85,
+    "created_at": "2025-12-10 15:11:16"
+  },
+  {
+    "id": 569,
+    "PoleID": 1,
+    "waterlevel": 44.52,
+    "created_at": "2025-12-10 15:11:17"
+  },
+  {
+    "id": 570,
+    "PoleID": 2,
+    "waterlevel": 38.66,
+    "created_at": "2025-12-10 15:11:17"
+  },
+  {
+    "id": 571,
+    "PoleID": 1,
+    "waterlevel": 44.68,
+    "created_at": "2025-12-10 15:11:18"
+  },
+  {
+    "id": 572,
+    "PoleID": 2,
+    "waterlevel": 38.38,
+    "created_at": "2025-12-10 15:11:18"
+  },
+  {
+    "id": 573,
+    "PoleID": 1,
+    "waterlevel": 44.82,
+    "created_at": "2025-12-10 15:11:19"
+  },
+  {
+    "id": 574,
+    "PoleID": 2,
+    "waterlevel": 38.2,
+    "created_at": "2025-12-10 15:11:19"
+  },
+  {
+    "id": 575,
+    "PoleID": 1,
+    "waterlevel": 44.95,
+    "created_at": "2025-12-10 15:11:20"
+  },
+  {
+    "id": 576,
+    "PoleID": 2,
+    "waterlevel": 37.95,
+    "created_at": "2025-12-10 15:11:20"
+  },
+  {
+    "id": 577,
+    "PoleID": 1,
+    "waterlevel": 45.13,
+    "created_at": "2025-12-10 15:11:21"
+  },
+  {
+    "id": 578,
+    "PoleID": 2,
+    "waterlevel": 37.7,
+    "created_at": "2025-12-10 15:11:21"
+  },
+  {
+    "id": 579,
+    "PoleID": 1,
+    "waterlevel": 45.33,
+    "created_at": "2025-12-10 15:11:22"
+  },
+  {
+    "id": 580,
+    "PoleID": 2,
+    "waterlevel": 37.46,
+    "created_at": "2025-12-10 15:11:22"
+  },
+  {
+    "id": 581,
+    "PoleID": 1,
+    "waterlevel": 45.49,
+    "created_at": "2025-12-10 15:11:23"
+  },
+  {
+    "id": 582,
+    "PoleID": 2,
+    "waterlevel": 37.28,
+    "created_at": "2025-12-10 15:11:23"
+  },
+  {
+    "id": 583,
+    "PoleID": 1,
+    "waterlevel": 45.69,
+    "created_at": "2025-12-10 15:11:24"
+  },
+  {
+    "id": 584,
+    "PoleID": 2,
+    "waterlevel": 37.01,
+    "created_at": "2025-12-10 15:11:24"
+  },
+  {
+    "id": 585,
+    "PoleID": 1,
+    "waterlevel": 45.89,
+    "created_at": "2025-12-10 15:11:25"
+  },
+  {
+    "id": 586,
+    "PoleID": 2,
+    "waterlevel": 36.73,
+    "created_at": "2025-12-10 15:11:25"
+  },
+  {
+    "id": 587,
+    "PoleID": 1,
+    "waterlevel": 46.0,
+    "created_at": "2025-12-10 15:11:26"
+  },
+  {
+    "id": 588,
+    "PoleID": 2,
+    "waterlevel": 36.55,
+    "created_at": "2025-12-10 15:11:26"
+  },
+  {
+    "id": 589,
+    "PoleID": 1,
+    "waterlevel": 46.2,
+    "created_at": "2025-12-10 15:11:27"
+  },
+  {
+    "id": 590,
+    "PoleID": 2,
+    "waterlevel": 36.33,
+    "created_at": "2025-12-10 15:11:27"
+  },
+  {
+    "id": 591,
+    "PoleID": 1,
+    "waterlevel": 46.32,
+    "created_at": "2025-12-10 15:11:28"
+  },
+  {
+    "id": 592,
+    "PoleID": 2,
+    "waterlevel": 36.1,
+    "created_at": "2025-12-10 15:11:28"
+  },
+  {
+    "id": 593,
+    "PoleID": 1,
+    "waterlevel": 46.51,
+    "created_at": "2025-12-10 15:11:29"
+  },
+  {
+    "id": 594,
+    "PoleID": 2,
+    "waterlevel": 35.85,
+    "created_at": "2025-12-10 15:11:29"
+  },
+  {
+    "id": 595,
+    "PoleID": 1,
+    "waterlevel": 46.66,
+    "created_at": "2025-12-10 15:11:30"
+  },
+  {
+    "id": 596,
+    "PoleID": 2,
+    "waterlevel": 35.64,
+    "created_at": "2025-12-10 15:11:30"
+  },
+  {
+    "id": 597,
+    "PoleID": 1,
+    "waterlevel": 46.77,
+    "created_at": "2025-12-10 15:11:31"
+  },
+  {
+    "id": 598,
+    "PoleID": 2,
+    "waterlevel": 35.41,
+    "created_at": "2025-12-10 15:11:31"
+  },
+  {
+    "id": 599,
+    "PoleID": 1,
+    "waterlevel": 46.96,
+    "created_at": "2025-12-10 15:11:32"
+  },
+  {
+    "id": 600,
+    "PoleID": 2,
+    "waterlevel": 35.23,
+    "created_at": "2025-12-10 15:11:32"
+  },
+  {
+    "id": 601,
+    "PoleID": 1,
+    "waterlevel": 47.12,
+    "created_at": "2025-12-10 15:11:33"
+  },
+  {
+    "id": 602,
+    "PoleID": 2,
+    "waterlevel": 35.01,
+    "created_at": "2025-12-10 15:11:33"
+  },
+  {
+    "id": 603,
+    "PoleID": 1,
+    "waterlevel": 47.29,
+    "created_at": "2025-12-10 15:11:34"
+  },
+  {
+    "id": 604,
+    "PoleID": 2,
+    "waterlevel": 34.76,
+    "created_at": "2025-12-10 15:11:34"
+  },
+  {
+    "id": 605,
+    "PoleID": 1,
+    "waterlevel": 47.49,
+    "created_at": "2025-12-10 15:11:35"
+  },
+  {
+    "id": 606,
+    "PoleID": 2,
+    "waterlevel": 34.54,
+    "created_at": "2025-12-10 15:11:35"
+  },
+  {
+    "id": 607,
+    "PoleID": 1,
+    "waterlevel": 47.63,
+    "created_at": "2025-12-10 15:11:36"
+  },
+  {
+    "id": 608,
+    "PoleID": 2,
+    "waterlevel": 34.32,
+    "created_at": "2025-12-10 15:11:36"
+  },
+  {
+    "id": 609,
+    "PoleID": 1,
+    "waterlevel": 47.83,
+    "created_at": "2025-12-10 15:11:38"
+  },
+  {
+    "id": 610,
+    "PoleID": 2,
+    "waterlevel": 34.13,
+    "created_at": "2025-12-10 15:11:38"
+  },
+  {
+    "id": 611,
+    "PoleID": 1,
+    "waterlevel": 48.0,
+    "created_at": "2025-12-10 15:11:39"
+  },
+  {
+    "id": 612,
+    "PoleID": 2,
+    "waterlevel": 33.92,
+    "created_at": "2025-12-10 15:11:39"
+  },
+  {
+    "id": 613,
+    "PoleID": 1,
+    "waterlevel": 48.12,
+    "created_at": "2025-12-10 15:11:40"
+  },
+  {
+    "id": 614,
+    "PoleID": 2,
+    "waterlevel": 33.71,
+    "created_at": "2025-12-10 15:11:40"
+  },
+  {
+    "id": 615,
+    "PoleID": 1,
+    "waterlevel": 48.24,
+    "created_at": "2025-12-10 15:11:41"
+  },
+  {
+    "id": 616,
+    "PoleID": 2,
+    "waterlevel": 33.53,
+    "created_at": "2025-12-10 15:11:41"
+  },
+  {
+    "id": 617,
+    "PoleID": 1,
+    "waterlevel": 48.44,
+    "created_at": "2025-12-10 15:11:42"
+  },
+  {
+    "id": 618,
+    "PoleID": 2,
+    "waterlevel": 33.33,
+    "created_at": "2025-12-10 15:11:42"
+  },
+  {
+    "id": 619,
+    "PoleID": 1,
+    "waterlevel": 48.62,
+    "created_at": "2025-12-10 15:11:43"
+  },
+  {
+    "id": 620,
+    "PoleID": 2,
+    "waterlevel": 33.1,
+    "created_at": "2025-12-10 15:11:43"
+  },
+  {
+    "id": 621,
+    "PoleID": 1,
+    "waterlevel": 48.79,
+    "created_at": "2025-12-10 15:11:44"
+  },
+  {
+    "id": 622,
+    "PoleID": 2,
+    "waterlevel": 32.83,
+    "created_at": "2025-12-10 15:11:44"
+  }
+]
