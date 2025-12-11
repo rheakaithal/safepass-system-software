@@ -9,17 +9,9 @@ async function drawChart(chartData) {
     data.addColumn('timeofday', 'Time (Hours)');
     data.addColumn('number', 'Pole 1');
     data.addColumn('number', 'Pole 2');
-    //data.addColumn('number', 'Threshold 1 (3 in)');
-    //data.addColumn('number', 'Threshold 2 (6 in)');
-
-    // Add threshold lines to chart data
-    //const threshold1 = 3.0;
-    //const threshold2 = 6.0;
-    //chartData = chartData.map(row => [...row, threshold1, threshold2]);
 
     data.addRows(chartData);
     
-
     var options = {
         title: 'Water Level Over Time',
         hAxis: { 
@@ -27,7 +19,6 @@ async function drawChart(chartData) {
             format: 'h:mm a',
             gridlines: { units: { hours: {format: ['h:mm', "h:mm a"] } } },
             minorGridlines: { units: { minutes: { format: ['h:mm', "h:mm a"] } } },
-            //viewWindow: { min: [0, 0, 0], max: [23, 59, 59] }
         },
         vAxis: { 
             title: 'Level (Inches)',
@@ -37,7 +28,7 @@ async function drawChart(chartData) {
         legend: { position: 'bottom' },
         lineWidth: 3,
         colors: ['#CC2222', 'blue', '#F7DD5B', '#CC0000'],
-        curveType: 'function',
+        curveType: 'function'
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('linechart'));
@@ -50,10 +41,8 @@ async function updateLastPing(){
     try {
         const res = await fetch('http://127.0.0.1:3000/api/db-ping');
         const data = await res.json();
-        //console.log("Server says:", data.status);
         status = "<span style=\"color:green;\">" + data.status + "</span>";
     } catch {
-        //console.log("Server unreachable");
         status = "<span style=\"color:red;\">Server unreachable</span>";
     }
     let lastPing = new Date().toLocaleString();
@@ -89,6 +78,7 @@ async function updatePoleData(){
     document.getElementById("pole1lvl").textContent = "Water Level: " + pole1waterlvl + " in";
     document.getElementById("pole2lvl").textContent = "Water Level: " + pole2waterlvl + " in";
 
+    //Updates Pole Status
     if (pole1waterlvl >= CRITLVL_THRESHOLD){
         document.getElementById("pole1status").src = "images/WarningState2.jpg";
     }else if (pole1waterlvl >= WARNING_THRESHOLD){
@@ -104,7 +94,8 @@ async function updatePoleData(){
         document.getElementById("pole2status").src = "images/WarningState0.jpg";
     }
 
-    let dataIndexRange = 100; //Number of data points to show on chart
+    //Creates array of data for chart function
+    let dataIndexRange = 1000; //Number of data points to show on chart
     let chartData = [];
 
     for (let i = ((data.length >= dataIndexRange) ? data.length - dataIndexRange : 0); i < data.length-1; i+=2) { //Assumes data has entries for both poles in pairs
@@ -114,7 +105,6 @@ async function updatePoleData(){
         let second = time.getSeconds();
         let pole1Level = data[i].waterlevel;
         let pole2Level = data[i+1].waterlevel;
-        //console.log("Time: ", [hour, minute, second], " Pole1: ", pole1Level, " Pole2: ", pole2Level);
         chartData.push([[hour, minute, second], pole1Level, pole2Level]);
         
     }
@@ -129,33 +119,28 @@ async function updatePoleData(){
         pole2Last10.push(data[i+1]);
     }
 
-
-    //console.log("Last 10 Pole 1 Data:", pole1Last10);
     let pole1LR = linearRegression(pole1Last10);
-    //console.log("Last 10 Pole 2 Data:", pole2Last10);
     let pole2LR = linearRegression(pole2Last10);
-    //console.log("Pole 1 LR:", pole1LR);
-    //console.log("Pole 2 LR:", pole2LR);
     
     //predict time to reach critical level (6 inches)
     let pole1ttf = ((CRITLVL_THRESHOLD - pole1LR.b) / pole1LR.m) - pole1LR.t; //time in seconds
     let pole2ttf = ((CRITLVL_THRESHOLD - pole2LR.b) / pole2LR.m) - pole2LR.t; //time in seconds
     
-    const MAXTTF = 20000;
+    const MAXTTF = 7200; //Filters out flood times greater than 2 hours - Unlikely to flood
     //update time to full displays 
     if(pole1ttf > 3600 && pole1ttf < MAXTTF){
         document.getElementById("pole1ttf").textContent = ((isFinite(pole1ttf) && pole1LR.m > 0) ? "Time to Flood: " + Math.floor(pole1ttf/3600) + ":" + Math.round((pole1ttf / 3600) % 60) + ":" + Math.round(pole1ttf % 60) + " hours" : "");
-    }else if(pole1ttf > 60){
+    }else if(pole1ttf > 60 && pole1ttf < MAXTTF){
         document.getElementById("pole1ttf").textContent = ((isFinite(pole1ttf) && pole1LR.m > 0) ? "Time to Flood: " + Math.floor(pole1ttf/60) + ":" + Math.round(pole1ttf % 60) + " min" : "");
     }else{
-        document.getElementById("pole1ttf").textContent = ((pole1ttf > 0 && isFinite(pole1ttf) && pole1LR.m > 0) ? "Time to Flood: " + Math.round(pole1ttf % 60) + " sec" : "");
+        document.getElementById("pole1ttf").textContent = ((pole1ttf > 0 && isFinite(pole1ttf) && pole1LR.m > 0  && pole1ttf < MAXTTF) ? "Time to Flood: " + Math.round(pole1ttf % 60) + " sec" : "");
     }
     if(pole2ttf > 3600 && pole2ttf < MAXTTF){
         document.getElementById("pole2ttf").textContent = ((isFinite(pole2ttf) && pole2LR.m > 0) ? "Time to Flood: " + Math.floor(pole2ttf/3600) + ":" + Math.round((pole2ttf / 3600) % 60) + ":" + Math.round(pole2ttf % 60) + " hours" : "");
-    }else if(pole2ttf > 60){
+    }else if(pole2ttf > 60 && pole1ttf < MAXTTF){
         document.getElementById("pole2ttf").textContent = ((isFinite(pole2ttf) && pole2LR.m > 0) ? "Time to Flood: " + Math.floor(pole2ttf/60) + ":" + Math.round(pole2ttf % 60) + " min" : "");
     }else{
-        document.getElementById("pole2ttf").textContent = ((pole2ttf > 0 && isFinite(pole2ttf) && pole2LR.m > 0) ? "Time to Flood: " + Math.round(pole2ttf % 60) + " sec" : "");
+        document.getElementById("pole2ttf").textContent = ((pole2ttf > 0 && isFinite(pole2ttf) && pole2LR.m > 0 && pole1ttf < MAXTTF) ? "Time to Flood: " + Math.round(pole2ttf % 60) + " sec" : "");
     }
 }
 
@@ -172,7 +157,6 @@ function linearRegression(levels) {
         let date = new Date(levels[i].created_at);
         t = (date.getTime() - dateinit.getTime()) / 1000
         let lvl = levels[i].waterlevel;
-        //console.log("time: " + date.getTime(), "time_diff: " + t, "lvl: " + lvl);
         sumX += t;
         sumY += lvl;
         sumXY += t * lvl;
@@ -180,8 +164,6 @@ function linearRegression(levels) {
     }
     let m = (sumXY - (sumX * sumY / n)) / (sumX2 - (sumX * sumX / n));
     let b = (sumY - m * sumX) / n;
-    //console.log('sumX:', sumX, ' sumY:', sumY, ' sumXY:', sumXY, ' sumX2:', sumX2, ' n:', n);
-    //console.log("m:", m, " b:", b);
     return { m, b, t };
 }
 //Image Changing Function
@@ -198,7 +180,7 @@ function UpdateData(){
 }
 //Run update functions to update data every 1 second
 setInterval(updatePoleData, 1000);
-//setInterval(UpdateData, 10000); 
+setInterval(UpdateData, 10000); 
 
 
 //Button behavior

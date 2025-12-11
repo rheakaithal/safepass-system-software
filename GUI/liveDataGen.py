@@ -9,8 +9,8 @@ num_entries = 100  # 100 timestamps, each has 2 poles => 200 entries
 
 
 # Linear trend increments
-pole1_step = random.uniform(0.1, 0.3)
-pole2_step = random.uniform(0.1, 0.3)
+pole1_step = 0.00001
+pole2_step = 0.00001
 
 json_entries = []
 entry_id = 1
@@ -31,8 +31,8 @@ while True:
     p2 += pole2_step
 
     # Random noise
-    p1 += random.uniform(-0.05, 0.05)
-    p2 += random.uniform(-0.05, 0.05)
+    p1 += random.uniform(-0.00001, 0.00001)
+    p2 += random.uniform(-0.00001, 0.00001)
 
     # Ensure non-negative water levels
     p1 = max(p1, 0)
@@ -41,8 +41,8 @@ while True:
     # Append Pole 1
     json_entries.append({
         "id": entry_id,
-        "PoleID": 1,
-        "waterlevel": round(p1, 1),
+        "PoleID": 1, 
+        "waterlevel": p1,
         "created_at": t.strftime('%Y-%m-%d %H:%M:%S')
     })
     entry_id += 1
@@ -51,7 +51,7 @@ while True:
     json_entries.append({
         "id": entry_id,
         "PoleID": 2,
-        "waterlevel": round(p2, 1),
+        "waterlevel": p2,
         "created_at": t.strftime('%Y-%m-%d %H:%M:%S')
     })
     entry_id += 1
@@ -59,4 +59,4 @@ while True:
     path = 'GUI/data.json'
     with open(path, 'w') as f:
         f.write(json_output)
-    time.sleep(1)  # Simulate delay between data generations
+    time.sleep(0.1)  # Simulate delay between data generations
