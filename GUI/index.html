@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SafePass Systems GUI</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="container">
+        <header contenteditable="true">
+            <h1>Cedar Ln. RIPPLE System</h1>
+        </header>
+
+        <section class="poles-grid">
+            <div class="pole-card">
+                <h2>Pole 1</h2>
+                <p id="pole1lvl" class="level"></p>
+                <img class="status-indicator" id="pole1status" src="images/WarningState0.jpg"></img>
+                <p id="pole1ttf" class="time"></p>
+            </div>
+
+            <div class="pole-card">
+                <h2>Pole 2</h2>
+                <p id="pole2lvl" class="level"></p>
+                <img class="status-indicator" id="pole2status" src="images/WarningState0.jpg"></img>
+                <p id="pole2ttf"class="time"></p>
+            </div>
+        </section>
+
+        <section class="images-section">
+            <h2>Water Level Images</h2>
+            <div class="image-buttons">
+                <img class="current_image" id="myImage" src="images/Pole1Image.jpg">
+                <div style="justify-self: center";>
+                    <button class="button1" onclick="changeImage('images/Pole1Image.jpg')">1</button>
+                    <button class="button2" onclick="changeImage('images/Pole2Image.jpg')">2</button>
+                    <button class="button3" onclick="changeImage('images/LocationImage.jpg')">3</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <h3>Time (Hours)</h3>
+            <div id="linechart"></div>
+            <div class="legend">
+            </div>
+        </section>
+
+        <footer>
+            <p>Cedar Ln. College Station, TX, 77840</p>
+
+            <div class="actions">
+                <button onclick="updateLastPing()">Ping Request</button>
+                <button onclick="updateLastImages()">Image Request</button>
+            </div>
+
+            <div class="timestamps">
+                <p id="lastping"></p>
+                <p id="lastimages"></p>
+            </div>
+        </footer>
+    </div>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
