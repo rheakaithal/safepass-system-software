@@ -1,0 +1,109 @@
+
+:root {
+    --primary-color: #232323;
+    --secondary-color: #656565;
+    --third-color: #464646;
+    --fourth-color: #111111;
+
+    --font: "helvetica", sans-serif;
+}
+body {
+    background-color: var(--primary-color);
+    font-family: var(--font);
+    
+}
+.container {
+    width: 90vw;
+    margin: 0 auto;
+    justify-items: center;
+    justify-content: center;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 5fr 1fr 5fr 1fr;
+    grid-template-areas: 
+        "Pole-card Image-card"
+        "Ping-card Image-card"
+        "graph-card graph-card"
+        "footer footer";
+    gap: 15px;
+    padding: 20px;
+}
+
+.base {
+    background-color: var(--secondary-color);
+    color: black;
+    border-color: var(--fourth-color);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 6px;
+    text-indent: 10px;
+}
+
+.Title {
+    background-color: var(--primary-color);
+    color: Black;
+    text-align: center;
+}
+
+.Pole-card  {
+    grid-area: Pole-card;
+    min-width: 300px;
+    max-width: 900px;
+    width: 100%;
+    justify-self: right;
+}
+.Ping-card{
+    grid-area: Ping-card;
+    min-width: 300px;
+    max-width: 900px;
+    width: 100%;
+    justify-self: right;
+}
+
+.Image-card {
+    grid-area: Image-card;
+    min-width: 300px;
+    max-width: 900px;
+    width: 100%;
+    justify-self: left;
+}
+
+.graph-card {
+    grid-area: graph-card;
+    min-width: 300px;
+    max-width: 1815px;
+    width: 100%;
+    justify-self: center;
+}
+.footer {
+    grid-area: footer;
+    text-align: center;
+    min-width: 300px;
+    max-width: 1815px;
+    width: 100%;
+}
+.image-gallary {
+    display: block;
+    grid-area: image_gallary;
+    justify-self: center;
+    justify-content: right;
+    width:90%;
+}
+.image{
+    width: 90%;
+    justify-self: center;
+    
+}
+.image-button-card {
+    grid-area: image-button-card;
+    justify-self: center;
+    align-items: center;
+}
+
+.image-request-card {
+    grid-area: image-request-card;
+    justify-self: center;
+    align-items: center;
+}
