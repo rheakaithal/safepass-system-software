@@ -2,7 +2,7 @@ import paho.mqtt.publish as publish
 
 #Test reading, change in microcontroller
 pole_id = 2
-waterlevel = 30
+waterlevel = 90
 
 publish.single(
     f"sensors/{pole_id}/waterlevel",  # Topic, pole id is implicit from reading and waterlevel (int) is stored to the lowest level

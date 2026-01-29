@@ -1,0 +1,12 @@
+{
+  "name": "mqtt-subscriber",
+  "version": "1.0.0",
+  "description": "MQTT subscriber",
+  "main": "subscriber.js",
+  "scripts": {
+    "start": "node subscriber.js"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.0"
+  }
+}
