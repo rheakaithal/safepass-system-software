@@ -201,3 +201,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+
+#Ignore Data.json
+*\data.json
