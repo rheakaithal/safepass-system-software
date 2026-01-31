@@ -5,8 +5,8 @@
     --third-color: #ffffff;
     --fourth-color: #f0f0f0;
     
-    --spacing: 14px;
-    --half-spacing: 7px;
+    --spacing: 10px;
+    --half-spacing: 5px;
 
     --font: "helvetica", sans-serif;
 }
@@ -36,9 +36,10 @@ body {
         "graph-card graph-card"
         "footer footer";
     background-color: var(--third-color);
-    max-height: 1175px;
-    max-width: 1850px;
-    width: 1850px;
+    max-width: 1300px;
+    min-width: 650px;
+    width: 1300px;
+    max-height: 839px;
     justify-self: center;
 }
 
@@ -58,21 +59,23 @@ body {
     color: #f0f0f0;
     text-align: center;
     text-justify: center;
-    font-size: 25px;
-    max-height: 115px;
+    font-size: 18px;
+    max-height: 80px;
+    min-width: 650px;
 }
 
 .Menu {
     grid-area: menu-card;
     background-color: var(--secondary-color);
     max-width: 100%;
+    min-width: 250px;
     height:100vh;
 }
 
 .Pole-card  {
     grid-area: Pole-card;
     min-width: 300px;
-    max-width: 900px;
+    max-width: 630px;
     width: 100%;
     margin-right: var(--half-spacing);
     margin-top: var(--spacing);
@@ -83,7 +86,7 @@ body {
 .Ping-card{
     grid-area: Ping-card;
     min-width: 300px;
-    max-width: 900px;
+    max-width: 630px;
     width: 100%;
     margin-right: var(--half-spacing);
     margin-top: var(--spacing);
@@ -94,7 +97,7 @@ body {
 .Image-card {
     grid-area: Image-card;
     min-width: 300px;
-    max-width: 900px;
+    max-width: 630px;
     width: 100%;
     margin-left: var(--half-spacing);
     margin-top: var(--spacing);
@@ -105,7 +108,7 @@ body {
 .graph-card {
     grid-area: graph-card;
     min-width: 300px;
-    max-width: 1820px;
+    max-width: 1274px;
     width: 100%;
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
@@ -116,11 +119,12 @@ body {
     grid-area: footer;
     text-align: center;
     min-width: 300px;
-    max-width: 1820px;
+    max-width: 1274px;
     width: 100%;
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     margin-right: var(--half-spacing);
+    margin-bottom: var(--half-spacing);
     justify-self: center;
 }
 .image-gallary {
