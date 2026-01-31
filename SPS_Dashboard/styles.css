@@ -38,9 +38,12 @@ body {
     background-color: var(--third-color);
     max-width: 1300px;
     min-width: 650px;
-    width: 1300px;
-    max-height: 839px;
+    width: calc(100vw - 250px);
+    max-height: calc(100vh - 80px);
     justify-self: center;
+    margin-left: var(--half-spacing);
+    margin-right: var(--half-spacing);
+    overflow-y: scroll;
 }
 
 .base {
