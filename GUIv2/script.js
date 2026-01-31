@@ -58,13 +58,9 @@ async function updateLastImages(){
 async function updatePoleData(){
     const JSONdata = await fetch('data.json');  //Gets the file from directory
     const data = await JSONdata.json(); //Parses the JSON data to get database entries
-
     //Inches of water level thresholds
     const WARNING_THRESHOLD = 3.0; //State 1
     const CRITLVL_THRESHOLD = 6.0; //State 2
-
-    //Entries will have PoleID and water level - sample data has four entries in the data.json file
-    //last entry is the most recent
     
     //get latest pole data obects from JSON file
     let lastPole1Data = data[data.length-2]; //Second to last entry is Pole 1
