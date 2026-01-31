@@ -43,6 +43,18 @@ body {
     justify-self: center;
     margin-left: var(--spacing);
     margin-right: var(--spacing);
+    @media screen and (max-width: 900px){
+        grid-template-columns: auto;
+        grid-template-rows: 4fr 5fr 1fr 4fr 1fr;
+        grid-template-areas: 
+            "Pole-card"
+            "Image-card"
+            "Ping-card"
+            "graph-card"
+            "footer";
+        justify-content: center;
+    }
+    overflow-y: scroll;
 }
 
 .base {
@@ -68,11 +80,11 @@ body {
     grid-area: menu-card;
 
     display: grid;
-    grid-template-rows: 120px 30px 70px 70px 70px 100px 70px 70px;
+    grid-template-rows: 120px 30px 60px 60px 60px 100px 60px 60px;
 
     background-color: var(--secondary-color);
     max-width: 100%;
-    min-width: 250px;
+    min-width: 175px;
     height:100vh;
 }
 
@@ -84,6 +96,11 @@ body {
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     justify-self: right;
+    @media  screen and (max-width:900px) {
+        width: 100%;
+        margin: 5px,0px,5px,0px;
+        justify-self: center;
+    }
     
 }
 .Ping-card{
@@ -94,6 +111,11 @@ body {
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     justify-self: right;
+    @media  screen and (max-width:900px) {
+        width: 100%;
+        margin: 5px,0px,5px,0px;
+        justify-self: center;
+    }
 }
 
 .Image-card {
@@ -104,6 +126,11 @@ body {
     margin-top: var(--spacing);
     margin-right: var(--half-spacing);
     justify-self: left;
+    @media  screen and (max-width:900px) {
+        width: 100%;
+        margin: 5px,0px,5px,0px;
+        justify-self: center;
+    }
 }
 
 .graph-card {
@@ -114,6 +141,9 @@ body {
     margin-left: var(--half-spacing);
     margin-right: var(--half-spacing);
     justify-self: center;
+    @media  screen and (max-width:900px) {
+        width: 100%;
+    }
 }
 .footer {
     grid-area: footer;
@@ -125,6 +155,9 @@ body {
     margin-right: var(--half-spacing);
     margin-bottom: var(--half-spacing);
     justify-self: center;
+    @media  screen and (max-width:900px) {
+        width: 100%;
+    }
 }
 .image-gallary {
     display: block;
@@ -146,11 +179,10 @@ body {
     display: grid;
     grid-template-columns: 60px auto;
 
-    margin: 5px;
     justify-self: left;
     font-size: 30px;
     min-width: 50px;
-    width: calc(17vw - 20px);
+    width: 100%;
     height:60px;
     background-color: var(--secondary-color);
     border-radius: 2px;
