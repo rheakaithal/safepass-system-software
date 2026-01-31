@@ -38,22 +38,19 @@ body {
     background-color: var(--third-color);
     max-width: 1300px;
     min-width: 650px;
-    width: calc(100vw - 250px);
+    width: calc(100vw - 350px);
     max-height: calc(100vh - 80px);
     justify-self: center;
-    margin-left: var(--half-spacing);
-    margin-right: var(--half-spacing);
-    overflow-y: scroll;
+    margin-left: var(--spacing);
+    margin-right: var(--spacing);
 }
 
 .base {
     background-color: var(--fourth-color);
     color: black;
-    border-color: var(--secondary-color);
-    border-width: 2px;
-    border-style: solid;
     border-radius: 6px;
     text-indent: 10px;
+    box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.1);
 }
 
 .Title {
@@ -69,6 +66,10 @@ body {
 
 .Menu {
     grid-area: menu-card;
+
+    display: grid;
+    grid-template-rows: 120px 30px 70px 70px 70px 100px 70px 70px;
+
     background-color: var(--secondary-color);
     max-width: 100%;
     min-width: 250px;
@@ -77,7 +78,6 @@ body {
 
 .Pole-card  {
     grid-area: Pole-card;
-    min-width: 300px;
     max-width: 630px;
     width: 100%;
     margin-right: var(--half-spacing);
@@ -88,7 +88,6 @@ body {
 }
 .Ping-card{
     grid-area: Ping-card;
-    min-width: 300px;
     max-width: 630px;
     width: 100%;
     margin-right: var(--half-spacing);
@@ -99,7 +98,6 @@ body {
 
 .Image-card {
     grid-area: Image-card;
-    min-width: 300px;
     max-width: 630px;
     width: 100%;
     margin-left: var(--half-spacing);
@@ -110,9 +108,8 @@ body {
 
 .graph-card {
     grid-area: graph-card;
-    min-width: 300px;
     max-width: 1274px;
-    width: 100%;
+    width: calc(100% + 14px);
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     margin-right: var(--half-spacing);
@@ -121,9 +118,8 @@ body {
 .footer {
     grid-area: footer;
     text-align: center;
-    min-width: 300px;
     max-width: 1274px;
-    width: 100%;
+    width: calc(100% + 14px);
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     margin-right: var(--half-spacing);
@@ -141,6 +137,29 @@ body {
     width: 90%;
     justify-self: center;
     
+}
+.menu-logo{
+    width: 90px;
+    margin-left: var(--half-spacing)
+}
+.menu-button{
+    display: grid;
+    grid-template-columns: 60px auto;
+
+    margin: 5px;
+    justify-self: left;
+    font-size: 30px;
+    min-width: 50px;
+    width: calc(17vw - 20px);
+    height:60px;
+    background-color: var(--secondary-color);
+    border-radius: 2px;
+    box-shadow: 0;
+}
+.menu-button-logo{
+    width: 50px;
+    align-self: center;
+    justify-self: left;
 }
 .image-button-card {
     grid-area: image-button-card;
