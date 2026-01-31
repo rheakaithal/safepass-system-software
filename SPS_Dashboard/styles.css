@@ -1,24 +1,32 @@
 
 :root {
-    --primary-color: #232323;
+    --primary-color: #073763;
     --secondary-color: #656565;
-    --third-color: #464646;
-    --fourth-color: #111111;
+    --third-color: #ffffff;
+    --fourth-color: #f0f0f0;
+    
+    --spacing: 14px;
+    --half-spacing: 7px;
 
     --font: "helvetica", sans-serif;
 }
 body {
-    background-color: var(--primary-color);
     font-family: var(--font);
-    
+    margin: 0;
+    height: 100vh;
 }
 .container {
-    width: 90vw;
-    margin: 0 auto;
-    justify-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    grid-template-rows: 1fr 10fr;
+    grid-template-areas: 
+        "menu-card title"
+        "menu-card grid-container";
+    max-height: 100vh;
 }
+
 .grid-container {
+    grid-area: grid-container;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 5fr 1fr 5fr 1fr;
@@ -27,14 +35,17 @@ body {
         "Ping-card Image-card"
         "graph-card graph-card"
         "footer footer";
-    gap: 15px;
-    padding: 20px;
+    background-color: var(--third-color);
+    max-height: 1175px;
+    max-width: 1850px;
+    width: 1850px;
+    justify-self: center;
 }
 
 .base {
-    background-color: var(--secondary-color);
+    background-color: var(--fourth-color);
     color: black;
-    border-color: var(--fourth-color);
+    border-color: var(--secondary-color);
     border-width: 2px;
     border-style: solid;
     border-radius: 6px;
@@ -42,9 +53,20 @@ body {
 }
 
 .Title {
+    grid-area: title;
     background-color: var(--primary-color);
-    color: Black;
+    color: #f0f0f0;
     text-align: center;
+    text-justify: center;
+    font-size: 25px;
+    max-height: 115px;
+}
+
+.Menu {
+    grid-area: menu-card;
+    background-color: var(--secondary-color);
+    max-width: 100%;
+    height:100vh;
 }
 
 .Pole-card  {
@@ -52,13 +74,20 @@ body {
     min-width: 300px;
     max-width: 900px;
     width: 100%;
+    margin-right: var(--half-spacing);
+    margin-top: var(--spacing);
+    margin-left: var(--half-spacing);
     justify-self: right;
+    
 }
 .Ping-card{
     grid-area: Ping-card;
     min-width: 300px;
     max-width: 900px;
     width: 100%;
+    margin-right: var(--half-spacing);
+    margin-top: var(--spacing);
+    margin-left: var(--half-spacing);
     justify-self: right;
 }
 
@@ -67,22 +96,32 @@ body {
     min-width: 300px;
     max-width: 900px;
     width: 100%;
+    margin-left: var(--half-spacing);
+    margin-top: var(--spacing);
+    margin-right: var(--half-spacing);
     justify-self: left;
 }
 
 .graph-card {
     grid-area: graph-card;
     min-width: 300px;
-    max-width: 1815px;
+    max-width: 1820px;
     width: 100%;
+    margin-top: var(--spacing);
+    margin-left: var(--half-spacing);
+    margin-right: var(--half-spacing);
     justify-self: center;
 }
 .footer {
     grid-area: footer;
     text-align: center;
     min-width: 300px;
-    max-width: 1815px;
+    max-width: 1820px;
     width: 100%;
+    margin-top: var(--spacing);
+    margin-left: var(--half-spacing);
+    margin-right: var(--half-spacing);
+    justify-self: center;
 }
 .image-gallary {
     display: block;
@@ -107,3 +146,4 @@ body {
     justify-self: center;
     align-items: center;
 }
+
