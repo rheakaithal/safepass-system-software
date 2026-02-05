@@ -142,14 +142,42 @@ body {
         margin: 5px,0px,5px,0px;
         justify-self: center;
     } 
+    overflow-y: scroll;
 }
 .pole{
-    background-color: var(--third-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background-color: #efefef;
     border-radius: 5px;
-    margin: 0 5px 0 5px;
-    height: 75px;
+    margin: 10px 5px 10px 5px;
+    height: 40%;
     align-self: start;
     justify-self: start;
+}
+.pole-id{
+    margin: 5px;
+}
+.water-level{
+    margin-left: 20%;
+}
+.ttf{
+    text-align: center;
+    color: red;
+    margin-bottom: 5px;
+}
+.ttf-value{
+    text-align: center;
+    color: red;
+    margin-top: 5px;
+}
+.warning-state{
+    aspect-ratio: 1/1;
+    height: 85%;
+    border: none;
+    outline: none;
+    margin: 10px;
+    align-self: center;
+    justify-self: end;
 }
 .Ping-card{
     grid-area: Ping-card;
