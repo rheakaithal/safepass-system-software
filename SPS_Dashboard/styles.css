@@ -109,15 +109,18 @@ body {
     font-size: 30px;
     min-width: 50px;
     width: 100%;
-    height:60px;
+    height: 60px;
     background-color: var(--secondary-color);
     border-radius: 2px;
-    box-shadow: 0;
+    padding-left: 15px;
     white-space: nowrap;
     @media  screen and (max-width:900px) {
         display: block;
         color: var(--secondary-color);
     }
+}
+.menu-button:hover {
+    background: var(--fourth-color);
 }
 .menu-button-logo{
     width: 50px;
@@ -165,50 +168,63 @@ body {
 
 .Image-card {
     grid-area: Image-card;
-    max-width: 630px;
-    max-height: 98%;
-    width: 98%;
-    margin-left: var(--half-spacing);
-    margin-top: var(--spacing);
-    margin-right: var(--half-spacing);
+    max-width: 98%;
+    height: calc(100% - var(--spacing));
+    margin: var(--spacing) 0 var(--half-spacing) var(--half-spacing);
     justify-self: left;
 
     display: grid;
-    grid-template-rows: 50px max-content 50px;
-    grid-template-areas: "image-request-button" "image" "image-button-card";
-    @media  screen and (max-width:900px) {
-        width: 98%;
-        margin: 5px,0px,5px,0px;
-        justify-self: center;
-    }
-}
-.image{
-    grid-area: image;
-    aspect-ratio: 16/9;
-    max-width: 90%;
-    max-height: 80%;
-    justify-self: center;
+    grid-template-rows: 1fr auto auto;
 }
 
-.image-button-card{
-    grid-area:image-button-card;
-    width: fit-content;
-    height: max-content;
+.image {
+    display: block;
+    width: 90%;
+    aspect-ratio: 16/9;
+    object-fit: contain;
     justify-self: center;
-    align-self: start;
+    margin: var(--spacing) 0 var(--half-spacing) 0;
+}
+.image-controls {
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-height: 40px;
+}
+
+.image-button-card {
+    display: flex;
+    gap: 6px;
+    position: absolute;
+    left:50%;
+    transform: translate(-50%);
 }
 .image-button{
-    margin: 5px 2px 5px 2px;
-    justify-self: start;
+    padding: 2px 2px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: #ffffff;
+    border:1px solid #c4c2c2;
+    border-radius:8px;
+    cursor: pointer;
+    transition: all 0.1s ease;
 }
-.image-request-button{
-    grid-area: image-request-button;
-    margin: 10px;
-    align-self: start;
-    justify-self: end;
+.image-button:hover {
+    background: #dcdada;
+}
+.image-button:active {
+    box-shadow: 0 2px #dadada;  
+    transform: translateY(2px);
+}
+
+.image-request-button {
+    margin-left: auto;
+    margin-right: 5px;
     height: 30px;
-    width: fit-content;
+    white-space: nowrap;
 }
+
 
 .graph-card {
     grid-area: graph-card;
