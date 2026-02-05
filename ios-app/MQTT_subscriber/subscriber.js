@@ -1,19 +1,59 @@
-const mqtt = require('mqtt')
+// mqttClient.js
+const mqtt = require("mqtt");
 
-const client = mqtt.connect('mqtt://10.244.80.97:1883', {
-  username: 'Sensor',
-  password: 'Team13Capstone',
-  clientId: 'debug-subscriber',
-  clean: true
-})
+const broker = "mqtts://83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud:8883";
+const topic = "sensors/#";
 
-client.on('connect', () => {
-  console.log('CONNECTED')
-  client.subscribe('sensors/+/waterlevel', { qos: 1 })
-})
+const options = {
+  username: "Sensor",
+  password: "Team13Capstone",
+};
 
-client.on('message', (topic, message) => {
-  console.log('RECEIVED:', topic, message.toString())
-})
+let onAlert = null;
+function registerAlertHandler(cb) {
+  onAlert = cb;
+}
 
-client.on('error', console.error)
+const client = mqtt.connect(broker, options);
+
+client.on("connect", () => {
+  console.log("MQTT connected");
+  client.subscribe(topic, { qos: 1 }, (err) => {
+    if (err) console.error("Subscribe error:", err);
+    else console.log("Subscribed to:", topic);
+  });
+});
+
+client.on("message", (t, message) => {
+  console.log("MQTT message received:", t, message.toString());
+
+  const level = Number(message.toString());
+  if (Number.isNaN(level)) return;
+
+  let severity = "clear";
+  let msg = "Roads clear. Safe to drive.";
+
+  if (level > 6) {
+    severity = "critical";
+    msg = "Floodwaters present. Road closed for civilian safety.";
+  } else if (level > 2.5) {
+    severity = "warning";
+    msg = "Heavy rain in the area. Drive cautiously.";
+  }
+
+  const alert = {
+    id: Date.now().toString(),
+    region: "Pole 2",
+    severity,
+    message: msg,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (onAlert) onAlert(alert);
+});
+
+client.on("error", (err) => {
+  console.error("MQTT error:", err);
+});
+
+module.exports = { registerAlertHandler };
