@@ -2,32 +2,6 @@ import { useState, useEffect } from "react";
 import { AlertDashboard, FloodAlert } from "@/app/components/AlertDashboard";
 import { toast, Toaster } from "sonner";
 
-// Mock data generator for demo purposes
-const generateMockAlerts = (): FloodAlert[] => {
-  return [
-    {
-      id: "1",
-      region: "Pole 1",
-      severity: "critical",
-      message: "Floodwaters present. Road closed for civilian safety.",
-      timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-    },
-    {
-      id: "2",
-      region: "Pole 2",
-      severity: "warning",
-      message: "Heavy rain in the area. Drive cautiously.",
-      timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-    },
-    {
-      id: "3",
-      region: "Pole 1",
-      severity: "clear",
-      message: "Roads clear. Safe to drive.",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    },
-  ];
-};
 
 function App() {
   const [alerts, setAlerts] = useState<FloodAlert[]>(generateMockAlerts());
@@ -80,53 +54,34 @@ function App() {
 
   // Simulate receiving new alerts
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Randomly generate a new alert every 30 seconds (for demo purposes)
-      const shouldGenerateAlert = Math.random() > 0.7;
-      
-      if (shouldGenerateAlert) {
-        const regions = ["Pole 1", "Pole 2"];
-        const severities: FloodAlert["severity"][] = ["warning", "critical", "clear"];
-        const messages = {
-          warning: "Heavy rain in the area. Drive cautiously.",
-          critical: "Floodwaters present. Road closed for civilian safety.",
-          clear: "Roads clear. Safe to drive.",
-        };
+  const socket = new WebSocket("ws://YOUR_SERVER_IP:3000");
 
-        const severity = severities[Math.floor(Math.random() * severities.length)];
-        const newAlert: FloodAlert = {
-          id: Date.now().toString(),
-          region: regions[Math.floor(Math.random() * regions.length)],
-          severity,
-          message: messages[severity],
-          timestamp: new Date(),
-        };
+  socket.onmessage = (event) => {
+    const alert: FloodAlert = {
+      ...JSON.parse(event.data),
+      timestamp: new Date(JSON.parse(event.data).timestamp),
+    };
 
-        setAlerts((prev) => [newAlert, ...prev].slice(0, 10)); // Keep only last 10 alerts
+    setAlerts((prev) => [alert, ...prev].slice(0, 10));
 
-        // Send browser notification if enabled
-        if (notificationsEnabled && notificationPermission === "granted") {
-          new Notification(`Flood Alert: ${newAlert.region}`, {
-            body: newAlert.message,
-            icon: "/favicon.ico",
-            badge: "/favicon.ico",
-            tag: newAlert.id,
-          });
-        }
+    if (
+      notificationsEnabled &&
+      notificationPermission === "granted" &&
+      alert.severity === "critical"
+    ) {
+      new Notification(`Flood Alert: ${alert.region}`, {
+        body: alert.message,
+        icon: "/favicon.ico",
+      });
 
-        // Show toast notification
-        if (severity === "critical") {
-          toast.error(`${newAlert.region}: ${newAlert.message}`);
-        } else if (severity === "warning") {
-          toast.warning(`${newAlert.region}: ${newAlert.message}`);
-        } else {
-          toast.success(`${newAlert.region}: ${newAlert.message}`);
-        }
-      }
-    }, 30000); // Check every 30 seconds
+      toast.error(`${alert.region}: ${alert.message}`);
+    }
+  };
 
-    return () => clearInterval(interval);
-  }, [notificationsEnabled, notificationPermission]);
+  return () => socket.close();
+}, [notificationsEnabled, notificationPermission]);
+
+
 
   return (
     <div className="min-h-screen bg-background">

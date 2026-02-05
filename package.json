@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/rheakaithal/safepass-system-software/issues"
   },
-  "homepage": "https://github.com/rheakaithal/safepass-system-software#readme"
+  "homepage": "https://github.com/rheakaithal/safepass-system-software#readme",
+  "dependencies": {
+    "ws": "^8.19.0"
+  }
 }
