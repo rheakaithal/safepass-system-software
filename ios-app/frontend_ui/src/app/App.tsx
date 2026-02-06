@@ -1,40 +1,42 @@
-import { useState, useEffect } from "react";
-import { AlertDashboard, FloodAlert } from "@/app/components/AlertDashboard";
+import { useEffect, useRef, useState } from "react";
+import { AlertDashboard, FloodAlert } from "./components/AlertDashboard.tsx";
 import { toast, Toaster } from "sonner";
 
-
 function App() {
-  const [alerts, setAlerts] = useState<FloodAlert[]>(generateMockAlerts());
+  const [alerts, setAlerts] = useState<FloodAlert[]>([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>("default");
+  const [notificationPermission, setNotificationPermission] =
+    useState<NotificationPermission>("default");
 
+  // Track last alert ID to avoid duplicate notifications
+  const lastAlertIdRef = useRef<string | null>(null);
+
+  // Check notification permission on load
   useEffect(() => {
-    // Check initial notification permission
     if ("Notification" in window) {
       setNotificationPermission(Notification.permission);
     }
   }, []);
 
   const requestNotificationPermission = async () => {
-    if ("Notification" in window) {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-      
-      if (permission === "granted") {
-        setNotificationsEnabled(true);
-        toast.success("Notifications enabled successfully");
-        
-        // Send a test notification
-        new Notification("Flood Alert System", {
-          body: "You will now receive flood alerts",
-          icon: "/favicon.ico",
-          badge: "/favicon.ico",
-        });
-      } else {
-        toast.error("Notification permission denied");
-      }
-    } else {
+    if (!("Notification" in window)) {
       toast.error("Notifications not supported in this browser");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+
+    if (permission === "granted") {
+      setNotificationsEnabled(true);
+      toast.success("Notifications enabled");
+
+      new Notification("Flood Alert System", {
+        body: "You will now receive flood alerts",
+        icon: "/favicon.ico",
+      });
+    } else {
+      toast.error("Notification permission denied");
     }
   };
 
@@ -52,36 +54,64 @@ function App() {
     }
   };
 
-  // Simulate receiving new alerts
+  // WebSocket connection (NO polling)
   useEffect(() => {
-  const socket = new WebSocket("ws://YOUR_SERVER_IP:3000");
+    const socket = new WebSocket("ws://localhost:3000");
 
-  socket.onmessage = (event) => {
-    const alert: FloodAlert = {
-      ...JSON.parse(event.data),
-      timestamp: new Date(JSON.parse(event.data).timestamp),
+    socket.onopen = () => {
+      console.log("WebSocket connected");
     };
 
-    setAlerts((prev) => [alert, ...prev].slice(0, 10));
+    socket.onmessage = (event) => {
+      try {
+        const raw = JSON.parse(event.data);
 
-    if (
-      notificationsEnabled &&
-      notificationPermission === "granted" &&
-      alert.severity === "critical"
-    ) {
-      new Notification(`Flood Alert: ${alert.region}`, {
-        body: alert.message,
-        icon: "/favicon.ico",
-      });
+        const alert: FloodAlert = {
+          ...raw,
+          timestamp: new Date(raw.timestamp),
+        };
 
-      toast.error(`${alert.region}: ${alert.message}`);
-    }
-  };
+        setAlerts((prev) => [alert, ...prev].slice(0, 10));
 
-  return () => socket.close();
-}, [notificationsEnabled, notificationPermission]);
+        // Toast notifications
+        if (alert.severity === "critical") {
+          toast.error(`${alert.region}: ${alert.message}`);
+        } else if (alert.severity === "warning") {
+          toast.warning(`${alert.region}: ${alert.message}`);
+        } else {
+          toast.success(`${alert.region}: ${alert.message}`);
+        }
 
+        // Browser notification (critical only, deduped)
+        if (
+          notificationsEnabled &&
+          notificationPermission === "granted" &&
+          alert.severity === "critical" &&
+          lastAlertIdRef.current !== alert.id
+        ) {
+          lastAlertIdRef.current = alert.id;
 
+          new Notification(`Flood Alert: ${alert.region}`, {
+            body: alert.message,
+            icon: "/favicon.ico",
+            tag: alert.id,
+          });
+        }
+      } catch (err) {
+        console.error("Invalid WebSocket message:", err);
+      }
+    };
+
+    socket.onerror = (err) => {
+      console.error("WebSocket error", err);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => socket.close();
+  }, [notificationsEnabled, notificationPermission]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,6 +122,7 @@ function App() {
           onToggleNotifications={handleToggleNotifications}
         />
       </div>
+
       <Toaster position="top-right" richColors />
     </div>
   );

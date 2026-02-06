@@ -1,26 +1,11 @@
-const express = require("express");
-const cors = require("cors");
 const WebSocket = require("ws");
-const { onNewAlert } = require("./public_broker/testSub_public");
+const { registerAlertHandler } = require("./subscriber");
 
-const app = express();
-app.use(cors());
+const wss = new WebSocket.Server({ port: 3000 });
+console.log("WebSocket server running on 3000");
 
-let alerts = [];
-
-app.get("/api/alerts", (req, res) => {
-  res.json(alerts);
-});
-
-const server = app.listen(3000, () =>
-  console.log("REST API running on port 3000")
-);
-
-const wss = new WebSocket.Server({ server });
-
-onNewAlert((alert) => {
-  alerts.unshift(alert);
-  alerts = alerts.slice(0, 10);
+registerAlertHandler((alert) => {
+  console.log("Broadcasting alert:", alert);
 
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
