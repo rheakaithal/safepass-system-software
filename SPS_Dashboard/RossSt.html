@@ -23,7 +23,7 @@
                 <img src="images\faq.png" alt="FAQ Logo" class="menu-button-logo">
                 <div style="align-self: center;">FAQ</div>
             </div>
-            <div style="margin-top:auto; margin-left:10px; font-size: 20px;">RIPPLE <br> Systems</div>
+            <div style="margin-top:auto; margin-left:10px; font-size: 20px;">Dashboards</div>
             <div class="menu-button" style="border-left: 10px solid var(--primary-color); padding-left: 5px;">
                 <img src="images\SPSLogo.png" alt="SPS Logo" class="menu-button-logo">
                 <div style="align-self: center;">Ross St</div>
@@ -41,20 +41,29 @@
                 <div class = "pole">
                     <div class="pole-id-level">
                         <h1 class="pole-id">Pole 1</h1>
-                        <h3 class="water-level">12 Inches</h3>
+                        <h3 class="water-level" id="pole1-lvl"></h3>
                     </div>
                     <div class="time-to-flood">
-                        <h3 class="ttf">Time to Flood</h3>
-                        <h3 class="ttf-value">10 Minutes</h3>
+                        <p class="ttf">Time to Flood</p>
+                        <p class="ttf-value">10 Minutes</p>
                     </div>
-                    <img src="" class="warning-state">
+                    <img src="images/WarningState0.jpg" class="warning-state" id="pole1-image">
                 </div>
                 <div class="pole">
-                    <h1>Pole 2</h1>
+                    <div class="pole-id-level">
+                        <h1 class="pole-id">Pole 2</h1>
+                        <h3 class="water-level" id="pole2-lvl"></h3>
+                    </div>
+                    <div class="time-to-flood">
+                        <p class="ttf">Time to Flood</p>
+                        <p class="ttf-value">12 Minutes</p>
+                    </div>
+                    <img src="images/WarningState0.jpg" class="warning-state" id="pole2-image">
                 </div>
             </div>
             <div class="Ping-card base">
-                <button class = "ping_button">Ping</button>
+                <button class = "ping-button">Ping</button>
+                <p class="ping-result">Current Status: Online</p>
             </div>
             <div class="Image-card base">
                 <img src="images\LocationImage.jpg" alt="Image 1" class="image" id="image">
@@ -69,14 +78,23 @@
             </div>
             <div class="graph-card base">
                 <div class="pole-select-card">
-                    <h5>Pole Select</h5>
+                    <p style="margin:10px 0 10px 0; font-size:medium; font-weight:bold;">Pole Selection</p>
+                    <select class="pole-select">
+                        <option value="All">All Poles</option>
+                        <option value="Pole 1">Pole 1</option>
+                        <option value="Pole 2">Pole 2</option>
+                    </select>
                 </div>
-                <div class="Duration-card">
-                    <h5>Duration</h5>
+                <div class="duration-card">
+                    <p style="margin:10px 0 10px 0; font-size:medium; font-weight:bold;">Duration</p>
+                    <select class="duration-select">
+                        <option value="12 Hours">12 Hours</option>
+                        <option value="1 Day">1 Day</option>
+                        <option value="3 Days">3 Days</option>
+                        <option value="1 Week">1 Week</option>
+                    </select>
                 </div>
-                <div class="graph" id="linechart">
-                    <h6>Graph</h6>
-                </div>
+                <div class="graph" id="linechart"></div>
             </div>
         </div>
     </div>

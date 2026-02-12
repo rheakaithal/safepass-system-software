@@ -149,7 +149,7 @@ body {
     grid-template-columns: 1fr 1fr 1fr;
     background-color: #efefef;
     border-radius: 5px;
-    margin: 10px 5px 10px 5px;
+    margin: var(--spacing);
     height: 40%;
     align-self: start;
     justify-self: start;
@@ -160,22 +160,28 @@ body {
 .water-level{
     margin-left: 20%;
 }
+.time-to-flood{
+    align-items: center;
+
+}
 .ttf{
     text-align: center;
     color: red;
+    font-size: large;
+    font-weight: bold;
     margin-bottom: 5px;
 }
 .ttf-value{
     text-align: center;
     color: red;
+    font-size: large;
     margin-top: 5px;
 }
 .warning-state{
+    display: block;
     aspect-ratio: 1/1;
-    height: 85%;
-    border: none;
-    outline: none;
-    margin: 10px;
+    height: 80px;
+    margin-right: 10px;
     align-self: center;
     justify-self: end;
 }
@@ -187,11 +193,32 @@ body {
     margin-top: var(--spacing);
     margin-left: var(--half-spacing);
     justify-self: right;
+    display: grid;
+    grid-template-columns: auto auto;
     @media  screen and (max-width:900px) {
         width: 98%;
         margin: 5px,0px,5px,0px;
         justify-self: center;
     }
+}
+.ping-button{
+    background-color: var(--primary-color);
+    color: var(--third-color);
+    margin: 20px 0px 20px 10px;
+    border-radius: 5px;
+    font-size: larger;
+    font-weight:bold;
+    transition: all 0.1s ease;
+}
+.ping-button:hover{
+    background-color: #1d66ab;
+}
+.ping-button:active {
+    box-shadow: 0 -2px #dadada;  
+    transform: translate(1px, 1px);
+}
+.ping-result{
+    text-align: center;
 }
 
 .Image-card {
@@ -228,7 +255,7 @@ body {
     transform: translate(-50%);
 }
 .image-button{
-    padding: 2px 2px;
+    padding: 2px;
     width: 20px;
     height: 20px;
     border: none;
@@ -253,7 +280,6 @@ body {
     white-space: nowrap;
 }
 
-
 .graph-card {
     grid-area: graph-card;
     max-width: 1274px;
@@ -262,9 +288,34 @@ body {
     margin-left: var(--half-spacing);
     margin-right: var(--half-spacing);
     justify-self: center;
+    display: grid;
+    grid-template-columns: 15% auto;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas: "pole-select-card graph" "duration-card graph";
     @media  screen and (max-width:900px) {
         width: 98%;
     }
 }
 
+.pole-select-card{
+    grid-area: pole-select-card;
+    text-align: center;
+}
+.pole-select{
+    width: 80%;
+    text-align: center;
+}
+
+.duration-card{
+    grid-area: duration-card;
+    text-align: center;
+}
+.duration-select{
+    width: 80%;
+    text-align: center;
+}
+
+.graph{
+    grid-area: graph;
+}
 

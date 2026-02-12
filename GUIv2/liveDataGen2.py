@@ -19,7 +19,7 @@ p1_trend = random.uniform(-0.2, 0.2)
 p2_trend = random.uniform(-0.3, 0.3)
 
 # JSON file and counter
-path = "data.json"
+path = "C:\Users\parke\Desktop\SPS_UI\safepass-system-software\SPS_Dashboard\data.json"
 json_entries = []
 entry_id = 1
 

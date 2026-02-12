@@ -56,7 +56,7 @@ while True:
     })
     entry_id += 1
     json_output = json.dumps(json_entries, indent=2)
-    path = 'GUI/data.json'
+    path = 'GUIv2/data.json'
     with open(path, 'w') as f:
         f.write(json_output)
     time.sleep(0.1)  # Simulate delay between data generations
