@@ -381,8 +381,8 @@ select {
 }
 
 .warning-icon {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     border-radius: var(--border-radius-sm);
     object-fit: cover;
 }

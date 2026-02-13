@@ -50,6 +50,6 @@ for i in range(num_entries):
     entry_id += 1
 
 json_output = json.dumps(json_entries, indent=2)
-path = 'data.json'
+path = 'safepass-system-software/SPS_Dashboard/data.json'
 with open(path, 'w') as f:
     f.write(json_output)
