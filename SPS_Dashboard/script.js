@@ -125,13 +125,13 @@ function updatePoleStatus(elementId, waterLevel, warningThreshold, criticalThres
     const element = document.getElementById(elementId);
     
     if (waterLevel >= criticalThreshold) {
-        element.src = "images/WarningState2.jpg";
+        element.src = "images/WarningState2.svg";
         element.alt = "Critical flood warning";
     } else if (waterLevel >= warningThreshold) {
-        element.src = "images/WarningState1.jpg";
+        element.src = "images/WarningState1.svg";
         element.alt = "Flood warning";
     } else {
-        element.src = "images/WarningState0.jpg";
+        element.src = "images/WarningState0.svg";
         element.alt = "Normal status";
     }
 }
@@ -212,7 +212,7 @@ function initializePingButton() {
                 pingStatus.textContent = 'Pinging sensors...';
             }
             
-            // Simulate ping delay
+            // Simulate ping delay -- To be removed
             setTimeout(() => {
                 pingButton.disabled = false;
                 pingButton.style.opacity = '1';
