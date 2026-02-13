@@ -19,8 +19,10 @@ p1_trend = random.uniform(-0.2, 0.2)
 p2_trend = random.uniform(-0.3, 0.3)
 
 # JSON file and counter
-path = "C:\Users\parke\Desktop\SPS_UI\safepass-system-software\SPS_Dashboard\data.json"
-json_entries = []
+pole1DataPath = "safepass-system-software\SPS_Dashboard\pole1Data.json"
+pole2DataPath = "safepass-system-software\SPS_Dashboard\pole2Data.json"
+pole1_entry = []
+pole2_entry = []
 entry_id = 1
 
 while True:
@@ -40,7 +42,7 @@ while True:
     p2 = max(POLE2_MIN, min(p2, POLE2_MAX))
 
     # Add Pole 1
-    json_entries.append({
+    pole1_entry.append({
         "id": entry_id,
         "PoleID": 1,
         "waterLevel": round(p1, 2),
@@ -49,7 +51,7 @@ while True:
     entry_id += 1
 
     # Add Pole 2
-    json_entries.append({
+    pole2_entry.append({
         "id": entry_id,
         "PoleID": 2,
         "waterLevel": round(p2, 2),
@@ -58,8 +60,10 @@ while True:
     entry_id += 1
 
     # Write file
-    with open(path, "w") as f:
-        f.write(json.dumps(json_entries, indent=2))
+    with open(pole1DataPath, "w") as f:
+        f.write(json.dumps(pole1_entry, indent=2))
+    with open(pole2DataPath, "w") as f:
+        f.write(json.dumps(pole2_entry, indent=2))
 
     # Move time forward
     current_time += timedelta(minutes=15)
