@@ -1,8 +1,7 @@
 
 // Load Google Charts
 google.charts.load('current', { packages: ['corechart'] });
-
-google.charts.setOnLoadCallback(drawChart);
+let init = true;
 
 async function drawChart(chartData) {
     var data = new google.visualization.DataTable();
@@ -13,26 +12,71 @@ async function drawChart(chartData) {
     data.addRows(chartData);
     
     var options = {
+        backgroundColor: 'transparent',
+
         title: 'Water Level Over Time',
-        hAxis: { 
-            title: 'Time (Hours)',
+        titleTextStyle: {
+            color: '#000000',
+            fontSize: 16,
+            bold: true
+        },
+
+        chartArea: {
+            left: 60,
+            top: 50,
+            width: '85%',
+            height: '65%'
+        },
+
+        hAxis: {
+            title: 'Time',
             format: 'h:mm a',
-            gridlines: { units: { hours: {format: ['h:mm', "h:mm a"] } } },
-            minorGridlines: { units: { minutes: { format: ['h:mm', "h:mm a"] } } },
+            textStyle: { color: '#cccccc' },
+            titleTextStyle: { color: '#000000' },
+            gridlines: { color: '#222222' },
+            minorGridlines: { color: '#222222' }
         },
-        vAxis: { 
-            title: 'Level (Inches)',
-            viewWindow: { min: 0, max: 10},
-            ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+        vAxis: {
+            title: 'Water Level (Inches)',
+            viewWindow: { min: 0, max: 10 },
+            textStyle: { color: '#222222' },
+            titleTextStyle: { color: '#000000' },
+            gridlines: { color: '#222222' },
+            minorGridlines: { color: '#666666' }
         },
-        legend: { position: 'bottom' },
+
+        legend: {
+            position: 'top',
+            alignment: 'end',
+            textStyle: { color: '#000000' }
+        },
+
         lineWidth: 3,
-        colors: ['#CC2222', 'blue', '#F7DD5B', '#CC0000'],
-        curveType: 'function'
+        pointSize: 0,
+
+        colors: ['#CC2222', '#2196F3'],  // Red for Pole 1, Blue for Pole 2
+        curveType: 'function',
+
+        animation: init ? {
+            startup: true,
+            duration: 800,
+            easing: 'out'
+        } : {
+            duration: 150,
+            easing: 'out'
+        },
+        interpolateNulls: true
     };
+
 
     var chart = new google.visualization.LineChart(document.getElementById('linechart'));
     chart.draw(data, options);
+
+    window.addEventListener('resize', function() {
+        chart.draw(data, options);
+    });
+    init = false;
 }
 
 async function updatePoleData(){
@@ -75,15 +119,22 @@ async function updatePoleData(){
     let dataIndexRange = 1000; //Number of data points to show on chart
     let chartData = [];
 
-    for (let i = ((data.length >= dataIndexRange) ? data.length - dataIndexRange : 0); i < data.length-1; i+=2) { //Assumes data has entries for both poles in pairs
-        let time = new Date(data[i].created_at);
+    let minLength = Math.min(pole1Data.length, pole2Data.length);
+    let startIndex = (minLength >= dataIndexRange) ? minLength - dataIndexRange : 0;
+
+    for (let i = startIndex; i < minLength; i++) {
+
+        let time = new Date(pole1Data[i].createdat);
         let hour = time.getHours();
         let minute = time.getMinutes();
         let second = time.getSeconds();
-        let pole1Level = data[i].waterlevel;
-        let pole2Level = data[i+1].waterlevel;
+
+        let pole1Level = pole1Data[i].waterlevel;
+        let pole2Level = pole2Data[i].waterlevel;
+
         chartData.push([[hour, minute, second], pole1Level, pole2Level]);
-    }
+}
+
     drawChart(chartData);
 }
 
@@ -107,6 +158,9 @@ image_buttons.forEach(button => {
     button.classList.add('pressed');
   });
 });
-updatePoleData()
-setInterval(updatePoleData(), 1000);
+
+
+
+updatePoleData();
+setInterval(updatePoleData, 1000);
 

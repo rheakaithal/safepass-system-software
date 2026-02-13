@@ -53,6 +53,7 @@ body {
         justify-content: center;
     }
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .base {
@@ -72,7 +73,7 @@ body {
     font-size: 18px;
     max-height: 80px;
     min-width: 500px;
-    @media  screen and (max-width:900px) {
+    @media  screen and (max-width:1200px) {
         width: calc(100vw - 100px);
     }
 }
@@ -88,7 +89,7 @@ body {
     min-width: 100px;
     height: 100%;
     overflow-x: hidden;
-    @media  screen and (max-width:900px) {
+    @media  screen and (max-width:1200px) {
         width: 100px;
         max-width: 100px;
     }
@@ -114,7 +115,7 @@ body {
     border-radius: 2px;
     padding-left: 15px;
     white-space: nowrap;
-    @media  screen and (max-width:900px) {
+    @media  screen and (max-width:1200px) {
         display: block;
         color: var(--secondary-color);
     }
@@ -150,7 +151,7 @@ body {
     background-color: #efefef;
     border-radius: 5px;
     margin: var(--spacing);
-    height: 40%;
+    height: 95px;
     align-self: start;
     justify-self: start;
 }
