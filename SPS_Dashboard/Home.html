@@ -4,8 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <h1>Home Page</h1>
+<body class="iframe-content">
+    <div class="dashboard-grid-iframe">
+        <section class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2 class="card-title">Welcome to the Flood Monitoring Dashboard</h2>
+            </div>
+            <div style="padding: var(--spacing-xl);">
+                <p style="margin-bottom: var(--spacing-md); line-height: 1.8;">
+                    This dashboard provides real-time monitoring of flood conditions at various locations. 
+                    Select a dashboard from the sidebar to view detailed information.
+                </p>
+                
+                <h3 style="margin: var(--spacing-lg) 0 var(--spacing-md) 0; color: var(--primary-color);">
+                    Available Dashboards
+                </h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--spacing-sm); background: var(--bg-secondary); margin-bottom: var(--spacing-sm); border-radius: var(--border-radius-sm);">
+                        <strong>Ross Street</strong> - Real-time flood monitoring with 2 sensor poles
+                    </li>
+                    <li style="padding: var(--spacing-sm); background: var(--bg-secondary); margin-bottom: var(--spacing-sm); border-radius: var(--border-radius-sm);">
+                        <strong>Filler</strong> - Placeholder for additional monitoring location
+                    </li>
+                </ul>
+                
+                <h3 style="margin: var(--spacing-lg) 0 var(--spacing-md) 0; color: var(--primary-color);">
+                    Quick Stats
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--success-color);">2</div>
+                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">Active Sensors</div>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--accent-color);">1</div>
+                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">Active Locations</div>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--success-color);">100%</div>
+                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">System Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </body>
 </html>

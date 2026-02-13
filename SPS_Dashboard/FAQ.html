@@ -5,42 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <div class="Menu">
-            <img src="images\SPSLogoTransparent.png" alt="SPS Logo" class="menu-logo">
-            <div style="margin-top:auto; margin-left:10px; font-size: 20px;">General</div>
-            <div class="menu-button"  onclick="document.location='Home.html'">
-                <img src="images\home.png" alt="Home Logo" class="menu-button-logo">
-                <div style="align-self: center;">Home</div>
+<body class="iframe-content">
+    <div class="dashboard-grid-iframe">
+        <section class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2 class="card-title">Frequently Asked Questions</h2>
             </div>
-            <div class="menu-button" onclick="document.location='Settings.html'">
-                <img src="images\edit.png" alt="Edit Logo" class="menu-button-logo">
-                <div style="align-self: center;">Settings</div>
+            <div style="padding: var(--spacing-xl);">
+                <div style="max-width: 800px;">
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How often is the data updated?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            The dashboard updates in real-time, with new sensor readings being fetched every second. 
+                            This ensures you always have the most current flood monitoring data.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What do the warning states mean?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            <strong>State 0 (Green):</strong> Normal conditions - water level below 3 inches<br>
+                            <strong>State 1 (Yellow):</strong> Warning level - water level between 3-6 inches<br>
+                            <strong>State 2 (Red):</strong> Critical level - water level above 6 inches
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How accurate are the sensor readings?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Our sensors are calibrated to provide accuracy within ±0.1 inches. They are regularly 
+                            maintained and tested to ensure reliable flood monitoring data.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What should I do if I see a critical warning?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            If you see a critical (red) warning, follow your organization's emergency flood response 
+                            procedures immediately. Contact emergency services if necessary and evacuate low-lying areas.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            Can I access historical data?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Yes! Use the duration selector in the graph card to view data from the past 12 hours 
+                            up to 1 week. Historical data can help identify patterns and trends.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What does the "Time to Flood" estimate mean?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            This is a predictive estimate based on the current rate of water level change. It indicates 
+                            how much time you have before flooding conditions are expected to occur if the current trend continues.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How do I request new images?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Click the "Request Images" button in the Live View card. The system will capture fresh 
+                            images from all monitoring cameras and display them within a few seconds.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            Who should I contact for technical support?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            For technical issues with the dashboard or sensors, contact your system administrator or 
+                            IT support team. For emergency flood response, contact local emergency services.
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="menu-button" style="border-left: 10px solid var(--primary-color); padding-left: 5px;">
-                <img src="images\faq.png" alt="FAQ Logo" class="menu-button-logo">
-                <div style="align-self: center;">FAQ</div>
-            </div>
-            <div style="margin-top:auto; margin-left:10px; font-size: 20px;">RIPPLE <br> Systems</div>
-            <div class="menu-button"  onclick="document.location='RossSt.html'">
-                <img src="images\SPSLogo.png" alt="SPS Logo" class="menu-button-logo">
-                <div style="align-self: center;">Ross St</div>
-            </div>
-            <div class="menu-button" onclick="document.location='Filler.html'">
-                <img src="images\SPSLogo.png" alt="SPS Logo" class="menu-button-logo">
-                <div style="align-self: center;">Filler</div>
-            </div>
-        </div>
-        <div class="Title">
-            <h1>Frequenly Asked Questions</h1>
-        </div>
-        <div class="faq">
-            FAQ
-        </div>
+        </section>
     </div>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
