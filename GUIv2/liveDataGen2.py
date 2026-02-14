@@ -4,7 +4,7 @@ import random
 import time
 
 # Starting timestamp
-current_time = datetime(2025, 11, 30, 2, 0, 0)
+current_time = datetime(2026, 2, 7, 8, 0, 0)
 
 # Value ranges
 POLE1_MIN, POLE1_MAX = 0.0, 10.0
@@ -45,8 +45,8 @@ while True:
     pole1_entry.append({
         "id": entry_id,
         "PoleID": 1,
-        "waterLevel": round(p1, 2),
-        "createsAt": current_time.strftime("%Y-%m-%dT%H:%M:%S")
+        "waterlevel": round(p1, 2),
+        "createdat": current_time.strftime("%Y-%m-%dT%H:%M:%S")
     })
     entry_id += 1
 
@@ -54,8 +54,8 @@ while True:
     pole2_entry.append({
         "id": entry_id,
         "PoleID": 2,
-        "waterLevel": round(p2, 2),
-        "createsAt": current_time.strftime("%Y-%m-%dT%H:%M:%S")
+        "waterlevel": round(p2, 2),
+        "createdat": current_time.strftime("%Y-%m-%dT%H:%M:%S")
     })
     entry_id += 1
 
@@ -66,7 +66,7 @@ while True:
         f.write(json.dumps(pole2_entry, indent=2))
 
     # Move time forward
-    current_time += timedelta(minutes=15)
-
+    current_time += timedelta(minutes=30)
+    
     # Wait before next generation
-    time.sleep(1)
+    time.sleep(0.1)
