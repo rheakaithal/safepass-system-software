@@ -3,13 +3,13 @@
 // ============================================
 google.charts.load('current', { packages: ['corechart'] });
 let init = true;
-
+let chart;
 // ============================================
 // CHART DRAWING FUNCTION
 // ============================================
 async function drawChart(chartData) {
     const data = new google.visualization.DataTable();
-    data.addColumn('timeofday', 'Time (Hours)');
+    data.addColumn('datetime', 'Time');
     data.addColumn('number', 'Pole 1');
     data.addColumn('number', 'Pole 2');
     data.addRows(chartData);
@@ -30,19 +30,19 @@ async function drawChart(chartData) {
         },
         hAxis: {
             title: 'Time',
-            format: 'h:mm a',
+            format: 'MMM d \n h:mm a',
             textStyle: { color: '#64748b' },
             titleTextStyle: { color: '#1e293b' },
-            gridlines: { color: '#e2e8f0' },
-            minorGridlines: { color: '#f1f5f9' }
+            gridlines: { color: '#e2e8f0'},
+            minorGridlines: { color: '#f1f5f9', count: 0}
         },
         vAxis: {
             title: 'Water Level (Inches)',
-            viewWindow: { min: 0, max: 10 },
+            viewWindow: { min: 0, max: 12 },
             textStyle: { color: '#64748b' },
             titleTextStyle: { color: '#1e293b' },
             gridlines: { color: '#e2e8f0' },
-            minorGridlines: { color: '#f1f5f9' }
+            minorGridlines: { color: '#f1f5f9'}
         },
         legend: {
             position: 'top',
@@ -57,14 +57,17 @@ async function drawChart(chartData) {
             startup: true,
             duration: 800,
             easing: 'out'
-        } : {
-            duration: 150,
-            easing: 'out'
-        },
+        } : null,
         interpolateNulls: true
     };
 
-    const chart = new google.visualization.LineChart(document.getElementById('linechart'));
+    durationSelection(options);
+
+    if (!chart) {
+    chart = new google.visualization.LineChart(
+        document.getElementById('linechart')
+    );
+}
     chart.draw(data, options);
 
     // Redraw chart on window resize for responsiveness
@@ -74,6 +77,63 @@ async function drawChart(chartData) {
     
     init = false;
 }
+// ============================================
+// DRAW CHART RANGE
+// ============================================
+async function durationSelection(options) {
+    let duration = document.getElementById("duration-select").value;
+    let now = new Date();
+    let minDate;
+    let format;
+    let gridCount;
+
+    switch(duration) {
+
+        case "12 Hours":
+            minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+            format = 'MMM d \n h:mm a';
+            gridCount = 7;
+            break;
+
+        case "1 Day":
+            minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            format = 'MMM d \n h:mm a';
+            gridCount = 12;
+            break;
+
+        case "3 Days":
+            minDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+            format = 'MMM d \n h:mm a';
+            gridCount = 3;
+            break;
+
+        case "1 Week":
+            minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            format = 'MMM d';
+            gridCount = 7;
+            break;
+
+        default:
+            minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+            format = 'MMM d \n h:mm a';
+            gridCount = 6;
+            break;
+    }
+
+    options.hAxis.viewWindow = {
+        min: minDate,
+        max: now
+    };
+
+    options.hAxis.format = format;
+
+    options.hAxis.gridlines = {
+        count: gridCount,
+        color: '#e2e8f0'
+    };
+}
+
+
 
 // ============================================
 // UPDATE POLE DATA
@@ -140,24 +200,26 @@ function updatePoleStatus(elementId, waterLevel, warningThreshold, criticalThres
 // PREPARE CHART DATA
 // ============================================
 function prepareChartData(pole1Data, pole2Data) {
-    const DATA_POINTS_TO_SHOW = 1000; // Number of data points to display
-    const chartData = [];
-
-    const minLength = Math.min(pole1Data.length, pole2Data.length);
-    const startIndex = (minLength >= DATA_POINTS_TO_SHOW) 
+    const DATA_POINTS_TO_SHOW = 10000000; // Number of data points to display
+    let chartData = [];
+    let poleSelect = document.getElementById("pole-select").value;
+    console.log(poleSelect);
+    let minLength = Math.min(pole1Data.length, pole2Data.length);
+    let startIndex = (minLength >= DATA_POINTS_TO_SHOW) 
         ? minLength - DATA_POINTS_TO_SHOW 
         : 0;
 
     for (let i = startIndex; i < minLength; i++) {
-        const time = new Date(pole1Data[i].createdat);
-        const hour = time.getHours();
-        const minute = time.getMinutes();
-        const second = time.getSeconds();
-
-        const pole1Level = pole1Data[i].waterlevel;
-        const pole2Level = pole2Data[i].waterlevel;
-
-        chartData.push([[hour, minute, second], pole1Level, pole2Level]);
+        let dateTime = new Date(pole1Data[i].createdat);
+        let pole1Level = null;
+        let pole2Level = null;
+        if(poleSelect === "All Poles" || poleSelect === "Pole 1"){
+            pole1Level = pole1Data[i].waterlevel;
+        }
+        if(poleSelect === "All Poles" || poleSelect === "Pole 2"){
+            pole2Level = pole2Data[i].waterlevel;
+        }
+        chartData.push([dateTime, pole1Level, pole2Level]);
     }
 
     return chartData;
