@@ -122,7 +122,7 @@ select {
 }
 
 .sidebar-logo {
-    width: 100px;
+    width: 150px;
     margin: 0 auto;
     height: auto;
     filter: brightness(0) invert(1);

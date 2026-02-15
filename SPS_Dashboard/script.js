@@ -4,6 +4,7 @@
 google.charts.load('current', { packages: ['corechart'] });
 let init = true;
 let chart;
+
 // ============================================
 // CHART DRAWING FUNCTION
 // ============================================
@@ -145,8 +146,8 @@ async function updatePoleData() {
         const pole2Data = await (await fetch('pole2Data.json')).json();
         
         // Water level thresholds (inches)
-        const WARNING_THRESHOLD = 3.0;  // State 1
-        const CRITICAL_THRESHOLD = 6.0; // State 2
+        WARNING_THRESHOLD = 3.0;  // State 1
+        CRITICAL_THRESHOLD = 6.0; // State 2
         
         // Get latest pole data objects from JSON files
         const lastPole1Data = pole1Data[pole1Data.length - 1];
