@@ -8,7 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js Date Adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body class="iframe-content">
     <!-- Dashboard Grid -->
@@ -127,9 +131,15 @@
                     </div>
                 </div>
             </div>
-            <div class="graph-container" id="linechart"></div>
+            <div class="graph-container">
+                <canvas id="waterLevelChart"></canvas>
+            </div>
         </section>
     </div>
-    <script src="script.js"></script>
+    <!-- Load JavaScript modules in order -->
+    <script src="settings.js"></script>
+    <script src="chart.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="navigation.js"></script>
 </body>
 </html>
