@@ -449,6 +449,7 @@ function initializePingButton() {
             if (pingStatus) {
                 pingStatus.textContent = 'Pinging sensors...';
             }
+            //const result = fetch('http://127.0.0.1:3306/api/ping')
             //TEMP
             setTimeout(() => {
                 pingButton.disabled = false;

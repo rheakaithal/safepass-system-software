@@ -3,7 +3,6 @@ const fs = require('fs')
 
 const host = '83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud'
 const port = '8883'
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
 const connectUrl = `mqtts://${host}:${port}`
 
