@@ -1,41 +1,30 @@
-// ============================================
-// DATA INTERPOLATION FOR SMOOTHER HOVER
-// ============================================
+/* Texas A&M University
+** Safe Pass Systems - RIPPLE
+** Emergency Service Dashboard
+** Author: Parker Williamson
+** File: chart.js
+** --------
+** Contains the functions to controll the graph in the dashboard.
+** Takes in data from a SQL server and stores it into JSON files.
+** Each point is interpolated to the last point to create a smooth data set.
+** Data sets dont have to have the same timestamps - Time gets unifies
+** Uses chart.js
+*/
 
-// Get value at specific timestamp using linear interpolation
-function getValueAtTime(timestamps, values, targetTime) {
-    if (timestamps.length === 0) return null;
-    if (timestamps.length === 1) return values[0];
-    
-    const targetMs = targetTime.getTime();
-    
-    // If before first point, return first value
-    if (targetMs <= timestamps[0].getTime()) {
-        return values[0];
-    }
-    
-    // If after last point, return last value
-    if (targetMs >= timestamps[timestamps.length - 1].getTime()) {
-        return values[values.length - 1];
-    }
-    
-    // Find surrounding points
-    for (let i = 0; i < timestamps.length - 1; i++) {
-        const t1 = timestamps[i].getTime();
-        const t2 = timestamps[i + 1].getTime();
-        
-        if (targetMs >= t1 && targetMs <= t2) {
-            // Linear interpolation
-            const v1 = values[i];
-            const v2 = values[i + 1];
-            const ratio = (targetMs - t1) / (t2 - t1);
-            return v1 + (v2 - v1) * ratio;
-        }
-    }
-    
-    return values[values.length - 1];
-}
-
+/* Filter the data for only the values between specified dates.
+** Creates a new time axis based on the min and max dates in data sets.
+** Interpolates each data set to find value at the new times.
+** Parameters:
+**     array pole1Data 
+**     array pole2Data 
+**     date object minDate
+**     date opject maxDate
+**     int targetPoints
+** Return:
+**     array unifiedTimeStamps
+**     array unifiedPole1Data
+**     array unifiedPole2Data
+*/
 // Create unified timeline from two independent datasets
 function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoints = 500) {
     // Extract timestamps and values from both poles
@@ -101,14 +90,15 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     };
 }
 
-// ============================================
-// CHART.JS IMPLEMENTATION
-// ============================================
+
+/* Chart initialization. Holds the settings and configs of the chart
+** Parameters:
+**     None
+** Return:
+**     void None
+*/
 let waterLevelChart = null;
 
-// ============================================
-// INITIALIZE CHART
-// ============================================
 function initializeChart() {
     const ctx = document.getElementById('waterLevelChart');
     if (!ctx) return;
@@ -262,9 +252,13 @@ function initializeChart() {
     setupPoleSelector();
 }
 
-// ============================================
-// SETUP DURATION SELECTOR
-// ============================================
+/* Sets up event listerer for a change on the duration selection. 
+** Calls the updateChartTimeRange() function to change chart time range
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function setupDurationSelector() {
     const durationSelect = document.getElementById('duration-select');
     if (!durationSelect) return;
@@ -274,9 +268,13 @@ function setupDurationSelector() {
     });
 }
 
-// ============================================
-// UPDATE CHART TIME RANGE
-// ============================================
+/* Takes the value from duration select and sets the minDate and timeUnit for each time range.
+** Makes the time range and unit format nicely
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function updateChartTimeRange() {
     if (!waterLevelChart) return;
 
@@ -313,9 +311,12 @@ function updateChartTimeRange() {
     waterLevelChart.update('none');
 }
 
-// ============================================
-// SETUP POLE SELECTOR
-// ============================================
+/* Sets up event listerer for pole select drop down for the graph
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function setupPoleSelector() {
     const poleSelect = document.getElementById('pole-select');
     if (!poleSelect) return;
@@ -325,9 +326,12 @@ function setupPoleSelector() {
     });
 }
 
-// ============================================
-// UPDATE POLE VISIBILITY
-// ============================================
+/* Hides the data of whatever pole isnt selected in the pole select drop down
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function updatePoleVisibility() {
     if (!waterLevelChart) return;
 
@@ -340,9 +344,15 @@ function updatePoleVisibility() {
     waterLevelChart.update('active');
 }
 
-// ============================================
-// UPDATE CHART DATA
-// ============================================
+/* Main handler for chart data update
+** takes arrays of pole data, unifies their timestamps, and stores interpolated data in new arrays
+** New data is displayed on the graph within time range
+** Parameters:
+**     array pole1Data
+**     array pole2Data
+** Return:
+**     None
+*/
 function updateChartData(pole1Data, pole2Data) {
     if (!waterLevelChart) {
         initializeChart();
@@ -387,4 +397,47 @@ function updateChartData(pole1Data, pole2Data) {
 
     // Update chart
     waterLevelChart.update('active');
+}
+
+
+/* Finds value between measured points that matches timestamp (targetTime)
+** Parameters:
+**     array timestamps
+**     array values
+**     date object targetTime
+** Return:
+**     float waterLevel
+*/
+// Get value at specific timestamp using linear interpolation
+function getValueAtTime(timestamps, values, targetTime) {
+    if (timestamps.length === 0) return null;
+    if (timestamps.length === 1) return values[0];
+    
+    const targetMs = targetTime.getTime();
+    
+    // If before first point, return first value
+    if (targetMs <= timestamps[0].getTime()) {
+        return values[0];
+    }
+    
+    // If after last point, return last value
+    if (targetMs >= timestamps[timestamps.length - 1].getTime()) {
+        return values[values.length - 1];
+    }
+    
+    // Find surrounding points
+    for (let i = 0; i < timestamps.length - 1; i++) {
+        const t1 = timestamps[i].getTime();
+        const t2 = timestamps[i + 1].getTime();
+        
+        if (targetMs >= t1 && targetMs <= t2) {
+            // Linear interpolation
+            const v1 = values[i];
+            const v2 = values[i + 1];
+            const ratio = (targetMs - t1) / (t2 - t1);
+            return v1 + (v2 - v1) * ratio;
+        }
+    }
+    
+    return values[values.length - 1];
 }

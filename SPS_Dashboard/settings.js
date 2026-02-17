@@ -1,6 +1,16 @@
-// ============================================
-// SETTINGS MANAGEMENT
-// ============================================
+/* Texas A&M University
+** Safe Pass Systems - RIPPLE
+** Emergency Service Dashboard
+** Author: Parker Williamson
+** File: settings.js
+** --------
+** Contains the functions used by the settings page. 
+** Uses local storage from the device to save custom settings per user(localstorage API)
+** Controls the update frequency, thresholds, and alarm settings
+*/
+
+
+// Default settings for the dashboard
 const DEFAULT_SETTINGS = {
     updateFrequency: 1000, // milliseconds
     distanceUnits: 'Inches',
@@ -10,48 +20,70 @@ const DEFAULT_SETTINGS = {
     alarmVolume: 0.7            // 0.0 to 1.0
 };
 
+//loads default settings as the dashboards settings
 let settings = { ...DEFAULT_SETTINGS };
 
-// Load settings from localStorage
+
+/* Loads locally stored settings from device into settings object. 
+** Keeps default settings if no locally stored settings
+** Parameters:
+**     None
+** Return:
+**     settings object
+*/
 function loadSettings() {
     const savedSettings = localStorage.getItem('dashboardSettings');
     if (savedSettings) {
         settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
     }
     return settings;
-}
+} /* loadSettings() */
 
-// Save settings to localStorage
+/* Saves the settings to the local storage on the device using localStorage API
+** Parameters:
+**     settings object
+** Return:
+**     settings object
+*/
 function saveSettings(newSettings) {
     settings = { ...settings, ...newSettings };
     localStorage.setItem('dashboardSettings', JSON.stringify(settings));
     return settings;
-}
+} /* saveSettings() */
 
-// Convert distance units (for display only)
+/* Converts threshold displays to centimeters or inches based on distance unit selected.
+** Only for display
+** Parameters:
+**     float inches
+** Return:
+**     float inches or float centimeters
+*/
 function convertDistance(inches) {
     if (settings.distanceUnits === 'Centimeters') {
         return (inches * 2.54).toFixed(2);
     }
     return inches.toFixed(2);
-}
+} /* convertDistance() */
 
-// Convert display value back to inches (for storage)
-function convertToInches(value, fromUnit) {
-    if (fromUnit === 'Centimeters') {
-        return value / 2.54;
-    }
-    return value;
-}
-
-// Get unit label
+/* Returns the unit label depending on the distance unit
+** Parameters:
+**     None
+** Return:
+**     str cm or str inches
+*/
 function getUnitLabel() {
     return settings.distanceUnits === 'Centimeters' ? 'cm' : 'inches';
-}
+} /* getUnitLabel() */
 
-// ============================================
-// SETTINGS PAGE FUNCTIONALITY
-// ============================================
+/* Settings page init
+** Converts threshold values in settings sheet between inches and centimeters along with the label
+** Loads default/saved settings into settings sheet inputs
+** Contains the "Save Settings" button functionality - Saves settings to local storage
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function initializeSettingsPage() {
     // Get form elements by ID
     const updateFreqSelect = document.getElementById('updateFrequencySelect');
@@ -66,7 +98,12 @@ function initializeSettingsPage() {
     const testAlarmButton = document.getElementById('testAlarmButton');
     const saveButton = document.getElementById('saveSettings');
 
-    // Function to update threshold labels and values based on selected unit
+    /* Updates threshold labels and values based on distance unit
+    ** Parameters:
+    **     distanceUnitSelect, warningLabel, criticalLabel, warningInput, criticalInput
+    ** Return:
+    **     void None
+    */
     function updateThresholdDisplay() {
         const currentUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
         const unitLabel = currentUnit === 'Centimeters' ? 'centimeters' : 'inches';
@@ -97,7 +134,7 @@ function initializeSettingsPage() {
                 criticalInput.value = criticalInches.toFixed(2);
             }
         }
-    }
+    } /* updateThresholdDistance() */
 
     // Load current settings into form
     if (updateFreqSelect) {
@@ -150,18 +187,15 @@ function initializeSettingsPage() {
             if (distanceUnitSelect) {
                 newSettings.distanceUnits = distanceUnitSelect.value;
             }
-
-            // Convert threshold values back to inches for storage
-            const currentUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
             
             if (warningInput) {
                 const warningValue = parseFloat(warningInput.value);
-                newSettings.warningThreshold = convertToInches(warningValue, currentUnit);
+                newSettings.warningThreshold = convertDistance(warningValue);
             }
 
             if (criticalInput) {
                 const criticalValue = parseFloat(criticalInput.value);
-                newSettings.criticalThreshold = convertToInches(criticalValue, currentUnit);
+                newSettings.criticalThreshold = convertDistance(criticalValue);
             }
 
             // Save alarm settings
@@ -192,11 +226,18 @@ function initializeSettingsPage() {
             console.log('Settings saved:', settings);
         });
     }
-}
+} /* initializeSettingPage() */
 
-// ============================================
-// ALARM SOUND GENERATOR
-// ============================================
+/* Uses the webkitAudioContect API to create alarm sound
+** Uses sine waves at different freqencies to create alarm
+** Parameters:
+**     float volume
+**     int duration
+** Return:
+**     {oscilator object, audioContext object}
+**     -or-
+**     null
+*/
 function playAlarmSound(volume = 0.7, duration = 2000) {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -224,4 +265,4 @@ function playAlarmSound(volume = 0.7, duration = 2000) {
         console.error('Error playing alarm sound:', error);
         return null;
     }
-}
+} /* playAlarmSound() */
