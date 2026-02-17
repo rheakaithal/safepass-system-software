@@ -265,6 +265,7 @@ function setupDurationSelector() {
 
     durationSelect.addEventListener('change', () => {
         updateChartTimeRange();
+        updatePoleData();
     });
 }/* setupDurationSelector() */
 

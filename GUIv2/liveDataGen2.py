@@ -4,7 +4,7 @@ import random
 import time
 
 # Starting timestamp
-current_time = datetime(2026, 2, 7, 8, 0, 0)
+current_time = datetime(2026, 2, 9, 8, 0, 0)
 
 # Value ranges
 POLE1_MIN, POLE1_MAX = 0.0, 10.0
@@ -28,9 +28,9 @@ entry_id = 1
 while True:
 
     # Occasionally change direction of trend
-    if random.random() < 0.1:  # 5% chance every cycle
+    if random.random() < 0.01:  # 5% chance every cycle
         p1_trend = random.uniform(-0.02, 0.02)
-    if random.random() < 0.1:
+    if random.random() < 0.01:
         p2_trend = random.uniform(-0.03, 0.03)
 
     # Update levels smoothly
@@ -67,6 +67,10 @@ while True:
 
     # Move time forward
     current_time += timedelta(minutes=30)
+    
+    #stop once current time is reached
+    if current_time > datetime.now():
+        break
     
     # Wait before next generation
     time.sleep(0.1)

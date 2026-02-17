@@ -35,6 +35,7 @@ function initializeNavigation() {
             
             if (contentFrame && page) {
                 contentFrame.src = page;
+                if(page==="RossStContent"){updatePoleData()}
             }
         });
     });

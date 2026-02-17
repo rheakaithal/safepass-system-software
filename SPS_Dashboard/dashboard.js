@@ -317,8 +317,8 @@ async function updatePoleData() {
         const pole1TimeToFlood = predictTimeToFlood(pole1Data, settings.criticalThreshold);
         const pole2TimeToFlood = predictTimeToFlood(pole2Data, settings.criticalThreshold);
         
-        updateTimeToFloodDisplay('pole1', pole1TimeToFlood);
-        updateTimeToFloodDisplay('pole2', pole2TimeToFlood);
+        updateTimeToFlood('pole1', pole1TimeToFlood);
+        updateTimeToFlood('pole2', pole2TimeToFlood);
 
         // Update chart with new data
         updateChartData(pole1Data, pole2Data);
@@ -335,7 +335,7 @@ async function updatePoleData() {
 ** Return:
 **     None
 */
-function updateTimeToFloodDisplay(poleId, minutes) {
+function updateTimeToFlood(poleId, minutes) {
     const floodWarningElement = document.querySelector(`#${poleId}-image`)?.closest('.pole-item')?.querySelector('.flood-warning');
     
     if (!floodWarningElement) return;
@@ -366,7 +366,7 @@ function updateTimeToFloodDisplay(poleId, minutes) {
             valueElement.style.animation = 'none';
         }
     }
-}/* updateTimeToFloodDisplay() */
+}/* updateTimeToFlood() */
 
 /* Updates pole status image 
 ** Parameters:
@@ -463,6 +463,31 @@ function initializePingButton() {
     }
 }/* initializePingButton() */
 
+/* requests image from ripple system
+** For now, just takes image on laptop camera
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+function initializeImageRequestButton(){
+    const imageRequestButton = document.getElementById('image-request-button');
+    if(imageRequestButton){
+        imageRequestButton.addEventListener('click', async () => {
+            imageRequestButton.disabled = true;
+            imageRequestButton.style.opacity = '0.6';
+            
+            console.log("Image request button pressed");
+            //TEMP
+            setTimeout(() => {
+                imageRequestButton.disabled = false;
+                imageRequestButton.style.opacity = '1';
+            }, 1500);
+        })
+    }
+}
+
+
 /* Initializes the dashboard elements when page is loaded
 ** Parameters:
 **     None
@@ -482,6 +507,7 @@ function initializeDashboard() {
     // Initialize dashboard components
     initializeImageButtons();
     initializePingButton();
+    initializeImageRequestButton();
     initializeChart();
     
     // Start updating pole data
