@@ -1,6 +1,14 @@
-// ============================================
-// DASHBOARD DATA MANAGEMENT
-// ============================================
+/* Texas A&M University
+** Safe Pass Systems - RIPPLE
+** Emergency Service Dashboard
+** Author: Parker Williamson
+** File: dashboard.js
+** --------
+** contentDescription
+*/
+
+
+//Creates global variables
 let chartUpdateInterval = null;
 let alarmState = {
     pole1Flooding: false,
@@ -9,9 +17,16 @@ let alarmState = {
     alarmInterval: null
 };
 
-// ============================================
-// ALARM SYSTEM
-// ============================================
+/* Plays alarm for set amount of time at set volume
+** Used to alert users of flooding event
+** Uses the webkitAudioContect API to create alarm sound
+** Uses sine waves at different freqencies to create alarm
+** Parameters:
+**     float volume (0.0 to 1.0)
+**     int duration
+** Return:
+**     None
+*/
 function playAlarmSound(volume = 0.7, duration = 2000) {
     if (!settings.alarmEnabled) return null;
     
@@ -41,8 +56,15 @@ function playAlarmSound(volume = 0.7, duration = 2000) {
         console.error('Error playing alarm sound:', error);
         return null;
     }
-}
+}/* playAlarmSound() */
 
+/* Starts playing alarm, when called, every 3 seconds
+** Continues until stopContinuousAlarm() is called
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function startContinuousAlarm() {
     if (!settings.alarmEnabled || alarmState.alarmPlaying) return;
     
@@ -57,8 +79,14 @@ function startContinuousAlarm() {
             playAlarmSound(settings.alarmVolume, 1500);
         }
     }, 3000);
-}
+}/* startContinuousAlarm() */
 
+/* stops continuouse alarm and clears interval from alarm state
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function stopContinuousAlarm() {
     alarmState.alarmPlaying = false;
     
@@ -66,20 +94,23 @@ function stopContinuousAlarm() {
         clearInterval(alarmState.alarmInterval);
         alarmState.alarmInterval = null;
     }
-}
+}/* stopContinuousAlarm() */
 
-// ============================================
-// VISUAL BORDER ALERT
-// ============================================
+/* creates red boarder around dashboard to show visual warning of critical flood
+** Parameters:
+**     bool isFlooding
+** Return:
+**     None
+*/
 function updateBorderPulse(isFlooding) {
     const body = document.body;
     
     if (isFlooding) {
-        // Add pulsing red border
+        // Adds pulsing red border
         body.style.boxShadow = 'inset 0 0 0 8px rgba(220, 38, 38, 0.6)';
         body.style.animation = 'borderPulse 1.5s ease-in-out infinite';
         
-        // Add keyframe animation if not already added
+        // Adds keyframe animation
         if (!document.getElementById('borderPulseStyle')) {
             const style = document.createElement('style');
             style.id = 'borderPulseStyle';
@@ -100,11 +131,14 @@ function updateBorderPulse(isFlooding) {
         body.style.boxShadow = 'none';
         body.style.animation = 'none';
     }
-}
+}/* updateBorderPulse() */
 
-// ============================================
-// CHECK FLOODING STATUS
-// ============================================
+/* Checks flooding status of both poles and starts/stop alarm based on flooding status
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function checkFloodingStatus(pole1Level, pole2Level) {
     const pole1WasFlooding = alarmState.pole1Flooding;
     const pole2WasFlooding = alarmState.pole2Flooding;
@@ -122,19 +156,28 @@ function checkFloodingStatus(pole1Level, pole2Level) {
     // Start alarm if flooding just started
     if (anyFlooding && !wasFlooding) {
         startContinuousAlarm();
-        console.log('🚨 CRITICAL FLOODING DETECTED - ALARM ACTIVATED');
+        console.log('CRITICAL FLOODING DETECTED - ALARM ACTIVATED');
     }
     
     // Stop alarm if flooding has stopped
     if (!anyFlooding && wasFlooding) {
         stopContinuousAlarm();
-        console.log('✓ Flooding subsided - Alarm stopped');
+        console.log('Flooding subsided - Alarm stopped');
     }
-}
+}/* checkFloodingStatus() */
 
-// ============================================
-// FLOOD PREDICTION
-// ============================================
+/* Predicts time to flood using linear interpolation of the last 10 points
+** Only returns a value if under the critical threshold, less than 120 minutes, and trenging positively
+** Parameters:
+**     array dataPoints
+**     float criticalThreshold
+** Return:
+**     float timeToFloodMinutes
+**     -or-
+**     null 
+**     -or-
+**     0
+*/
 function predictTimeToFlood(dataPoints, criticalThreshold) {
     // Need at least 2 points to calculate a trend
     if (dataPoints.length < 2) {
@@ -149,8 +192,7 @@ function predictTimeToFlood(dataPoints, criticalThreshold) {
     let validIntervals = 0;
     
     for (let i = 1; i < recentPoints.length; i++) {
-        const timeDiff = new Date(recentPoints[i].createdat).getTime() - 
-                        new Date(recentPoints[i - 1].createdat).getTime();
+        const timeDiff = new Date(recentPoints[i].createdat).getTime() - new Date(recentPoints[i - 1].createdat).getTime();
         const waterDiff = recentPoints[i].waterlevel - recentPoints[i - 1].waterlevel;
         
         if (timeDiff > 0) {
@@ -191,11 +233,15 @@ function predictTimeToFlood(dataPoints, criticalThreshold) {
     }
     
     return timeToFloodMinutes;
-}
+}/* predictTimeToFlood() */
 
-// ============================================
-// FORMAT TIME TO FLOOD DISPLAY
-// ============================================
+/* Formats data for front end. Seperated data based on urgency and time units
+** Allows for different coloring for more urgent flood proedictions
+** Parameters:
+**     int minutes
+** Return:
+**     {display: boolean, text: string, urgent: boolean}
+*/
 function formatTimeToFlood(minutes) {
     if (minutes === null || minutes === undefined) {
         return { display: false, text: '' };
@@ -229,11 +275,15 @@ function formatTimeToFlood(minutes) {
         text: `${hours}h ${remainingMinutes}m`, 
         urgent: false 
     };
-}
+}/* formatTimeToFlood() */
 
-// ============================================
-// UPDATE POLE DATA
-// ============================================
+/* Main handle for dashboard functionallity.
+** Function calls to calculate and display latest waterlevel, status image, time to flood, and chart waterlevel.
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 async function updatePoleData() {
     try {
         // Fetch pole data from JSON files
@@ -276,11 +326,15 @@ async function updatePoleData() {
     } catch (error) {
         console.error('Error updating pole data:', error);
     }
-}
+}/* updatePoleData() */
 
-// ============================================
-// UPDATE TIME TO FLOOD DISPLAY
-// ============================================
+/* Updates the time to flood amount. Formats urgent time to flood values with bright red, other values orange
+** Parameters:
+**     string poleId
+**     int minutes
+** Return:
+**     None
+*/
 function updateTimeToFloodDisplay(poleId, minutes) {
     const floodWarningElement = document.querySelector(`#${poleId}-image`)?.closest('.pole-item')?.querySelector('.flood-warning');
     
@@ -312,11 +366,17 @@ function updateTimeToFloodDisplay(poleId, minutes) {
             valueElement.style.animation = 'none';
         }
     }
-}
+}/* updateTimeToFloodDisplay() */
 
-// ============================================
-// UPDATE POLE STATUS HELPER
-// ============================================
+/* Updates pole status image 
+** Parameters:
+**     strong elementId
+**     float waterLevel
+**     float warningThreshold
+**     float criticalThreshold
+** Return:
+**     None
+*/
 function updatePoleStatus(elementId, waterLevel, warningThreshold, criticalThreshold) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -331,21 +391,29 @@ function updatePoleStatus(elementId, waterLevel, warningThreshold, criticalThres
         element.src = "images/WarningState0.svg";
         element.alt = "Normal status";
     }
-}
+}/* updatePoleStatus() */
 
-// ============================================
-// IMAGE CHANGING FUNCTION
-// ============================================
+/* changes the source of the image element to new source from parameter
+** Parameters:
+**     string newImagePath
+** Return:
+**     None
+*/
 function changeImage(newImagePath) {
     const imageElement = document.getElementById("image");
     if (imageElement) {
         imageElement.src = newImagePath;
     }
-}
+}/* changeImage() */
 
-// ============================================
-// IMAGE SELECTOR BUTTON BEHAVIOR
-// ============================================
+/* Handels the functions of the image buttons.
+** Highlights the active button.
+** Changes the image source to specified image for each button
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function initializeImageButtons() {
     const imageButtons = document.querySelectorAll('.image-selector-btn');
     
@@ -360,11 +428,15 @@ function initializeImageButtons() {
             }
         });
     });
-}
+}/* initializeImageButtons() */
 
-// ============================================
-// PING BUTTON FUNCTIONALITY
-// ============================================
+/* Pings the database and mqtt broker through API calls.
+** If connected, ping request is sent to RIPPLE system
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function initializePingButton() {
     const pingButton = document.querySelector('.ping-button');
     const pingStatus = document.querySelector('.ping-status .status-text');
@@ -377,7 +449,7 @@ function initializePingButton() {
             if (pingStatus) {
                 pingStatus.textContent = 'Pinging sensors...';
             }
-            
+            //TEMP
             setTimeout(() => {
                 pingButton.disabled = false;
                 pingButton.style.opacity = '1';
@@ -386,19 +458,23 @@ function initializePingButton() {
                     pingStatus.textContent = 'All Systems Online';
                 }
             }, 1500);
+            //TEMP
         });
     }
-}
+}/* initializePingButton() */
 
-// ============================================
-// INITIALIZE DASHBOARD (FOR IFRAME CONTENT)
-// ============================================
+/* Initializes the dashboard elements when page is loaded
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function initializeDashboard() {
     // Load settings
     loadSettings();
     
     // Check if we're on the settings page
-    if (document.getElementById('saveSettings')) {
+    if (document.getElementById('saveSettings')) { //button in settings page
         initializeSettingsPage();
         return; // Don't initialize chart on settings page
     }
@@ -413,4 +489,4 @@ function initializeDashboard() {
     
     // Update pole data at interval specified in settings
     chartUpdateInterval = setInterval(updatePoleData, settings.updateFrequency);
-}
+}/* initializeDashboard() */

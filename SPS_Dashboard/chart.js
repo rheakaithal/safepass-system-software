@@ -88,7 +88,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
         pole1Values: unifiedPole1Values,
         pole2Values: unifiedPole2Values
     };
-}
+}/* creatUnifiedTimeline() */
 
 
 /* Chart initialization. Holds the settings and configs of the chart
@@ -250,7 +250,7 @@ function initializeChart() {
     
     // Setup pole selector
     setupPoleSelector();
-}
+}/* initializeChart() */
 
 /* Sets up event listerer for a change on the duration selection. 
 ** Calls the updateChartTimeRange() function to change chart time range
@@ -266,10 +266,11 @@ function setupDurationSelector() {
     durationSelect.addEventListener('change', () => {
         updateChartTimeRange();
     });
-}
+}/* setupDurationSelector() */
 
 /* Takes the value from duration select and sets the minDate and timeUnit for each time range.
 ** Makes the time range and unit format nicely
+** Called when duration drop down value is changed
 ** Parameters:
 **     None
 ** Return:
@@ -309,7 +310,7 @@ function updateChartTimeRange() {
     waterLevelChart.options.scales.x.max = now;
     
     waterLevelChart.update('none');
-}
+}/* updateChartTimeRange() */
 
 /* Sets up event listerer for pole select drop down for the graph
 ** Parameters:
@@ -324,7 +325,7 @@ function setupPoleSelector() {
     poleSelect.addEventListener('change', () => {
         updatePoleVisibility();
     });
-}
+}/* setupPoleSelector() */
 
 /* Hides the data of whatever pole isnt selected in the pole select drop down
 ** Parameters:
@@ -342,7 +343,7 @@ function updatePoleVisibility() {
     waterLevelChart.data.datasets[1].hidden = (poleSelect === 'Pole 1');
 
     waterLevelChart.update('active');
-}
+}/* updatePoleVisibility() */
 
 /* Main handler for chart data update
 ** takes arrays of pole data, unifies their timestamps, and stores interpolated data in new arrays
@@ -397,7 +398,7 @@ function updateChartData(pole1Data, pole2Data) {
 
     // Update chart
     waterLevelChart.update('active');
-}
+}/* updateChartData() */
 
 
 /* Finds value between measured points that matches timestamp (targetTime)
@@ -440,4 +441,4 @@ function getValueAtTime(timestamps, values, targetTime) {
     }
     
     return values[values.length - 1];
-}
+}/* getValueAtTime() */

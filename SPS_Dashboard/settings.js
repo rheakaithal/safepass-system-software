@@ -118,7 +118,7 @@ function initializeSettingsPage() {
         
         // Convert and display threshold values
         if (warningInput) {
-            const warningInches = settings.warningThreshold;
+            const warningInches = parseFloat(settings.warningThreshold);
             if (currentUnit === 'Centimeters') {
                 warningInput.value = (warningInches * 2.54).toFixed(2);
             } else {
@@ -127,7 +127,7 @@ function initializeSettingsPage() {
         }
         
         if (criticalInput) {
-            const criticalInches = settings.criticalThreshold;
+            const criticalInches = parseFloat(settings.criticalThreshold);
             if (currentUnit === 'Centimeters') {
                 criticalInput.value = (criticalInches * 2.54).toFixed(2);
             } else {
@@ -211,58 +211,17 @@ function initializeSettingsPage() {
             saveSettings(newSettings);
             
             // Show success message
-            const originalText = saveButton.textContent;
-            const originalColor = saveButton.style.backgroundColor;
-            
             saveButton.textContent = 'Settings Saved!';
             saveButton.style.backgroundColor = '#10b981';
             
             // Change back after 2 seconds
             setTimeout(() => {
-                saveButton.textContent = originalText;
-                saveButton.style.backgroundColor = originalColor;
+                saveButton.textContent = "Save Settings";
+                saveButton.style.backgroundColor = '#073763';
             }, 2000);
-
+            
             console.log('Settings saved:', settings);
         });
     }
 } /* initializeSettingPage() */
 
-/* Uses the webkitAudioContect API to create alarm sound
-** Uses sine waves at different freqencies to create alarm
-** Parameters:
-**     float volume
-**     int duration
-** Return:
-**     {oscilator object, audioContext object}
-**     -or-
-**     null
-*/
-function playAlarmSound(volume = 0.7, duration = 2000) {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Create alarm sound (alternating frequencies)
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.25);
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.5);
-        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.75);
-        
-        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + duration / 1000);
-        
-        return { oscillator, audioContext };
-    } catch (error) {
-        console.error('Error playing alarm sound:', error);
-        return null;
-    }
-} /* playAlarmSound() */
