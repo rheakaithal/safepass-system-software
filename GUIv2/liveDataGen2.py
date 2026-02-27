@@ -4,7 +4,7 @@ import random
 import time
 
 # Starting timestamp
-current_time = datetime(2026, 2, 17, 1, 0, 0)
+current_time = datetime(2026, 2, 10, 1, 0, 0)
 
 # Value ranges
 POLE1_MIN, POLE1_MAX = 0.0, 12.0
@@ -19,8 +19,8 @@ p1_trend = random.uniform(-0.2, 0.2)
 p2_trend = random.uniform(-0.3, 0.3)
 
 # JSON file and counter
-pole1DataPath = "safepass-system-software\SPS_Dashboard\pole1Data.json"
-pole2DataPath = "safepass-system-software\SPS_Dashboard\pole2Data.json"
+pole1DataPath = "safepass-system-software/SPS_Dashboard/pole1Data.json"
+pole2DataPath = "safepass-system-software/SPS_Dashboard/pole2Data.json"
 pole1_entry = []
 pole2_entry = []
 entry_id = 1
@@ -78,4 +78,4 @@ while True:
         break
     
     # Wait before next generation
-    time.sleep(1)
+    # time.sleep(0.01)

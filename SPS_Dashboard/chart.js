@@ -35,7 +35,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     
     // Filter pole 1 data within date range
     pole1Data.forEach(item => {
-        const timestamp = new Date(item.createdat);
+        const timestamp = new Date(item.created_at);
         if (timestamp >= minDate && timestamp <= maxDate) {
             pole1Timestamps.push(timestamp);
             pole1Values.push(item.waterlevel);
@@ -44,7 +44,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     
     // Filter pole 2 data within date range
     pole2Data.forEach(item => {
-        const timestamp = new Date(item.createdat);
+        const timestamp = new Date(item.created_at);
         if (timestamp >= minDate && timestamp <= maxDate) {
             pole2Timestamps.push(timestamp);
             pole2Values.push(item.waterlevel);

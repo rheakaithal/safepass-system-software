@@ -1,3 +1,13 @@
+/* Texas A&M University
+** Safe Pass Systems - RIPPLE
+** Emergency Service Dashboard
+** Author: Parker Williamson
+** File: database.js
+** --------
+** Contains the code for the backend server for the ems dashboard
+*/
+
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -8,99 +18,242 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+//database variables
+const DBPORT = 3000;
+
 //MQTT constants
 const HOSTNAME = '83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud';
 const PORT = '8883';
-const connectUrl = `mqtts://${host}:${port}`;
+const connectUrl = `mqtts://${HOSTNAME}:${PORT}`;
+
 
 const pubImageRequestTopic = 'dashboard/image/request';
-const pubPingRequestTopic = 'dashbaord/ping/request';
+const pubPingRequestTopic = 'dashboard/ping/request';
 
-const subImageRequestTopic = 'dashboard/image/resutl';
-const subPingRequestTopic = 'dashbaord/ping/result';
+const subImageRequestTopic = 'dashboard/image/result';
+const subPingRequestTopic = 'dashboard/ping/result';
 
 //create MQTT broker connection
 const client = mqtt.connect(connectUrl, {
-    keepalive: 30,
+    keepalive: 5,          // Send keepalive every 5s so drops are detected quickly
     clean: true,
     connectTimeout: 4000,
-     username: 'Dashboard',
-     password: 'Team13Capstone',
+    username: 'Dashboard',
+    password: 'Team13Capstone',
     reconnectPeriod: 1000
 });
 
-//Connect and subscribe to topics
+// Track MQTT connection state dynamically via event listeners
+// so /api/ping always reflects the real current status
+let mqttConnected = false;
+
 client.on('connect', () => {
-    console.log('Connected');
+    mqttConnected = true;
+    console.log('Connected to MQTT');
 
     client.subscribe([subImageRequestTopic], () => {
-        console.log(`Subscribe to topic '${topic}'`);
+        console.log(`Subscribe to topic '${pubImageRequestTopic}'`);
     });
     client.subscribe([subPingRequestTopic], () => {
-        console.log(`Subscribe to topic '${topic}'`);
+        console.log(`Subscribe to topic '${subPingRequestTopic}'`);
     });
 });
 
+client.on('disconnect', () => {
+    mqttConnected = false;
+    console.log('MQTT disconnected');
+});
 
-// Create MySQL connection
-const db = mysql.createConnection({
-    host: '10.247.160.206',
-    user: 'parker',
+client.on('offline', () => {
+    mqttConnected = false;
+    console.log('MQTT offline');
+});
+
+client.on('error', (err) => {
+    mqttConnected = false;
+    console.error('MQTT error:', err.message);
+});
+
+client.on('reconnect', () => {
+    console.log('MQTT reconnecting...');
+});
+
+
+// MySQL connection config — stored separately so createConnection
+// can be called again when reconnecting
+const dbConfig = {
+    host: '10.244.172.228',
+    user: 'Parker',
     password: 'Team13Capstone',
-    database: 'my_database',
-    port: 3306
-});
+    database: 'my_database'
+};
 
-// Connect to MySQL
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
+let db;
+let mysqlConnected = false;
+let mysqlReconnectTimer = null;
+
+/* Creates a new MySQL connection, attaches error handling, and attempts to connect.
+** On failure, schedules a retry every 5 seconds until the server comes back online.
+** Uses a module-level 'db' variable so all routes always reference the latest connection.
+*/
+function connectMySQL() {
+    // Clean up any existing connection before creating a new one
+    if (db) {
+        try { db.destroy(); } catch (_) {}
     }
-    console.log('Connected to MySQL!');
+
+    db = mysql.createConnection(dbConfig);
+
+    db.on('error', (err) => {
+        mysqlConnected = false;
+        console.error('MySQL connection error:', err.message);
+        scheduleReconnect();
+    });
+
+    db.connect((err) => {
+        if (err) {
+            mysqlConnected = false;
+            console.error('MySQL connect failed:', err.message);
+            scheduleReconnect();
+            return;
+        }
+        mysqlConnected = true;
+        console.log('Connected to MySQL!');
+        // Clear any pending reconnect timer on success
+        if (mysqlReconnectTimer) {
+            clearTimeout(mysqlReconnectTimer);
+            mysqlReconnectTimer = null;
+        }
+    });
+}
+
+/* Schedules a MySQL reconnect attempt after 5 seconds.
+** Prevents overlapping retries with a guard timer.
+*/
+function scheduleReconnect() {
+    if (mysqlReconnectTimer) return; // already scheduled
+    console.log('MySQL reconnecting in 5s...');
+    mysqlReconnectTimer = setTimeout(() => {
+        mysqlReconnectTimer = null;
+        connectMySQL();
+    }, 5000);
+}
+
+// Initial connection
+connectMySQL();
+
+
+// Initial data fetch
+app.get('/api/initdata', (req, res) => {
+
+    const poleId = req.query.poleID;
+
+    db.query(`SELECT * FROM users WHERE pole_id = ? AND created_at >= NOW() - INTERVAL 8 DAY ORDER BY created_at ASC`,
+        [poleId],
+        (err, results) => {
+
+            if (err) {
+                console.error("Query error:", err);
+                return res.status(500).json({ error: "Query failed" });
+            }
+
+            res.json(results);
+        }
+    );
 });
 
 
-// Initial data fetch and write to data.json
-db.query("SELECT * FROM users", (err, results) => { //users is table name
-    if (err) {
-        console.error("Query error:", err);
-        return;
-    }
-    console.log("DB INIT QUERY");
-    console.log(results);
-});
 
 app.get('/api/data', (req, res) => {
-    db.query("SELECT * FROM users", (err, results) => {
-        //get last ids from stored values
-        //get last line of data from table
-        //compare to stored data
-        //if old -> discard
-        //if new -> store
+    //get last data based on time stamp and the pole id
+    const poleID = req.query.poleID;
+    db.query("SELECT * FROM users WHERE pole_id = ? ORDER BY created_at DESC LIMIT 1", [poleID], (err, results) => {
         if (err) {
             console.error("Query error:", err); 
             res.status(500).send("Error retrieving users");
             return;
         }
-        console.log("API SQL CALL");
-        console.log(results);
-    });
+
+        res.json(results);
+    });  
 });
 
 app.get("/api/ping", async (req, res) => {
-    //Ping Database
-    //If good, ping mqtt
-    //If good, send ping request
-    //wait for response from broker
+    let errors = [];
+
+    // --- Active MySQL check ---
+    // Attempt a real query so pressing ping can detect MySQL coming back
+    // online even before the 5s reconnect timer fires
+    const mysqlStatus = await new Promise((resolve) => {
+        if (!mysqlConnected) {
+            // Try an immediate reconnect attempt before giving up
+            connectMySQL();
+        }
+
+        const timer = setTimeout(() => resolve(false), 3000);
+
+        db.query('SELECT 1', (err) => {
+            clearTimeout(timer);
+            if (err) {
+                mysqlConnected = false;
+                resolve(false);
+            } else {
+                mysqlConnected = true;
+                resolve(true);
+            }
+        });
+    });
+
+    if (!mysqlStatus) errors.push("MySQL not connected");
+
+    // --- Active MQTT check ---
+    // Attempt an actual publish with a 3s timeout so we catch cases where
+    // the broker connection silently dropped before keepalive detected it
+    const mqttStatus = await new Promise((resolve) => {
+        if (!mqttConnected) {
+            return resolve(false);
+        }
+
+        const timer = setTimeout(() => resolve(false), 3000);
+
+        client.publish(
+            pubPingRequestTopic,
+            JSON.stringify({ timestamp: Date.now() }),
+            { qos: 1 },           // QoS 1 requires a PUBACK from the broker
+            (err) => {
+                clearTimeout(timer);
+                resolve(!err);    // err is null on success, Error on failure
+            }
+        );
+    });
+
+    if (!mqttStatus) errors.push("MQTT not connected");
+
+    if (!mysqlStatus || !mqttStatus) {
+        // Update the tracked state to match the active test result
+        mqttConnected = mqttStatus;
+        return res.status(500).json({
+            success: false,
+            mysql: mysqlStatus,
+            mqtt: mqttStatus,
+            errors
+        });
+    }
+
+    res.json({
+        success: true,
+        mysql: true,
+        mqtt: true
+    });
 });
 
+    
 app.get("/api/imagerequest", async (req, res) => {
-    //ping mqtt broker
     //send broker image request
+    client.publish()
     //wait for image to return from broker
 });
 
 
 
-app.listen(PORT, () => console.log('Server running on port ' + PORT)); //change port
+app.listen(DBPORT, () => console.log('Server running on port ' + DBPORT)); //change port

@@ -36,7 +36,7 @@
                         </div>
                         <div class="flood-warning">
                             <span class="warning-label">Time to Flood</span>
-                            <span class="warning-value">10 Minutes</span>
+                            <span class="warning-value"></span>
                         </div>
                     </div>
                     <img src="images/WarningState0.svg" alt="Pole 1 Status" class="warning-icon" id="pole1-image">
@@ -50,7 +50,7 @@
                         </div>
                         <div class="flood-warning">
                             <span class="warning-label">Time to Flood</span>
-                            <span class="warning-value">12 Minutes</span>
+                            <span class="warning-value"></span>
                         </div>
                     </div>
                     <img src="images/WarningState0.svg" alt="Pole 2 Status" class="warning-icon" id="pole2-image">
@@ -69,9 +69,9 @@
                 <span>Ping Sensors</span>
             </button>
             <div class="ping-status">
-                <div class="status-indicator online">
+                <div class="status-indicator online" id="overall-indicator">
                     <span class="status-dot"></span>
-                    <span class="status-text">All Systems Online</span>
+                    <span class="status-text" id="systemStatus">System Online</span>
                 </div>
             </div>
         </section>
@@ -79,7 +79,7 @@
         <!-- Live Images Card -->
         <section class="card image-card">
             <div class="card-header">
-                <h2 class="card-title">Live View</h2>
+                <h2 class="card-title">System Images</h2>
                 <button class="image-request-button" id="image-request-button">
                     <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
