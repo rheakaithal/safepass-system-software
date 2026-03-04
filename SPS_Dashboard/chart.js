@@ -184,7 +184,7 @@ function initializeChart() {
                 x: {
                     type: 'time',
                     time: {
-                        unit: 'minute',
+                        unit: 'hour',
                         displayFormats: {
                             minute: 'h:mm a',
                             hour: 'h:mm a',
@@ -205,8 +205,7 @@ function initializeChart() {
                         color: '#64748b',
                         maxRotation: 45,
                         minRotation: 0,
-                        autoSkip: true,
-                        maxTicksLimit: 10
+                        autoSkip: false
                     },
                     grid: {
                         color: '#e2e8f0',
@@ -285,31 +284,62 @@ function updateChartTimeRange() {
     let minDate;
     let timeUnit = 'minute';
 
+    let stepSizeMinutes;
+
     switch(duration) {
+        case '3 Hours':
+            minDate = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+            timeUnit = 'hour';
+            stepSizeMinutes = 30;   // ticks at :00 and :30
+            break;
         case '12 Hours':
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
-            timeUnit = 'minute';
+            timeUnit = 'hour';
+            stepSizeMinutes = 60;   // ticks every hour on the hour
             break;
         case '1 Day':
             minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
             timeUnit = 'hour';
+            stepSizeMinutes = 120;  // ticks every 2 hours
             break;
         case '3 Days':
             minDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
             timeUnit = 'hour';
+            stepSizeMinutes = 360;  // ticks every 6 hours
             break;
         case '1 Week':
             minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             timeUnit = 'day';
+            stepSizeMinutes = 1440; // ticks every day
             break;
         default:
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+            timeUnit = 'hour';
+            stepSizeMinutes = 60;
     }
+
+    // Build evenly-spaced ticks snapped to clean time boundaries.
+    // e.g. for 30-min steps: 11:00, 11:30, 12:00 — never 11:07 or 11:43.
+    // This only affects tick labels; axis min/max and data are untouched.
+    const stepMs = stepSizeMinutes * 60 * 1000;
+    const cleanTicks = [];
+    const tickStart = Math.ceil(minDate.getTime() / stepMs) * stepMs;
+    for (let t = tickStart; t <= now.getTime(); t += stepMs) {
+        cleanTicks.push(t);
+    }
+    waterLevelChart.options.scales.x.afterBuildTicks = (axis) => {
+        axis.ticks = cleanTicks.map(t => ({ value: t }));
+    };
+
+    // Pad the right edge by 2% of the visible range so the latest
+    // data point isn't clipped against the axis edge
+    const rangeMs = now.getTime() - minDate.getTime();
+    const paddedMax = new Date(now.getTime() + rangeMs * 0.02);
 
     waterLevelChart.options.scales.x.time.unit = timeUnit;
     waterLevelChart.options.scales.x.min = minDate;
-    waterLevelChart.options.scales.x.max = now;
-    
+    waterLevelChart.options.scales.x.max = paddedMax;
+
     waterLevelChart.update('none');
 }/* updateChartTimeRange() */
 
@@ -366,6 +396,10 @@ function updateChartData(pole1Data, pole2Data) {
     let minDate;
 
     switch(duration) {
+         case '3 Hours':
+            minDate = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+            timeUnit = 'minute';
+            break;
         case '12 Hours':
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
             break;

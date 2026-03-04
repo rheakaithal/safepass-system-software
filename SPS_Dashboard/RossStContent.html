@@ -21,9 +21,9 @@
         <section class="card pole-status-card">
             <div class="card-header">
                 <h2 class="card-title">Pole Status</h2>
-                <div class="status-indicator online">
+                <div class="status-indicator online" id="pole-status-indicator">
                     <span class="status-dot"></span>
-                    <span class="status-text">Live</span>
+                    <span class="status-text" id="poleStatusText">Live</span>
                 </div>
             </div>
             
@@ -35,7 +35,7 @@
                             <div class="water-level-badge" id="pole1-lvl">-- Inches</div>
                         </div>
                         <div class="flood-warning">
-                            <span class="warning-label">Time to Flood</span>
+                            <span class="warning-label">Est. Time to Flood</span>
                             <span class="warning-value"></span>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                             <div class="water-level-badge" id="pole2-lvl">-- Inches</div>
                         </div>
                         <div class="flood-warning">
-                            <span class="warning-label">Time to Flood</span>
+                            <span class="warning-label">Est. Time to Flood</span>
                             <span class="warning-value"></span>
                         </div>
                     </div>
@@ -123,7 +123,8 @@
                     <div class="control-group">
                         <label for="duration-select" class="control-label">Duration</label>
                         <select id="duration-select" class="control-select">
-                            <option value="12 Hours">12 Hours</option>
+                            <option value="3 Hours">3 Hours</option>
+                            <option value="12 Hours"selected>12 Hours</option>
                             <option value="1 Day">1 Day</option>
                             <option value="3 Days">3 Days</option>
                             <option value="1 Week">1 Week</option>

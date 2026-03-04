@@ -471,6 +471,7 @@ function initializePingButton() {
 
         // Show a "checking" state while the request is in-flight
         setIndicatorState('overall-indicator', 'systemStatus', 'checking', 'Checking...');
+        setIndicatorState('pole-status-indicator', 'poleStatusText', 'checking', 'Checking...');
 
         await checkSystemHealth();
 
@@ -486,10 +487,7 @@ async function checkSystemHealth() {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 4000);
 
-        const response = await fetch(
-            'http://127.0.0.1:3000/api/ping',
-            { signal: controller.signal }
-        );
+        const response = await fetch('/api/ping', { signal: controller.signal });
 
         clearTimeout(timeout);
 
@@ -563,14 +561,17 @@ function updateHealthDisplay(status) {
         const allOnline  = status.mysql && status.mqtt;
         const allOffline = !status.mysql && !status.mqtt;
 
-        // --- Overall summary ---
+        // --- Overall summary (ping card) ---
         if (allOnline) {
             setIndicatorState('overall-indicator', 'systemStatus', 'online', 'System Online');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'online', 'Live');
         } else if (allOffline) {
             setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
         } else {
             const downService = !status.mysql ? 'SQL Server is Down' : 'MQTT Broker is Down';
             setIndicatorState('overall-indicator', 'systemStatus', 'warning', downService);
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         }
 
         // --- Per-service rows ---
@@ -578,31 +579,6 @@ function updateHealthDisplay(status) {
     }, 500);
 }
 
-
-
-/* requests image from ripple system
-** For now, just takes image on laptop camera
-** Parameters:
-**     None
-** Return:
-**     None
-*/
-function initializeImageRequestButton(){
-    const imageRequestButton = document.getElementById('image-request-button');
-    if(imageRequestButton){
-        imageRequestButton.addEventListener('click', async () => {
-            imageRequestButton.disabled = true;
-            imageRequestButton.style.opacity = '0.6';
-            
-            console.log("Image request button pressed");
-            //TEMP
-            setTimeout(() => {
-                imageRequestButton.disabled = false;
-                imageRequestButton.style.opacity = '1';
-            }, 1500);
-        })
-    }
-}
 
 /* Gets the initial data from SQL database from the last week for each pole
 ** Parameters:
@@ -612,11 +588,11 @@ function initializeImageRequestButton(){
 */
 async function initializeData() {
     try {
-        const pole1Response = await fetch(`http://127.0.0.1:3000/api/initdata?poleID=1`);
+        const pole1Response = await fetch(`/api/initdata?poleID=1`);
         pole1Data = await pole1Response.json();
         lastIDPole1 = pole1Data[pole1Data.length - 1]?.id;
 
-        const pole2Response = await fetch(`http://127.0.0.1:3000/api/initdata?poleID=2`);
+        const pole2Response = await fetch(`/api/initdata?poleID=2`);
         pole2Data = await pole2Response.json();
         lastIDPole2 = pole2Data[pole2Data.length - 1]?.id;
 
@@ -633,7 +609,7 @@ async function initializeData() {
 */
 async function getNewData() {
     try {
-        const pole1Response = await fetch(`http://127.0.0.1:3000/api/data?poleID=1`);
+        const pole1Response = await fetch(`/api/data?poleID=1`);
         const pole1Result = await pole1Response.json();
 
         if (pole1Result.length > 0) {
@@ -645,7 +621,7 @@ async function getNewData() {
             }
         }
 
-        const pole2Response = await fetch(`http://127.0.0.1:3000/api/data?poleID=2`);
+        const pole2Response = await fetch(`/api/data?poleID=2`);
         const pole2Result = await pole2Response.json();
 
         if (pole2Result.length > 0) {
@@ -678,6 +654,31 @@ function trimOldData(dataArray) {
     }
 }/* trimOldData() */
 
+/* requests image from ripple system
+** For now, just takes image on laptop camera
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+function initializeImageRequestButton(){
+    const imageRequestButton = document.getElementById('image-request-button');
+    if(imageRequestButton){
+        imageRequestButton.addEventListener('click', async () => {
+            imageRequestButton.disabled = true;
+            imageRequestButton.style.opacity = '0.6';
+            
+            console.log("Image request button pressed");
+            //TEMP
+            setTimeout(() => {
+                imageRequestButton.disabled = false;
+                imageRequestButton.style.opacity = '1';
+            }, 1500);
+        })
+    }
+}
+
+
 /* Initializes the dashboard elements when page is loaded
 ** Parameters:
 **     None
@@ -695,7 +696,7 @@ async function initializeDashboard() {
     }
     
     // Initial Data
-    await initializeData();
+    //await initializeData();
 
     // Initialize dashboard components
     initializeImageButtons();

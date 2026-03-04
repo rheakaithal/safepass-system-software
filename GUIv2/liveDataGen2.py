@@ -4,7 +4,7 @@ import random
 import time
 
 # Starting timestamp
-current_time = datetime(2026, 2, 10, 1, 0, 0)
+current_time = datetime(2026, 2, 21, 1, 0, 0)
 
 # Value ranges
 POLE1_MIN, POLE1_MAX = 0.0, 12.0

@@ -13,13 +13,20 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const mqtt = require('mqtt')
 const fs = require('fs');
-
+const path = require('path');
 const app = express();
+
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
+
+// Explicitly serve SafePassSystem.html at the root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'SafePassSystem.html'));
+});
 
 //database variables
-const DBPORT = 3000;
+const WEBSITEPORT = 80;
 
 //MQTT constants
 const HOSTNAME = '83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud';
@@ -256,4 +263,4 @@ app.get("/api/imagerequest", async (req, res) => {
 
 
 
-app.listen(DBPORT, () => console.log('Server running on port ' + DBPORT)); //change port
+app.listen(WEBSITEPORT, () => console.log('Server running on port ' + WEBSITEPORT)); //change port
