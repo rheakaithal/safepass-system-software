@@ -696,7 +696,7 @@ async function initializeDashboard() {
     }
     
     // Initial Data
-    //await initializeData();
+    await initializeData();
 
     // Initialize dashboard components
     initializeImageButtons();

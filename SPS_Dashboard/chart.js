@@ -12,6 +12,9 @@
 */
 
 /* Filter the data for only the values between specified dates.
+** For each pole, also includes the single data point immediately before minDate
+** as a left anchor so that interpolation always produces a value at the left
+** axis edge and the line never appears cut off when the time range is changed.
 ** Creates a new time axis based on the min and max dates in data sets.
 ** Interpolates each data set to find value at the new times.
 ** Parameters:
@@ -33,23 +36,44 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     const pole2Timestamps = [];
     const pole2Values = [];
     
-    // Filter pole 1 data within date range
+    // Filter pole 1 data within date range, prepending the last point before
+    // minDate as a left anchor so the line always reaches the left axis edge.
+    let pole1Anchor = null;
     pole1Data.forEach(item => {
         const timestamp = new Date(item.created_at);
-        if (timestamp >= minDate && timestamp <= maxDate) {
+        if (timestamp < minDate) {
+            // Keep track of the closest point before the window
+            if (!pole1Anchor || timestamp > pole1Anchor.timestamp) {
+                pole1Anchor = { timestamp, value: item.waterlevel };
+            }
+        } else if (timestamp <= maxDate) {
             pole1Timestamps.push(timestamp);
             pole1Values.push(item.waterlevel);
         }
     });
-    
-    // Filter pole 2 data within date range
+    if (pole1Anchor) {
+        pole1Timestamps.unshift(pole1Anchor.timestamp);
+        pole1Values.unshift(pole1Anchor.value);
+    }
+
+    // Filter pole 2 data within date range, prepending the last point before
+    // minDate as a left anchor so the line always reaches the left axis edge.
+    let pole2Anchor = null;
     pole2Data.forEach(item => {
         const timestamp = new Date(item.created_at);
-        if (timestamp >= minDate && timestamp <= maxDate) {
+        if (timestamp < minDate) {
+            if (!pole2Anchor || timestamp > pole2Anchor.timestamp) {
+                pole2Anchor = { timestamp, value: item.waterlevel };
+            }
+        } else if (timestamp <= maxDate) {
             pole2Timestamps.push(timestamp);
             pole2Values.push(item.waterlevel);
         }
     });
+    if (pole2Anchor) {
+        pole2Timestamps.unshift(pole2Anchor.timestamp);
+        pole2Values.unshift(pole2Anchor.value);
+    }
     
     // If no data, return empty
     if (pole1Timestamps.length === 0 && pole2Timestamps.length === 0) {
