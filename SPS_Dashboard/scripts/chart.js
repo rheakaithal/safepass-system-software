@@ -410,9 +410,8 @@ function updateChartData(pole1Data, pole2Data) {
     let minDate;
 
     switch(duration) {
-         case '3 Hours':
+        case '3 Hours':
             minDate = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-            timeUnit = 'minute';
             break;
         case '12 Hours':
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);

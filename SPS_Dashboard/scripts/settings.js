@@ -214,15 +214,25 @@ function initializeSettingsPage() {
             if (distanceUnitSelect) {
                 newSettings.distanceUnits = distanceUnitSelect.value;
             }
-            
+
+            // Thresholds are entered in the currently-selected display unit.
+            // Convert back to inches (the storage format) before saving.
+            const saveUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
+
             if (warningInput) {
                 const warningValue = parseFloat(warningInput.value);
-                newSettings.warningThreshold = convertDistance(warningValue);
+                // Input is in the currently selected display unit — convert back to inches for storage
+                newSettings.warningThreshold = saveUnit === 'Centimeters'
+                    ? (warningValue / 2.54).toFixed(2)
+                    : warningValue.toFixed(2);
             }
 
             if (criticalInput) {
                 const criticalValue = parseFloat(criticalInput.value);
-                newSettings.criticalThreshold = convertDistance(criticalValue);
+                // Input is in the currently selected display unit — convert back to inches for storage
+                newSettings.criticalThreshold = saveUnit === 'Centimeters'
+                    ? (criticalValue / 2.54).toFixed(2)
+                    : criticalValue.toFixed(2);
 
                 // Warn if thresholds are inverted or equal
                 if (parseFloat(newSettings.criticalThreshold) <= parseFloat(newSettings.warningThreshold)) {

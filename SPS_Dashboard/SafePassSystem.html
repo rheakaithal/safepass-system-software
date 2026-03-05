@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flood Monitoring Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
             
             <div class="sidebar-section">
                 <div class="sidebar-section-title">General</div>
-                <button class="sidebar-link" data-page="Home.html" data-title="Home" data-subtitle="Welcome to the Dashboard">
+                <button class="sidebar-link active" data-page="Home.html" data-title="Home" data-subtitle="Welcome to the Dashboard">
                     <img src="images/home.png" alt="Home" class="sidebar-icon">
                     <span class="sidebar-text">Home</span>
                 </button>
@@ -36,7 +36,7 @@
 
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Dashboards</div>
-                <button class="sidebar-link active" data-page="RossStContent.html" data-title="Ross Street" data-subtitle="Real-time Flood Monitoring">
+                <button class="sidebar-link" data-page="RossStContent.html" data-title="Ross Street" data-subtitle="Real-time Flood Monitoring">
                     <img src="images/SPSLogo.png" alt="Ross St" class="sidebar-icon">
                     <span class="sidebar-text">Ross St</span>
                 </button>
@@ -51,13 +51,13 @@
         <main class="main-content">
             <!-- Header -->
             <header class="header">
-                <h1 class="header-title" id="page-title" contenteditable="true">Ross Street</h1>
-                <div class="header-subtitle" id="page-subtitle">Real-time Flood Monitoring</div>
+                <h1 class="header-title" id="page-title" contenteditable="true">Home</h1>
+                <div class="header-subtitle" id="page-subtitle">Welcome to the Dashboard</div>
             </header>
 
             <!-- Content Container with iframe -->
             <div class="content-container">
-                <iframe id="content-frame" src="RossStContent.html" title="Dashboard Content"></iframe>
+                <iframe id="content-frame" src="Home.html" title="Dashboard Content"></iframe>
             </div>
 
             <!-- Old Dashboard Grid (now moved to separate RossSt.html file) -->
@@ -68,9 +68,9 @@
         </main>
     </div>
     <!-- Load JavaScript modules in order -->
-    <script src="settings.js"></script>
-    <script src="chart.js"></script>
-    <script src="dashboard.js"></script>
-    <script src="navigation.js"></script>
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/chart.js"></script>
+    <script src="scripts/dashboard.js"></script>
+    <script src="scripts/navigation.js"></script>
 </body>
 </html>

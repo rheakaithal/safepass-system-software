@@ -41,7 +41,9 @@ function initializeNavigation() {
             if (contentFrame && page) {
                 console.log(`[Nav] Navigating to: ${page}`);
                 contentFrame.src = page;
-                if(page==="RossStContent"){updatePoleData()}
+                // updatePoleData lives inside the iframe, not the parent window.
+                // After setting src the iframe reloads, so the function will run
+                // automatically via initializeDashboard — no manual call needed.
             }
         });
     });

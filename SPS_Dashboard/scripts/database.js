@@ -8,7 +8,7 @@
 */
 
 
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, 'safe.env') });
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');

@@ -53,21 +53,36 @@ app.get('/api/initdata', (req, res) => {
     res.json(data);
 });
 
-// Mirrors /api/data — returns only the single latest record, 
-// with waterlevel drifting slightly each call to simulate live updates
-let liveOffset = 0;
+// Mirrors /api/data — returns the single latest live record for a pole.
+//
+// Each pole gets its own offset and id counter, advanced on a fixed 1-second
+// timer rather than per-request. This means every caller (Home page, dashboard,
+// etc.) reads the exact same value for a given pole within the same tick —
+// matching real database behaviour where the sensor writes one row per second
+// and every page reading within that second gets the same row.
+const liveState = {
+    1: { offset: 0, id: 100000 },
+    2: { offset: 0, id: 100000 }
+};
+
+setInterval(() => {
+    liveState[1].offset += 0.05;
+    liveState[2].offset += 0.05;
+    liveState[1].id++;
+    liveState[2].id++;
+}, 1000);
+
 app.get('/api/data', (req, res) => {
     const poleId = parseInt(req.query.poleID);
-    const data = getMockData(poleId);
-    const latest = { ...data[data.length - 1] };
+    const state  = liveState[poleId];
+    const phase  = poleId === 1 ? 0 : Math.PI / 3;
 
-    // Drift the live reading slightly each poll so the chart and badge update
-    liveOffset += 0.05;
-    const phase = poleId === 1 ? 0 : Math.PI / 3;
-    latest.waterlevel = parseFloat((3 + 2 * Math.sin(liveOffset + phase)).toFixed(3));
-    latest.created_at = new Date().toISOString();
-
-    res.json([latest]);
+    res.json([{
+        id:         state.id,
+        pole_id:    poleId,
+        waterlevel: parseFloat((3 + 2 * Math.sin(state.offset + phase)).toFixed(3)),
+        created_at: new Date().toISOString()
+    }]);
 });
 
 // Mirrors /api/ping — always reports both services healthy

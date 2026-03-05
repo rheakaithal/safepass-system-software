@@ -741,14 +741,15 @@ async function initializeDashboard() {
         return;
     }
     
-    // Initial Data
-    await initializeData();
-
-    // Initialize dashboard components
+    // Attach UI listeners immediately — before any async work — so buttons
+    // respond correctly even if the user interacts before data has loaded.
     initializeImageButtons();
     initializePingButton();
     initializeImageRequestButton();
     initializeChart();
+
+    // Initial Data (async — listeners are already live by this point)
+    await initializeData();
     console.log('[Init] Dashboard components initialized');
     
     // Start updating pole data
