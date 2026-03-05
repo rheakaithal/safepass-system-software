@@ -8,6 +8,7 @@
 */
 
 
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -26,27 +27,27 @@ app.get('/', (req, res) => {
 });
 
 //database variables
-const WEBSITEPORT = 80;
+const WEBSITEPORT = parseInt(process.env.WEBSITE_PORT) || 80;
 
 //MQTT constants
-const HOSTNAME = '83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud';
-const PORT = '8883';
+const HOSTNAME = process.env.MQTT_HOSTNAME;
+const PORT = process.env.MQTT_PORT;
 const connectUrl = `mqtts://${HOSTNAME}:${PORT}`;
 
 
-const pubImageRequestTopic = 'dashboard/image/request';
-const pubPingRequestTopic = 'dashboard/ping/request';
+const pubImageRequestTopic = process.env.MQTT_PUB_IMAGE_REQUEST;
+const pubPingRequestTopic  = process.env.MQTT_PUB_PING_REQUEST;
 
-const subImageRequestTopic = 'dashboard/image/result';
-const subPingRequestTopic = 'dashboard/ping/result';
+const subImageRequestTopic = process.env.MQTT_SUB_IMAGE_RESULT;
+const subPingRequestTopic  = process.env.MQTT_SUB_PING_RESULT;
 
 //create MQTT broker connection
 const client = mqtt.connect(connectUrl, {
     keepalive: 5,          // Send keepalive every 5s so drops are detected quickly
     clean: true,
     connectTimeout: 4000,
-    username: 'Dashboard',
-    password: 'Team13Capstone',
+    username: process.env.MQTT_USERNAME,
+    password: process.env.MQTT_PASSWORD,
     reconnectPeriod: 1000
 });
 
@@ -89,10 +90,10 @@ client.on('reconnect', () => {
 // MySQL connection config — stored separately so createConnection
 // can be called again when reconnecting
 const dbConfig = {
-    host: '10.244.172.228',
-    user: 'Parker',
-    password: 'Team13Capstone',
-    database: 'my_database'
+    host:     process.env.DB_HOST,
+    user:     process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 };
 
 let db;
