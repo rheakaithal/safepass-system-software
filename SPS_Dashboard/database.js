@@ -263,4 +263,4 @@ app.get("/api/imagerequest", async (req, res) => {
 
 
 
-app.listen(WEBSITEPORT, () => console.log('Server running on port ' + WEBSITEPORT)); //change port
+app.listen(WEBSITEPORT, '0.0.0.0', () => console.log('Server running on port ' + WEBSITEPORT)); //change port
