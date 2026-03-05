@@ -8,7 +8,7 @@
 */
 
 
-require('dotenv').config({ path: require('path').resolve(__dirname, 'safe.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../safe.env') });
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -17,13 +17,16 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
+// Project root is one level up from the scripts folder
+const ROOT = path.resolve(__dirname, '..');
+
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(ROOT));
 
 // Explicitly serve SafePassSystem.html at the root
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'SafePassSystem.html'));
+    res.sendFile(path.join(ROOT, 'SafePassSystem.html'));
 });
 
 //database variables
@@ -264,4 +267,4 @@ app.get("/api/imagerequest", async (req, res) => {
 
 
 
-app.listen(WEBSITEPORT, '0.0.0.0', () => console.log('Server running on port ' + WEBSITEPORT)); //change port
+app.listen(WEBSITEPORT, () => console.log('Server running on port ' + WEBSITEPORT)); //change port
