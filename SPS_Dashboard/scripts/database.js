@@ -8,14 +8,17 @@
 */
 
 
-require('dotenv').config({ path: require('path').resolve(__dirname, '../safe.env') });
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const mqtt = require('mqtt')
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') }); 
 const app = express();
+
+const showErrors = false;
+const showErrorMsgs = false;
 
 // Project root is one level up from the scripts folder
 const ROOT = path.resolve(__dirname, '..');
@@ -30,7 +33,7 @@ app.get('/', (req, res) => {
 });
 
 //database variables
-const WEBSITEPORT = parseInt(process.env.WEBSITE_PORT) || 80;
+const WEBSITEPORT = parseInt(process.env.WEBSITE_PORT);
 
 //MQTT constants
 const HOSTNAME = process.env.MQTT_HOSTNAME;
@@ -82,7 +85,11 @@ client.on('offline', () => {
 
 client.on('error', (err) => {
     mqttConnected = false;
-    console.error('MQTT error:', err.message);
+    if(showErrorMsgs){
+        console.error('MQTT error:', err.message);
+    }else if(showErrors){
+        console.error('MQTT error');
+    }
 });
 
 client.on('reconnect', () => {
@@ -117,14 +124,23 @@ function connectMySQL() {
 
     db.on('error', (err) => {
         mysqlConnected = false;
-        console.error('MySQL connection error:', err.message);
+        if(showErrorMsgs){
+            console.error('MySQL connection error:', err.message);
+        }else if(showErrors){
+            console.error('MySQL connection error');
+        }
         scheduleReconnect();
     });
 
     db.connect((err) => {
         if (err) {
             mysqlConnected = false;
-            console.error('MySQL connect failed:', err.message);
+            if(showErrorMsgs){
+                console.error('MySQL connect failed:', err.message);
+            }else if(showErrors){
+                console.error('MySQL connect failed');
+            }
+            
             scheduleReconnect();
             return;
         }
@@ -164,7 +180,11 @@ app.get('/api/initdata', (req, res) => {
         (err, results) => {
 
             if (err) {
-                console.error("Query error:", err);
+                if(showErrorMsgs){
+                    console.error("Query error:", err);
+                }else if(showErrors){
+                    console.error("Query error");
+                }
                 return res.status(500).json({ error: "Query failed" });
             }
 
@@ -180,7 +200,11 @@ app.get('/api/data', (req, res) => {
     const poleID = req.query.poleID;
     db.query("SELECT * FROM users WHERE pole_id = ? ORDER BY created_at DESC LIMIT 1", [poleID], (err, results) => {
         if (err) {
-            console.error("Query error:", err); 
+            if(showErrorMsgs){
+                console.error("Query error:", err);
+            }else if (showErrors){
+                console.error("Query error");
+            }
             res.status(500).send("Error retrieving users");
             return;
         }
@@ -267,4 +291,4 @@ app.get("/api/imagerequest", async (req, res) => {
 
 
 
-app.listen(WEBSITEPORT, () => console.log('Server running on port ' + WEBSITEPORT)); //change port
+app.listen(WEBSITEPORT, () => console.log(`Server running at http://localhost:${WEBSITEPORT}`));

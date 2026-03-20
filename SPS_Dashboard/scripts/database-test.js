@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(ROOT, 'SafePassSystem.html'));
 });
 
+
 // --- Mock data helpers ---
 
 // Generates a week of fake water level readings for a given pole,
