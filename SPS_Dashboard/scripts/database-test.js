@@ -2,13 +2,18 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
+const ROOT = path.resolve(__dirname, '..');
+
 const cors = require('cors');
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(ROOT));
 
+// Project root is one level up from the scripts folder
+
+// Explicitly serve SafePassSystem.html at the root
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'SafePassSystem.html'));
+    res.sendFile(path.join(ROOT, 'SafePassSystem.html'));
 });
 
 // --- Mock data helpers ---
