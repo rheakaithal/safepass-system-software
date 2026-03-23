@@ -24,7 +24,7 @@ function initializeNavigation() {
     if (!contentFrame) {
         console.error('[Nav] Content iframe #content-frame not found');
     }
-    console.log(`[Nav] Navigation initialized — ${sidebarLinks.length} sidebar links found`);
+    console.info(`[Nav] Navigation initialized — ${sidebarLinks.length} sidebar links found`);
     
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -39,7 +39,7 @@ function initializeNavigation() {
             if (pageSubtitle && subtitle) pageSubtitle.textContent = subtitle;
             
             if (contentFrame && page) {
-                console.log(`[Nav] Navigating to: ${page}`);
+                console.info(`[Nav] Navigating to: ${page}`);
                 contentFrame.src = page;
                 // updatePoleData lives inside the iframe, not the parent window.
                 // After setting src the iframe reloads, so the function will run
@@ -60,14 +60,14 @@ function initializeNavigation() {
 */
 function initializeApp() {
     if (window.self === window.top) {
-        console.log('[Nav] Running in main window — initializing navigation');
+        console.info('[Nav] Running in main window — initializing navigation');
         initializeNavigation();
     } else {
-        console.log('[Nav] Running inside iframe — initializing dashboard');
+        console.info('[Nav] Running inside iframe — initializing dashboard');
         initializeDashboard();
     }
     
-    console.log('[Nav] Application initialized successfully');
+    console.info('[Nav] Application initialized successfully');
 }/* initializeApp() */
 
 /* Checks status of page - Waits for page to fully load before initialzing
@@ -94,7 +94,7 @@ window.addEventListener('resize', () => {
     resizeTimer = setTimeout(() => {
         if (waterLevelChart) {
             waterLevelChart.resize();
-            console.log('[Nav] Chart resized to fit new window dimensions');
+            console.info('[Nav] Chart resized to fit new window dimensions');
         }
     }, 250);
 });

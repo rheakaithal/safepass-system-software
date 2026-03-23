@@ -55,7 +55,7 @@ function playAlarmSound(volume = 0.7, duration = 2000) {
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration / 1000);
 
-        console.log(`[Alarm] Playing alarm — volume: ${Math.round(volume * 100)}%, duration: ${duration}ms`);
+        console.info(`[Alarm] Playing alarm — volume: ${Math.round(volume * 100)}%, duration: ${duration}ms`);
         return { oscillator, audioContext };
     } catch (error) {
         console.error('[Alarm] Failed to play alarm sound:', error);
@@ -95,7 +95,7 @@ function startContinuousAlarm() {
 */
 function stopContinuousAlarm() {
     alarmState.alarmPlaying = false;
-    console.log('[Alarm] Continuous alarm stopped');
+    console.info('[Alarm] Continuous alarm stopped');
     
     if (alarmState.alarmInterval) {
         clearInterval(alarmState.alarmInterval);
@@ -179,7 +179,7 @@ function checkFloodingStatus(pole1Level, pole2Level) {
     // Stop alarm if flooding has stopped
     if (!anyFlooding && wasFlooding) {
         stopContinuousAlarm();
-        console.log(`[Flood] Flooding subsided — Pole 1: ${pole1Level.toFixed(2)} in, Pole 2: ${pole2Level.toFixed(2)} in`);
+        console.info(`[Flood] Flooding subsided — Pole 1: ${pole1Level.toFixed(2)} in, Pole 2: ${pole2Level.toFixed(2)} in`);
     }
 }/* checkFloodingStatus() */
 
@@ -327,7 +327,7 @@ async function updatePoleData() {
         const pole1WaterLevel = lastPole1Data.waterlevel;
         const pole2WaterLevel = lastPole2Data.waterlevel;
 
-        console.log(`[Data] Pole 1: ${pole1WaterLevel.toFixed(3)} in | Pole 2: ${pole2WaterLevel.toFixed(3)} in | Buffer: ${pole1Data.length} / ${pole2Data.length} records`);
+        console.info(`[Data] Pole 1: ${pole1WaterLevel.toFixed(3)} in | Pole 2: ${pole2WaterLevel.toFixed(3)} in | Buffer: ${pole1Data.length} / ${pole2Data.length} records`);
         
         // Check flooding status and trigger alarms/visual alerts
         checkFloodingStatus(pole1WaterLevel, pole2WaterLevel);
@@ -513,7 +513,7 @@ async function checkSystemHealth() {
         const mqtt  = result.mqtt  ?? false;
 
         if (mysql && mqtt) {
-            console.log('[Health] All systems online — MySQL: OK, MQTT: OK');
+            console.info('[Health] All systems online — MySQL: OK, MQTT: OK');
         } else {
             if (!mysql) console.error('[Health] MySQL is unreachable');
             if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
@@ -611,7 +611,7 @@ function updateHealthDisplay(status) {
 */
 async function initializeData() {
     try {
-        console.log('[Init] Fetching historical data from server...');
+        console.info('[Init] Fetching historical data from server...');
 
         const pole1Response = await fetch(`/api/initdata?poleID=1`);
         pole1Data = await pole1Response.json();
@@ -621,7 +621,7 @@ async function initializeData() {
         pole2Data = await pole2Response.json();
         lastIDPole2 = pole2Data[pole2Data.length - 1]?.id;
 
-        console.log(`[Init] Historical data loaded — Pole 1: ${pole1Data.length} records (last ID: ${lastIDPole1}), Pole 2: ${pole2Data.length} records (last ID: ${lastIDPole2})`);
+        console.info(`[Init] Historical data loaded — Pole 1: ${pole1Data.length} records (last ID: ${lastIDPole1}), Pole 2: ${pole2Data.length} records (last ID: ${lastIDPole2})`);
 
     } catch (error) {
         console.error('[Init] Failed to load historical data:', error);
@@ -645,7 +645,7 @@ async function getNewData() {
             if (newRecord.id > (lastIDPole1 ?? -1)) {
                 pole1Data.push(newRecord);
                 lastIDPole1 = newRecord.id;
-                console.log(`[Data] New Pole 1 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
+                console.info(`[Data] New Pole 1 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
             }
         } else {
             console.warn('[Data] /api/data returned empty result for Pole 1');
@@ -660,7 +660,7 @@ async function getNewData() {
             if (newRecord.id > (lastIDPole2 ?? -1)) {
                 pole2Data.push(newRecord);
                 lastIDPole2 = newRecord.id;
-                console.log(`[Data] New Pole 2 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
+                console.info(`[Data] New Pole 2 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
             }
         } else {
             console.warn('[Data] /api/data returned empty result for Pole 2');
@@ -689,7 +689,7 @@ function trimOldData(dataArray) {
     }
 
     if (trimCount > 0) {
-        console.log(`[Data] Trimmed ${trimCount} record(s) older than 1 week from buffer`);
+        console.info(`[Data] Trimmed ${trimCount} record(s) older than 1 week from buffer`);
     }
 }/* trimOldData() */
 
@@ -707,12 +707,12 @@ function initializeImageRequestButton(){
             imageRequestButton.disabled = true;
             imageRequestButton.style.opacity = '0.6';
             
-            console.log('[Images] Image request sent to RIPPLE system');
+            console.info('[Images] Image request sent to RIPPLE system');
             //TEMP
             setTimeout(() => {
                 imageRequestButton.disabled = false;
                 imageRequestButton.style.opacity = '1';
-                console.log('[Images] Image request button re-enabled');
+                console.info('[Images] Image request button re-enabled');
             }, 1500);
         })
     } else {
@@ -728,15 +728,15 @@ function initializeImageRequestButton(){
 **     None
 */
 async function initializeDashboard() {
-    console.log('[Init] Dashboard initializing...');
+    console.info('[Init] Dashboard initializing...');
 
     // Load settings
     loadSettings();
-    console.log(`[Init] Settings loaded — update frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in`);
+    console.info(`[Init] Settings loaded — update frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in`);
     
     // Check if we're on the settings page
     if (document.getElementById('saveSettings')) {
-        console.log('[Init] Settings page detected — skipping dashboard init');
+        console.info('[Init] Settings page detected — skipping dashboard init');
         initializeSettingsPage();
         return;
     }
@@ -750,7 +750,7 @@ async function initializeDashboard() {
 
     // Initial Data (async — listeners are already live by this point)
     await initializeData();
-    console.log('[Init] Dashboard components initialized');
+    console.info('[Init] Dashboard components initialized');
     
     // Start updating pole data
     updatePoleData();
@@ -759,10 +759,10 @@ async function initializeDashboard() {
 
     // Update pole data at interval specified in settings
     chartUpdateInterval = setInterval(updatePoleData, settings.updateFrequency);
-    console.log(`[Init] Poll interval set to ${settings.updateFrequency}ms`);
+    console.info(`[Init] Poll interval set to ${settings.updateFrequency}ms`);
 
     // Check system health every 10 seconds
     setInterval(checkSystemHealth, 10000);
 
-    console.log('[Init] Dashboard ready');
+    console.info('[Init] Dashboard ready');
 }/* initializeDashboard() */

@@ -61,7 +61,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
         };
     }
 
-    console.log(`[Chart] Unified timeline — Pole 1: ${pole1Timestamps.length} pts, Pole 2: ${pole2Timestamps.length} pts, interpolating to ${targetPoints} pts`);
+    console.info(`[Chart] Unified timeline — Pole 1: ${pole1Timestamps.length} pts, Pole 2: ${pole2Timestamps.length} pts, interpolating to ${targetPoints} pts`);
     
     // Find overall time range
     const allTimestamps = [...pole1Timestamps, ...pole2Timestamps];
@@ -110,7 +110,7 @@ function initializeChart() {
     }
 
     const unitLabel = getUnitLabel();
-    console.log(`[Chart] Initializing chart (units: ${unitLabel})`);
+    console.info(`[Chart] Initializing chart (units: ${unitLabel})`);
 
     waterLevelChart = new Chart(ctx, {
         type: 'line',
@@ -257,7 +257,7 @@ function initializeChart() {
     // Setup pole selector
     setupPoleSelector();
 
-    console.log('[Chart] Chart initialized successfully');
+    console.info('[Chart] Chart initialized successfully');
 }/* initializeChart() */
 
 /* Sets up event listerer for a change on the duration selection. 
@@ -352,7 +352,7 @@ function updateChartTimeRange() {
     waterLevelChart.options.scales.x.min = minDate;
     waterLevelChart.options.scales.x.max = paddedMax;
 
-    console.log(`[Chart] Time range updated — duration: ${duration}, unit: ${timeUnit}, from: ${minDate.toLocaleTimeString()} to ${paddedMax.toLocaleTimeString()}`);
+    console.info(`[Chart] Time range updated — duration: ${duration}, unit: ${timeUnit}, from: ${minDate.toLocaleTimeString()} to ${paddedMax.toLocaleTimeString()}`);
     waterLevelChart.update('none');
 }/* updateChartTimeRange() */
 

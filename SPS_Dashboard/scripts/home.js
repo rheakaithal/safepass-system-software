@@ -217,7 +217,7 @@ function navigateTo(page, title, subtitle) {
         l.classList.toggle('active', l.getAttribute('data-page') === page)
     );
 
-    console.log(`[Home] Navigated to: ${page}`);
+    console.info(`[Home] Navigated to: ${page}`);
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

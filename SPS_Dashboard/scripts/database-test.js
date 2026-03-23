@@ -86,7 +86,7 @@ app.get('/api/data', (req, res) => {
     res.json([{
         id:         state.id,
         pole_id:    poleId,
-        waterlevel: parseFloat((3 + 2 * Math.sin(state.offset + phase)).toFixed(3)),
+        waterlevel: parseFloat((3 + 4 * Math.sin(state.offset + phase)).toFixed(3)),
         created_at: new Date().toISOString()
     }]);
 });

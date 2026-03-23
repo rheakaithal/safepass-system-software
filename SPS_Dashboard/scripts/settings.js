@@ -35,9 +35,9 @@ function loadSettings() {
     const savedSettings = localStorage.getItem('dashboardSettings');
     if (savedSettings) {
         settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
-        console.log(`[Settings] Loaded from localStorage — frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in, alarm: ${settings.alarmEnabled ? 'on' : 'off'} @ ${Math.round(settings.alarmVolume * 100)}%`);
+        console.info(`[Settings] Loaded from localStorage — frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in, alarm: ${settings.alarmEnabled ? 'on' : 'off'} @ ${Math.round(settings.alarmVolume * 100)}%`);
     } else {
-        console.log('[Settings] No saved settings found — using defaults');
+        console.info('[Settings] No saved settings found — using defaults');
     }
     return settings;
 } /* loadSettings() */
@@ -57,9 +57,9 @@ function saveSettings(newSettings) {
     const changed = Object.keys(newSettings).filter(k => prev[k] !== settings[k]);
     if (changed.length > 0) {
         const diff = changed.map(k => `${k}: ${prev[k]} → ${settings[k]}`).join(', ');
-        console.log(`[Settings] Saved — changed: ${diff}`);
+        console.info(`[Settings] Saved — changed: ${diff}`);
     } else {
-        console.log('[Settings] Saved — no values changed');
+        console.info('[Settings] Saved — no values changed');
     }
 
     return settings;
@@ -99,7 +99,7 @@ function getUnitLabel() {
 **     None
 */
 function initializeSettingsPage() {
-    console.log('[Settings] Initializing settings page');
+    console.info('[Settings] Initializing settings page');
 
     // Get form elements by ID
     const updateFreqSelect = document.getElementById('updateFrequencySelect');
@@ -168,7 +168,7 @@ function initializeSettingsPage() {
         
         // Add change listener to update threshold labels and values
         distanceUnitSelect.addEventListener('change', () => {
-            console.log(`[Settings] Distance unit changed to: ${distanceUnitSelect.value}`);
+            console.info(`[Settings] Distance unit changed to: ${distanceUnitSelect.value}`);
             updateThresholdDisplay();
         });
     }
@@ -193,14 +193,14 @@ function initializeSettingsPage() {
     if (testAlarmButton && alarmVolumeSlider) {
         testAlarmButton.addEventListener('click', () => {
             const volume = parseInt(alarmVolumeSlider.value) / 100;
-            console.log(`[Settings] Test alarm triggered at volume: ${Math.round(volume * 100)}%`);
+            console.info(`[Settings] Test alarm triggered at volume: ${Math.round(volume * 100)}%`);
             playAlarmSound(volume, 2000);
         });
     }
 
     // Initial display update
     updateThresholdDisplay();
-    console.log('[Settings] Settings page ready');
+    console.info('[Settings] Settings page ready');
 
     // Handle save button click
     if (saveButton) {
@@ -311,16 +311,16 @@ const diagnosticLog = window.top._diagnosticLog;
 // Stored in localStorage under 'diagnosticLogLevel' so the preference
 // survives page navigation and refreshes.
 
-const LOG_LEVEL_PRIORITY = { log: 0, warn: 1, error: 2 };
+const LOG_LEVEL_PRIORITY = { info: 0, warn: 1, error: 2 };
 
 /* Returns the current log level string, defaulting to 'log' (show all).
 ** Parameters:
 **     None
 ** Return:
-**     string 'log' | 'warn' | 'error'
+**     string 'info' | 'warn' | 'error'
 */
 function getLogLevel() {
-    return localStorage.getItem('diagnosticLogLevel') || 'log';
+    return localStorage.getItem('diagnosticLogLevel') || 'info';
 } /* getLogLevel() */
 
 /* Saves the log level to localStorage and re-renders the panel so entries
@@ -352,7 +352,7 @@ function _isLevelVisible(entryLevel) {
 } /* _isLevelVisible() */
 
 // Save references to the originals before we wrap them
-const _realLog   = console.log.bind(console);
+const _realInfo   = console.info.bind(console);
 const _realWarn  = console.warn.bind(console);
 const _realError = console.error.bind(console);
 
@@ -378,7 +378,7 @@ function _formatArgs(...args) {
 /* Pushes a new entry onto the diagnostic ring buffer and, if the panel is
 ** currently visible in the DOM, appends a row immediately.
 ** Parameters:
-**     string level   'log' | 'warn' | 'error'
+**     string level   'info' | 'warn' | 'error'
 **     string message
 ** Return:
 **     None
@@ -416,8 +416,8 @@ function _appendEntryToPanel(entry) {
     const output = document.getElementById('diagnostic-output');
     if (!output) return;
 
-    const colors = { log: '#a3e635', warn: '#fbbf24', error: '#f87171' };
-    const prefixes = { log: 'LOG', warn: 'WARN', error: 'ERR' };
+    const colors = { info: '#a3e635', warn: '#fbbf24', error: '#f87171' };
+    const prefixes = { info: 'INF', warn: 'WARN', error: 'ERR' };
 
     const row = document.createElement('div');
     row.style.cssText = `
@@ -559,9 +559,9 @@ function initializeDiagnosticConsole() {
 // ── Install interceptors ──────────────────────────────────────────────────────
 // These run immediately when settings.js is first parsed, so nothing is missed.
 
-console.log = (...args) => {
+console.info = (...args) => {
     _realLog(...args);
-    _pushEntry('log', _formatArgs(...args));
+    _pushEntry('info', _formatArgs(...args));
 };
 
 console.warn = (...args) => {
