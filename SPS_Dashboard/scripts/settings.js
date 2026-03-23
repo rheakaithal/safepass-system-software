@@ -336,7 +336,7 @@ function setLogLevel(level) {
         return;
     }
     localStorage.setItem('diagnosticLogLevel', level);
-    _realLog(`[DiagConsole] Log level set to: ${level}`);
+    _realInfo(`[DiagConsole] Log level set to: ${level}`);
     renderDiagnosticLog(false); // preserve scroll position on filter change
 } /* setLogLevel() */
 
@@ -534,7 +534,7 @@ function initializeDiagnosticConsole() {
             diagnosticLog.length = 0;
             const output = document.getElementById('diagnostic-output');
             if (output) output.innerHTML = '';
-            _realLog('[DiagConsole] Log cleared by user');
+            _realInfo('[DiagConsole] Log cleared by user');
         });
     }
 
@@ -560,7 +560,7 @@ function initializeDiagnosticConsole() {
 // These run immediately when settings.js is first parsed, so nothing is missed.
 
 console.info = (...args) => {
-    _realLog(...args);
+    _realInfo(...args);
     _pushEntry('info', _formatArgs(...args));
 };
 
