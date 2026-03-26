@@ -1,5 +1,5 @@
 
-// This exists for personal (Rhea's) testing purposes
+// This exists for personal (Rhea's) 24/7 testing purposes
 // Uses public MQTT broker
 
 const mqtt = require("mqtt");

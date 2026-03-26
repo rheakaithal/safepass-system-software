@@ -23,5 +23,8 @@
   "homepage": "https://github.com/rheakaithal/safepass-system-software#readme",
   "dependencies": {
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

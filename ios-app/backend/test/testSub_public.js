@@ -1,8 +1,10 @@
-// mqttClient.js
+// This exists for personal (Rhea's) 24/7 testing purposes
+// Uses public MQTT broker
+
 const mqtt = require("mqtt");
 
-const broker = "mqtts://83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud:8883";
-const topic = "sensors/#";
+const broker = "mqtt://broker.hivemq.com";
+const topic = "safepass/test/rhea123/waterlevel"; // MUST match publisher exactly
 
 const options = {
   username: "Sensor",
@@ -43,7 +45,7 @@ client.on("message", (t, message) => {
 
   const alert = {
     id: Date.now().toString(),
-    region: "Pole 2",
+    region: "Pole 1",
     severity,
     message: msg,
     timestamp: new Date().toISOString(),

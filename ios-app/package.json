@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "backend": "node backend/server.js",
+    "subscriber": "node backend/subscriber.js",
+    "frontend": "npm run dev --prefix frontend_ui",
+    "demo": "concurrently \"npm run backend\" \"npm run subscriber\" \"npm run frontend\""
+  }
+}
