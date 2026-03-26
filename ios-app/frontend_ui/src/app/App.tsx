@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AlertDashboard, FloodAlert } from "./components/AlertDashboard.tsx";
 import { toast, Toaster } from "sonner";
+import mqtt from "mqtt";
 
 function App() {
   const [alerts, setAlerts] = useState<FloodAlert[]>([]);
@@ -54,63 +55,67 @@ function App() {
     }
   };
 
-  // WebSocket connection (NO polling)
+  // MQTT Connection
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:3000");
+    const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
-    socket.onopen = () => {
-      console.log("WebSocket connected");
-    };
+    client.on("connect", () => {
+      console.log("MQTT connected to wss://broker.hivemq.com:8884/mqtt");
+      client.subscribe("safepass/alerts");
+    });
 
-    socket.onmessage = (event) => {
+    client.on("message", (topic, message) => {
       try {
-        const raw = JSON.parse(event.data);
+        const raw = JSON.parse(message.toString());
 
         const alert: FloodAlert = {
-          ...raw,
+          id: Date.now().toString() + "-" + raw.poleId,
+          poleId: raw.poleId,
+          status: raw.status,
+          level: raw.level,
           timestamp: new Date(raw.timestamp),
         };
 
         setAlerts((prev) => [alert, ...prev].slice(0, 10));
 
+        const msgStr = `Level: ${alert.level} cm`;
+
         // Toast notifications
-        if (alert.severity === "critical") {
-          toast.error(`${alert.region}: ${alert.message}`);
-        } else if (alert.severity === "warning") {
-          toast.warning(`${alert.region}: ${alert.message}`);
+        if (alert.status === "CRITICAL") {
+          toast.error(`${alert.poleId}: ${msgStr}`);
+        } else if (alert.status === "WARNING") {
+          toast.warning(`${alert.poleId}: ${msgStr}`);
         } else {
-          toast.success(`${alert.region}: ${alert.message}`);
+          toast.success(`${alert.poleId}: ${msgStr}`);
         }
 
         // Browser notification (critical only, deduped)
         if (
           notificationsEnabled &&
           notificationPermission === "granted" &&
-          alert.severity === "critical" &&
+          alert.status === "CRITICAL" &&
           lastAlertIdRef.current !== alert.id
         ) {
           lastAlertIdRef.current = alert.id;
 
-          new Notification(`Flood Alert: ${alert.region}`, {
-            body: alert.message,
+          new Notification(`Flood Alert: ${alert.poleId}`, {
+            body: msgStr,
             icon: "/favicon.ico",
             tag: alert.id,
           });
         }
       } catch (err) {
-        console.error("Invalid WebSocket message:", err);
+        console.error("Invalid MQTT message:", err);
       }
-    };
+    });
 
-    socket.onerror = (err) => {
-      console.error("WebSocket error", err);
-    };
+    client.on("error", (err) => {
+      console.error("MQTT error", err);
+    });
 
-    socket.onclose = () => {
-      console.log("WebSocket disconnected");
+    return () => {
+      client.end();
     };
-
-    return () => socket.close();
   }, [notificationsEnabled, notificationPermission]);
 
   return (
