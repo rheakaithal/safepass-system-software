@@ -35,7 +35,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     
     // Filter pole 1 data within date range
     pole1Data.forEach(item => {
-        const timestamp = new Date(item.createdat);
+        const timestamp = new Date(item.created_at);
         if (timestamp >= minDate && timestamp <= maxDate) {
             pole1Timestamps.push(timestamp);
             pole1Values.push(item.waterlevel);
@@ -44,7 +44,7 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     
     // Filter pole 2 data within date range
     pole2Data.forEach(item => {
-        const timestamp = new Date(item.createdat);
+        const timestamp = new Date(item.created_at);
         if (timestamp >= minDate && timestamp <= maxDate) {
             pole2Timestamps.push(timestamp);
             pole2Values.push(item.waterlevel);
@@ -53,12 +53,15 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     
     // If no data, return empty
     if (pole1Timestamps.length === 0 && pole2Timestamps.length === 0) {
+        console.warn('[Chart] createUnifiedTimeline: no data points found in the selected time range');
         return {
             timestamps: [],
             pole1Values: [],
             pole2Values: []
         };
     }
+
+    console.info(`[Chart] Unified timeline — Pole 1: ${pole1Timestamps.length} pts, Pole 2: ${pole2Timestamps.length} pts, interpolating to ${targetPoints} pts`);
     
     // Find overall time range
     const allTimestamps = [...pole1Timestamps, ...pole2Timestamps];
@@ -101,9 +104,13 @@ let waterLevelChart = null;
 
 function initializeChart() {
     const ctx = document.getElementById('waterLevelChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.error('[Chart] Canvas element #waterLevelChart not found — chart will not render');
+        return;
+    }
 
     const unitLabel = getUnitLabel();
+    console.info(`[Chart] Initializing chart (units: ${unitLabel})`);
 
     waterLevelChart = new Chart(ctx, {
         type: 'line',
@@ -184,7 +191,7 @@ function initializeChart() {
                 x: {
                     type: 'time',
                     time: {
-                        unit: 'minute',
+                        unit: 'hour',
                         displayFormats: {
                             minute: 'h:mm a',
                             hour: 'h:mm a',
@@ -205,8 +212,7 @@ function initializeChart() {
                         color: '#64748b',
                         maxRotation: 45,
                         minRotation: 0,
-                        autoSkip: true,
-                        maxTicksLimit: 10
+                        autoSkip: false
                     },
                     grid: {
                         color: '#e2e8f0',
@@ -250,6 +256,8 @@ function initializeChart() {
     
     // Setup pole selector
     setupPoleSelector();
+
+    console.info('[Chart] Chart initialized successfully');
 }/* initializeChart() */
 
 /* Sets up event listerer for a change on the duration selection. 
@@ -278,38 +286,73 @@ function setupDurationSelector() {
 **     None
 */
 function updateChartTimeRange() {
-    if (!waterLevelChart) return;
+    if (!waterLevelChart) {
+        console.warn('[Chart] updateChartTimeRange called before chart was initialized');
+        return;
+    }
 
     const duration = document.getElementById('duration-select')?.value || '12 Hours';
     const now = new Date();
     let minDate;
     let timeUnit = 'minute';
 
+    let stepSizeMinutes;
+
     switch(duration) {
+        case '3 Hours':
+            minDate = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+            timeUnit = 'hour';
+            stepSizeMinutes = 30;   // ticks at :00 and :30
+            break;
         case '12 Hours':
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
-            timeUnit = 'minute';
+            timeUnit = 'hour';
+            stepSizeMinutes = 60;   // ticks every hour on the hour
             break;
         case '1 Day':
             minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
             timeUnit = 'hour';
+            stepSizeMinutes = 120;  // ticks every 2 hours
             break;
         case '3 Days':
             minDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
             timeUnit = 'hour';
+            stepSizeMinutes = 360;  // ticks every 6 hours
             break;
         case '1 Week':
             minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             timeUnit = 'day';
+            stepSizeMinutes = 1440; // ticks every day
             break;
         default:
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+            timeUnit = 'hour';
+            stepSizeMinutes = 60;
     }
+
+    // Build evenly-spaced ticks snapped to clean time boundaries.
+    // e.g. for 30-min steps: 11:00, 11:30, 12:00 — never 11:07 or 11:43.
+    // This only affects tick labels; axis min/max and data are untouched.
+    const stepMs = stepSizeMinutes * 60 * 1000;
+    const cleanTicks = [];
+    const tickStart = Math.ceil(minDate.getTime() / stepMs) * stepMs;
+    for (let t = tickStart; t <= now.getTime(); t += stepMs) {
+        cleanTicks.push(t);
+    }
+    waterLevelChart.options.scales.x.afterBuildTicks = (axis) => {
+        axis.ticks = cleanTicks.map(t => ({ value: t }));
+    };
+
+    // Pad the right edge by 2% of the visible range so the latest
+    // data point isn't clipped against the axis edge
+    const rangeMs = now.getTime() - minDate.getTime();
+    const paddedMax = new Date(now.getTime() + rangeMs * 0.02);
 
     waterLevelChart.options.scales.x.time.unit = timeUnit;
     waterLevelChart.options.scales.x.min = minDate;
-    waterLevelChart.options.scales.x.max = now;
-    
+    waterLevelChart.options.scales.x.max = paddedMax;
+
+    console.info(`[Chart] Time range updated — duration: ${duration}, unit: ${timeUnit}, from: ${minDate.toLocaleTimeString()} to ${paddedMax.toLocaleTimeString()}`);
     waterLevelChart.update('none');
 }/* updateChartTimeRange() */
 
@@ -357,6 +400,7 @@ function updatePoleVisibility() {
 */
 function updateChartData(pole1Data, pole2Data) {
     if (!waterLevelChart) {
+        console.warn('[Chart] Chart not ready — initializing now');
         initializeChart();
         return;
     }
@@ -366,6 +410,9 @@ function updateChartData(pole1Data, pole2Data) {
     let minDate;
 
     switch(duration) {
+        case '3 Hours':
+            minDate = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+            break;
         case '12 Hours':
             minDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
             break;

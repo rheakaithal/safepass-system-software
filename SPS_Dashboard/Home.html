@@ -3,55 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Home — RIPPLE</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 </head>
-<body class="iframe-content">
-    <div class="dashboard-grid-iframe">
-        <section class="card" style="grid-column: 1 / -1;">
-            <div class="card-header">
-                <h2 class="card-title">Welcome to the Flood Monitoring Dashboard</h2>
+<body class="iframe-content home-page">
+
+    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <div class="home-hero">
+        <div class="home-hero-inner">
+
+            <div class="home-hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                RIPPLE — Live Monitoring
             </div>
-            <div style="padding: var(--spacing-xl);">
-                <p style="margin-bottom: var(--spacing-md); line-height: 1.8;">
-                    This dashboard provides real-time monitoring of flood conditions at various locations. 
-                    Select a dashboard from the sidebar to view detailed information.
-                </p>
-                
-                <h3 style="margin: var(--spacing-lg) 0 var(--spacing-md) 0; color: var(--primary-color);">
-                    Available Dashboards
-                </h3>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="padding: var(--spacing-sm); background: var(--bg-secondary); margin-bottom: var(--spacing-sm); border-radius: var(--border-radius-sm);">
-                        <strong>Ross Street</strong> - Real-time flood monitoring with 2 sensor poles
-                    </li>
-                    <li style="padding: var(--spacing-sm); background: var(--bg-secondary); margin-bottom: var(--spacing-sm); border-radius: var(--border-radius-sm);">
-                        <strong>Filler</strong> - Placeholder for additional monitoring location
-                    </li>
-                </ul>
-                
-                <h3 style="margin: var(--spacing-lg) 0 var(--spacing-md) 0; color: var(--primary-color);">
-                    Quick Stats
-                </h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
-                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: var(--success-color);">2</div>
-                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">Active Sensors</div>
+
+            <h1>
+                Flood Monitoring<br>
+                <span>Emergency Response Dashboard</span>
+            </h1>
+
+            <p class="home-hero-sub">
+                Real-time water level data from field sensors across all monitored
+                locations. Select a location below to open the full dashboard.
+            </p>
+        </div>
+    </div>
+
+    <!-- ── Location cards ───────────────────────────────────────────────── -->
+    <div class="home-body">
+
+        <div class="home-section-label">Monitoring Locations</div>
+
+        <div class="home-locations">
+
+            <!-- Ross Street -->
+            <div class="home-loc-card state-loading" id="card-ross"
+                 onclick="navigateTo('RossStContent.html', 'Ross Street', 'Real-time Flood Monitoring')">
+
+                <div class="loc-card-bar"></div>
+
+                <div class="loc-card-main">
+                    <div class="loc-card-header">
+                        <div>
+                            <div class="loc-card-title">Ross Street</div>
+                            <div class="loc-card-meta">College Station, TX &mdash; 2 sensors</div>
+                        </div>
+                        <div class="loc-state-badge">
+                            <span class="badge-dot"></span>
+                            <span id="ross-badge-text">Loading&hellip;</span>
+                        </div>
                     </div>
-                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: var(--accent-color);">1</div>
-                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">Active Locations</div>
-                    </div>
-                    <div style="padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: var(--success-color);">100%</div>
-                        <div style="color: var(--text-secondary); margin-top: var(--spacing-xs);">System Uptime</div>
+
+                    <div class="loc-sensors">
+                        <div class="loc-sensor-row">
+                            <div class="loc-sensor-left">
+                                <img src="images/WarningState0.svg" class="loc-sensor-icon" id="ross-p1-icon" alt="Pole 1 status">
+                                <span class="loc-sensor-name">Pole 1</span>
+                            </div>
+                            <span class="loc-sensor-level level-unknown" id="ross-p1-level">-- in</span>
+                        </div>
+                        <div class="loc-sensor-row">
+                            <div class="loc-sensor-left">
+                                <img src="images/WarningState0.svg" class="loc-sensor-icon" id="ross-p2-icon" alt="Pole 2 status">
+                                <span class="loc-sensor-name">Pole 2</span>
+                            </div>
+                            <span class="loc-sensor-level level-unknown" id="ross-p2-level">-- in</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="loc-card-footer">
+                    <span class="loc-footer-time" id="ross-updated">Fetching data&hellip;</span>
+                    <span class="loc-footer-cta">
+                        Open dashboard
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                </div>
             </div>
-        </section>
+
+            <!-- Unconfigured placeholder -->
+            <div class="home-loc-card-empty"
+                 onclick="navigateTo('FillerContent.html', 'Filler', 'Placeholder Dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div>
+                    <div class="empty-card-title">Additional Location</div>
+                    <div class="empty-card-sub">Not yet configured. Click to view placeholder.</div>
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/home.js"></script>
 </body>
 </html>

@@ -10,6 +10,10 @@
 
 //Creates global variables
 let chartUpdateInterval = null;
+let lastIDPole1;
+let lastIDPole2;
+let pole1Data = [];
+let pole2Data = [];
 let alarmState = {
     pole1Flooding: false,
     pole2Flooding: false,
@@ -50,10 +54,11 @@ function playAlarmSound(volume = 0.7, duration = 2000) {
         
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration / 1000);
-        
+
+        console.info(`[Alarm] Playing alarm — volume: ${Math.round(volume * 100)}%, duration: ${duration}ms`);
         return { oscillator, audioContext };
     } catch (error) {
-        console.error('Error playing alarm sound:', error);
+        console.error('[Alarm] Failed to play alarm sound:', error);
         return null;
     }
 }/* playAlarmSound() */
@@ -69,6 +74,7 @@ function startContinuousAlarm() {
     if (!settings.alarmEnabled || alarmState.alarmPlaying) return;
     
     alarmState.alarmPlaying = true;
+    console.warn('[Alarm] Continuous alarm started');
     
     // Play alarm sound immediately
     playAlarmSound(settings.alarmVolume, 1500);
@@ -89,6 +95,7 @@ function startContinuousAlarm() {
 */
 function stopContinuousAlarm() {
     alarmState.alarmPlaying = false;
+    console.info('[Alarm] Continuous alarm stopped');
     
     if (alarmState.alarmInterval) {
         clearInterval(alarmState.alarmInterval);
@@ -155,14 +162,24 @@ function checkFloodingStatus(pole1Level, pole2Level) {
     
     // Start alarm if flooding just started
     if (anyFlooding && !wasFlooding) {
+        const floodingPoles = [
+            alarmState.pole1Flooding ? 'Pole 1' : null,
+            alarmState.pole2Flooding ? 'Pole 2' : null
+        ].filter(Boolean).join(', ');
+        console.error(`[Flood] CRITICAL FLOODING DETECTED on ${floodingPoles} — Pole 1: ${pole1Level.toFixed(2)} in, Pole 2: ${pole2Level.toFixed(2)} in (threshold: ${settings.criticalThreshold} in)`);
         startContinuousAlarm();
-        console.log('CRITICAL FLOODING DETECTED - ALARM ACTIVATED');
     }
     
+    // Warn when approaching warning threshold but not yet critical
+    const pole1Warning = pole1Level >= settings.warningThreshold && !alarmState.pole1Flooding;
+    const pole2Warning = pole2Level >= settings.warningThreshold && !alarmState.pole2Flooding;
+    if (pole1Warning) console.warn(`[Flood] Pole 1 at WARNING level: ${pole1Level.toFixed(2)} in (warning threshold: ${settings.warningThreshold} in)`);
+    if (pole2Warning) console.warn(`[Flood] Pole 2 at WARNING level: ${pole2Level.toFixed(2)} in (warning threshold: ${settings.warningThreshold} in)`);
+
     // Stop alarm if flooding has stopped
     if (!anyFlooding && wasFlooding) {
         stopContinuousAlarm();
-        console.log('Flooding subsided - Alarm stopped');
+        console.info(`[Flood] Flooding subsided — Pole 1: ${pole1Level.toFixed(2)} in, Pole 2: ${pole2Level.toFixed(2)} in`);
     }
 }/* checkFloodingStatus() */
 
@@ -178,7 +195,7 @@ function checkFloodingStatus(pole1Level, pole2Level) {
 **     -or-
 **     0
 */
-function predictTimeToFlood(dataPoints, criticalThreshold) {
+function predictTimeToFlood(dataPoints, criticalThreshold, currentLevel) {
     // Need at least 2 points to calculate a trend
     if (dataPoints.length < 2) {
         return null;
@@ -192,7 +209,7 @@ function predictTimeToFlood(dataPoints, criticalThreshold) {
     let validIntervals = 0;
     
     for (let i = 1; i < recentPoints.length; i++) {
-        const timeDiff = new Date(recentPoints[i].createdat).getTime() - new Date(recentPoints[i - 1].createdat).getTime();
+        const timeDiff = new Date(recentPoints[i].created_at).getTime() - new Date(recentPoints[i - 1].created_at).getTime();
         const waterDiff = recentPoints[i].waterlevel - recentPoints[i - 1].waterlevel;
         
         if (timeDiff > 0) {
@@ -207,8 +224,11 @@ function predictTimeToFlood(dataPoints, criticalThreshold) {
     
     const averageRatePerMs = totalRateChange / validIntervals;
     
-    // Get current water level
-    const currentLevel = recentPoints[recentPoints.length - 1].waterlevel;
+    // Use the caller-supplied currentLevel (the value shown on screen) so the
+    // flooding threshold check is consistent with what the UI is displaying
+    if (currentLevel === undefined || currentLevel === null) {
+        currentLevel = recentPoints[recentPoints.length - 1].waterlevel;
+    }
     
     // If already at or above critical, return 0
     if (currentLevel >= criticalThreshold) {
@@ -225,14 +245,17 @@ function predictTimeToFlood(dataPoints, criticalThreshold) {
     const timeToFloodMs = levelDifference / averageRatePerMs;
     
     // Convert to minutes
-    const timeToFloodMinutes = Math.round(timeToFloodMs / (1000 * 60));
+    const timeToFloodMinutes = Math.floor(timeToFloodMs / (1000 * 60));
     
     // Only return if within 2 hours (120 minutes)
     if (timeToFloodMinutes > 120) {
         return null;
     }
     
-    return timeToFloodMinutes;
+    // Clamp to minimum of 1 — a 0 return value is reserved exclusively for
+    // when currentLevel >= criticalThreshold (already flooding). Without this,
+    // a sub-minute prediction would round down to 0 and falsely trigger "FLOODING NOW"
+    return Math.max(1, timeToFloodMinutes);
 }/* predictTimeToFlood() */
 
 /* Formats data for front end. Seperated data based on urgency and time units
@@ -247,12 +270,10 @@ function formatTimeToFlood(minutes) {
         return { display: false, text: '' };
     }
     
+    // Only show FLOODING NOW when water has actually reached the critical threshold
+    // (predictTimeToFlood returns 0 only when currentLevel >= criticalThreshold)
     if (minutes <= 0) {
         return { display: true, text: 'FLOODING NOW', urgent: true };
-    }
-    
-    if (minutes < 1) {
-        return { display: true, text: 'Less than 1 minute', urgent: true };
     }
     
     if (minutes === 1) {
@@ -286,17 +307,27 @@ function formatTimeToFlood(minutes) {
 */
 async function updatePoleData() {
     try {
-        // Fetch pole data from JSON files
-        const pole1Data = await (await fetch('pole1Data.json')).json();  
-        const pole2Data = await (await fetch('pole2Data.json')).json();
-        
+        //Check for new data
+        await getNewData();
+
+        //trims new data
+        trimOldData(pole1Data);
+        trimOldData(pole2Data);
+
         // Get latest pole data objects
         const lastPole1Data = pole1Data[pole1Data.length - 1];
         const lastPole2Data = pole2Data[pole2Data.length - 1];
 
+        if (!lastPole1Data || !lastPole2Data) {
+            console.warn('[Data] No pole data available yet — skipping UI update');
+            return;
+        }
+
         // Calculate water levels (in inches, will convert for display)
         const pole1WaterLevel = lastPole1Data.waterlevel;
         const pole2WaterLevel = lastPole2Data.waterlevel;
+
+        console.info(`[Data] Pole 1: ${pole1WaterLevel.toFixed(3)} in | Pole 2: ${pole2WaterLevel.toFixed(3)} in | Buffer: ${pole1Data.length} / ${pole2Data.length} records`);
         
         // Check flooding status and trigger alarms/visual alerts
         checkFloodingStatus(pole1WaterLevel, pole2WaterLevel);
@@ -314,17 +345,20 @@ async function updatePoleData() {
         updatePoleStatus('pole2-image', pole2WaterLevel, settings.warningThreshold, settings.criticalThreshold);
 
         // Calculate and update time to flood predictions
-        const pole1TimeToFlood = predictTimeToFlood(pole1Data, settings.criticalThreshold);
-        const pole2TimeToFlood = predictTimeToFlood(pole2Data, settings.criticalThreshold);
+        const pole1TimeToFlood = predictTimeToFlood(pole1Data, settings.criticalThreshold, pole1WaterLevel);
+        const pole2TimeToFlood = predictTimeToFlood(pole2Data, settings.criticalThreshold, pole2WaterLevel);
+
+        if (pole1TimeToFlood !== null) console.warn(`[Flood] Pole 1 est. time to flood: ${pole1TimeToFlood} min`);
+        if (pole2TimeToFlood !== null) console.warn(`[Flood] Pole 2 est. time to flood: ${pole2TimeToFlood} min`);
         
-        updateTimeToFlood('pole1', pole1TimeToFlood);
-        updateTimeToFlood('pole2', pole2TimeToFlood);
+        updateTimeToFlood('pole1', pole1TimeToFlood, alarmState.pole1Flooding);
+        updateTimeToFlood('pole2', pole2TimeToFlood, alarmState.pole2Flooding);
 
         // Update chart with new data
         updateChartData(pole1Data, pole2Data);
         
     } catch (error) {
-        console.error('Error updating pole data:', error);
+        console.error('[Data] Error in updatePoleData:', error);
     }
 }/* updatePoleData() */
 
@@ -335,10 +369,16 @@ async function updatePoleData() {
 ** Return:
 **     None
 */
-function updateTimeToFlood(poleId, minutes) {
+function updateTimeToFlood(poleId, minutes, isActuallyFlooding = false) {
     const floodWarningElement = document.querySelector(`#${poleId}-image`)?.closest('.pole-item')?.querySelector('.flood-warning');
     
     if (!floodWarningElement) return;
+    
+    // Safety guard: if the algorithm returns 0 (FLOODING NOW) but the water level
+    // hasn't actually crossed the critical threshold, treat it as 1 minute instead
+    if (minutes === 0 && !isActuallyFlooding) {
+        minutes = 1;
+    }
     
     const formatted = formatTimeToFlood(minutes);
     
@@ -439,30 +479,219 @@ function initializeImageButtons() {
 */
 function initializePingButton() {
     const pingButton = document.querySelector('.ping-button');
-    const pingStatus = document.querySelector('.ping-status .status-text');
-    
-    if (pingButton) {
-        pingButton.addEventListener('click', async () => {
-            pingButton.disabled = true;
-            pingButton.style.opacity = '0.6';
-            
-            if (pingStatus) {
-                pingStatus.textContent = 'Pinging sensors...';
-            }
-            //const result = fetch('http://127.0.0.1:3306/api/ping')
-            //TEMP
-            setTimeout(() => {
-                pingButton.disabled = false;
-                pingButton.style.opacity = '1';
-                
-                if (pingStatus) {
-                    pingStatus.textContent = 'All Systems Online';
-                }
-            }, 1500);
-            //TEMP
-        });
+    if (!pingButton) return;
+
+    pingButton.addEventListener('click', async () => {
+        pingButton.disabled = true;
+        pingButton.style.opacity = '0.6';
+
+        // Show a "checking" state while the request is in-flight
+        setIndicatorState('overall-indicator', 'systemStatus', 'checking', 'Checking...');
+        setIndicatorState('pole-status-indicator', 'poleStatusText', 'checking', 'Checking...');
+
+        await checkSystemHealth();
+
+        pingButton.disabled = false;
+        pingButton.style.opacity = '1';
+    });
+}
+
+/* initializePingButton() */
+
+async function checkSystemHealth() {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 4000);
+
+        const response = await fetch('/api/ping', { signal: controller.signal });
+
+        clearTimeout(timeout);
+
+        const result = await response.json();
+
+        const mysql = result.mysql ?? false;
+        const mqtt  = result.mqtt  ?? false;
+
+        if (mysql && mqtt) {
+            console.info('[Health] All systems online — MySQL: OK, MQTT: OK');
+        } else {
+            if (!mysql) console.error('[Health] MySQL is unreachable');
+            if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
+        }
+
+        updateHealthDisplay({ mysql, mqtt });
+
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error('[Health] Ping request timed out after 4s — server may be unreachable');
+        } else {
+            console.error('[Health] Health check failed:', error);
+        }
+
+        updateHealthDisplay({ mysql: false, mqtt: false });
     }
-}/* initializePingButton() */
+}
+
+let healthUpdateTimeout = null;
+
+/* Helper — sets a single status indicator element to a given state.
+** Parameters:
+**     string indicatorId   id of the .status-indicator div
+**     string textElId      id of the status text span
+**     string state         'online' | 'warning' | 'offline' | 'checking'
+**     string text          label to show
+** Return:
+**     None
+*/
+function setIndicatorState(indicatorId, textElId, state, text) {
+    const indicator = document.getElementById(indicatorId);
+    const textEl    = document.getElementById(textElId);
+
+    const dotColors = {
+        online:   '#22c55e', // green
+        warning:  '#f59e0b', // amber
+        offline:  '#ef4444', // red
+        checking: '#a3a3a3', // grey
+    };
+
+    if (indicator) {
+        indicator.classList.remove('online', 'warning', 'offline', 'checking');
+        indicator.classList.add(state);
+        const dot = indicator.querySelector('.status-dot');
+        if (dot) dot.style.backgroundColor = dotColors[state] || '#a3a3a3';
+    }
+
+    if (textEl) textEl.textContent = text;
+}/* setIndicatorState() */
+
+/* Updates the ping status card to reflect current system health.
+** Handles three states: fully online, partial (one service down), and fully offline.
+** Updates the overall summary and each individual service row.
+** Parameters:
+**     object status  { mysql: bool, mqtt: bool }
+** Return:
+**     None
+*/
+function updateHealthDisplay(status) {
+    // Clear any pending update
+    if (healthUpdateTimeout) {
+        clearTimeout(healthUpdateTimeout);
+    }
+
+    healthUpdateTimeout = setTimeout(() => {
+        const allOnline  = status.mysql && status.mqtt;
+        const allOffline = !status.mysql && !status.mqtt;
+
+        // --- Overall summary (ping card) ---
+        if (allOnline) {
+            setIndicatorState('overall-indicator', 'systemStatus', 'online', 'System Online');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'online', 'Live');
+        } else if (allOffline) {
+            console.error('[Health] All systems offline — dashboard is running without live data');
+            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
+        } else {
+            const downService = !status.mysql ? 'SQL Server is Down' : 'MQTT Broker is Down';
+            console.warn(`[Health] Degraded — ${downService}`);
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', downService);
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
+        }
+
+        // --- Per-service rows ---
+
+    }, 500);
+}
+
+
+/* Gets the initial data from SQL database from the last week for each pole
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+async function initializeData() {
+    try {
+        console.info('[Init] Fetching historical data from server...');
+
+        const pole1Response = await fetch(`/api/initdata?poleID=1`);
+        pole1Data = await pole1Response.json();
+        lastIDPole1 = pole1Data[pole1Data.length - 1]?.id;
+
+        const pole2Response = await fetch(`/api/initdata?poleID=2`);
+        pole2Data = await pole2Response.json();
+        lastIDPole2 = pole2Data[pole2Data.length - 1]?.id;
+
+        console.info(`[Init] Historical data loaded — Pole 1: ${pole1Data.length} records (last ID: ${lastIDPole1}), Pole 2: ${pole2Data.length} records (last ID: ${lastIDPole2})`);
+
+    } catch (error) {
+        console.error('[Init] Failed to load historical data:', error);
+    }
+}/* initializeData() */
+
+/* Description
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+async function getNewData() {
+    try {
+        const pole1Response = await fetch(`/api/data?poleID=1`);
+        const pole1Result = await pole1Response.json();
+
+        if (pole1Result.length > 0) {
+            const newRecord = pole1Result[0];
+
+            if (newRecord.id > (lastIDPole1 ?? -1)) {
+                pole1Data.push(newRecord);
+                lastIDPole1 = newRecord.id;
+                console.info(`[Data] New Pole 1 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
+            }
+        } else {
+            console.warn('[Data] /api/data returned empty result for Pole 1');
+        }
+
+        const pole2Response = await fetch(`/api/data?poleID=2`);
+        const pole2Result = await pole2Response.json();
+
+        if (pole2Result.length > 0) {
+            const newRecord = pole2Result[0];
+
+            if (newRecord.id > (lastIDPole2 ?? -1)) {
+                pole2Data.push(newRecord);
+                lastIDPole2 = newRecord.id;
+                console.info(`[Data] New Pole 2 record — ID: ${newRecord.id}, level: ${newRecord.waterlevel.toFixed(3)} in, time: ${newRecord.created_at}`);
+            }
+        } else {
+            console.warn('[Data] /api/data returned empty result for Pole 2');
+        }
+
+    } catch (error) {
+        console.error('[Data] Failed to fetch new data:', error);
+    }
+}
+/* getNewData() */
+
+/* Description
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+function trimOldData(dataArray) {
+    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    let trimCount = 0;
+
+    while (dataArray.length > 0 && new Date(dataArray[0].created_at).getTime() < oneWeekAgo) 
+    {
+        dataArray.shift();
+        trimCount++;
+    }
+
+    if (trimCount > 0) {
+        console.info(`[Data] Trimmed ${trimCount} record(s) older than 1 week from buffer`);
+    }
+}/* trimOldData() */
 
 /* requests image from ripple system
 ** For now, just takes image on laptop camera
@@ -478,13 +707,16 @@ function initializeImageRequestButton(){
             imageRequestButton.disabled = true;
             imageRequestButton.style.opacity = '0.6';
             
-            console.log("Image request button pressed");
+            console.info('[Images] Image request sent to RIPPLE system');
             //TEMP
             setTimeout(() => {
                 imageRequestButton.disabled = false;
                 imageRequestButton.style.opacity = '1';
+                console.info('[Images] Image request button re-enabled');
             }, 1500);
         })
+    } else {
+        console.warn('[Images] Image request button element not found in DOM');
     }
 }
 
@@ -495,25 +727,42 @@ function initializeImageRequestButton(){
 ** Return:
 **     None
 */
-function initializeDashboard() {
+async function initializeDashboard() {
+    console.info('[Init] Dashboard initializing...');
+
     // Load settings
     loadSettings();
+    console.info(`[Init] Settings loaded — update frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in`);
     
     // Check if we're on the settings page
-    if (document.getElementById('saveSettings')) { //button in settings page
+    if (document.getElementById('saveSettings')) {
+        console.info('[Init] Settings page detected — skipping dashboard init');
         initializeSettingsPage();
-        return; // Don't initialize chart on settings page
+        return;
     }
     
-    // Initialize dashboard components
+    // Attach UI listeners immediately — before any async work — so buttons
+    // respond correctly even if the user interacts before data has loaded.
     initializeImageButtons();
     initializePingButton();
     initializeImageRequestButton();
     initializeChart();
+
+    // Initial Data (async — listeners are already live by this point)
+    await initializeData();
+    console.info('[Init] Dashboard components initialized');
     
     // Start updating pole data
     updatePoleData();
-    
+    // Check system health on load
+    checkSystemHealth();
+
     // Update pole data at interval specified in settings
     chartUpdateInterval = setInterval(updatePoleData, settings.updateFrequency);
+    console.info(`[Init] Poll interval set to ${settings.updateFrequency}ms`);
+
+    // Check system health every 10 seconds
+    setInterval(checkSystemHealth, 10000);
+
+    console.info('[Init] Dashboard ready');
 }/* initializeDashboard() */
