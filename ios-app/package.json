@@ -1,8 +1,28 @@
 {
+  "name": "temp-app",
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "backend": "node backend/server.js",
-    "subscriber": "node backend/subscriber.js",
-    "frontend": "npm run dev --prefix frontend_ui",
-    "demo": "concurrently \"npm run backend\" \"npm run subscriber\" \"npm run frontend\""
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-native-picker/picker": "2.11.1",
+    "@taoqf/react-native-mqtt": "^3.0.4",
+    "expo": "~54.0.0",
+    "expo-status-bar": "~3.0.9",
+    "lucide-react-native": "^1.7.0",
+    "mqtt": "^5.15.1",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-svg": "15.12.1"
+  },
+  "private": true,
+  "devDependencies": {
+    "@expo/ngrok": "^4.1.3",
+    "@types/react": "~19.1.10",
+    "typescript": "~5.9.2"
   }
 }
