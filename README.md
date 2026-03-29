@@ -30,4 +30,4 @@ Documentation including database schema
 
 
 
-April/26/2026: Vercel deployment fails because the frontend_ui folder was relocated in a recent git push. Update its folder path for the root directory selection in Vercel & all should be well. 
+Mar/26/2026: Vercel deployment fails because the frontend_ui folder was relocated in a recent git push. Update its folder path for the root directory selection in Vercel & all should be well. 
