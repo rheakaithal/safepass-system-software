@@ -6,7 +6,23 @@ const path = require("path");
 // Auto-start the subscriber server in the background
 const subscriberPath = path.join(__dirname, "subscriber.js");
 const subscriberProcess = spawn("node", [subscriberPath], {
-  stdio: "ignore" // Hide logs from the server so the interactive prompt stays clean
+  stdio: "pipe" // Capture logs to filter out noisy payloads
+});
+
+let backendConnected = false;
+
+subscriberProcess.stdout.on("data", (data) => {
+  const line = data.toString();
+  if (line.includes("Push Notifications | Expo API") || line.includes("Registered Push Device")) {
+    process.stdout.write("\n📡 [Backend] " + line);
+  }
+  
+  // Wait to prompt the user until the backend subscriber actually connects to MQTT
+  if (line.includes("MQTT connected to broker") && !backendConnected) {
+    backendConnected = true;
+    console.log("🟢 Backend Subscriber Online!\n");
+    promptUser();
+  }
 });
 
 console.log("\n▶️  Auto-started subscriber.js backend server in the background.");
@@ -26,21 +42,23 @@ const rl = readline.createInterface({
 });
 
 client.on("connect", () => {
+  client.subscribe("safepass/tokens", { qos: 1 });
   console.log("\n==============================================");
   console.log(" 🌊 SAFEPASS INTERACTIVE WATER TESTER 🌊 ");
   console.log("==============================================\n");
-  console.log("Type a simulated water level (in cm) to test how");
+  console.log("Type a simulated water level (in inches) to test how");
   console.log("the app responds in real-time.\n");
-  console.log("  🛑 > 80 cm = CRITICAL");
-  console.log("  ⚠️ > 50 cm = WARNING");
-  console.log("  ✅ < 50 cm = SAFE");
-  console.log("\nType 'exit' to quit.\n");
-  
-  promptUser();
+  console.log("Format: [Level] (defaults to Pole 1) or [Pole] [Level] (e.g. '2 6.5')\n");
+  console.log("  🛑 >= 6 in = CRITICAL");
+  console.log("  ⚠️ >= 2 in = WARNING");
+  console.log("  ✅ < 2 in = SAFE\n");
+  console.log("⚠️  Please open the Mobile App and wait for '📱 Push Device Connected' before sending data!\n");
+  console.log("Type 'exit' to quit.\n");
+  console.log("⏳ Waiting for background server to boot...");
 });
 
 function promptUser() {
-  rl.question("Enter water level: ", (input) => {
+  rl.question("Enter level (or 'Pole Level', e.g. '2 6.5'): ", (input) => {
     if (input.toLowerCase() === 'exit') {
       console.log("Closing tester and shutting down backend server...");
       subscriberProcess.kill();
@@ -49,14 +67,28 @@ function promptUser() {
       return;
     }
 
-    const level = parseInt(input, 10);
+    const parts = input.trim().split(/\s+/);
+    let poleId = "Pole 1";
+    let level = NaN;
+
+    if (parts.length === 1) {
+      level = parseFloat(parts[0]);
+    } else if (parts.length >= 2) {
+      const poleNum = parseInt(parts[0], 10);
+      if (poleNum !== 1 && poleNum !== 2) {
+        console.log("❌ Invalid Pole! Our system currently only supports Pole 1 or Pole 2.\n");
+        promptUser();
+        return;
+      }
+      poleId = `Pole ${poleNum}`;
+      level = parseFloat(parts[1]);
+    }
+
     if (isNaN(level)) {
-      console.log("❌ Please enter a valid number.\n");
+      console.log("❌ Invalid format. Try just a number like '4.5' or format '2 4.5'.\n");
       promptUser();
       return;
     }
-
-    const poleId = "Pole 1";
     const payload = JSON.stringify({ poleId, level });
     const topic = `safepass/sensors/${poleId}/waterlevel`;
 
@@ -64,7 +96,7 @@ function promptUser() {
       if (err) {
         console.error("❌ Failed to publish:", err);
       } else {
-        console.log(`✅ Sent ${level}cm to ${poleId}! Check your phone/browser.\n`);
+        console.log(`\n✅ Sent ${level} in to ${poleId}! Check your phone/browser.\n`);
       }
       promptUser();
     });
@@ -73,4 +105,10 @@ function promptUser() {
 
 client.on("error", (err) => {
   console.log("MQTT Error: ", err);
+});
+
+client.on("message", (topic, message) => {
+  if (topic === "safepass/tokens") {
+    console.log("\n📱 Push Device Connected! You can now trigger alerts.");
+  }
 });

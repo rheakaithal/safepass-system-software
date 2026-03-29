@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { AlertTriangle, CheckCircle, Hand } from 'lucide-react-native';
+import { AlertTriangle, CheckCircle, Hand, ChevronDown, ChevronUp } from 'lucide-react-native';
 
 export function NativeAlertDashboard({ alerts }) {
   const [selectedPole, setSelectedPole] = useState('all');
+  const [expandedPoles, setExpandedPoles] = useState({});
+
+  const togglePole = (id) => {
+    setExpandedPoles(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // 24hr filter
   const now = new Date();
@@ -32,6 +37,10 @@ export function NativeAlertDashboard({ alerts }) {
     .filter(a => a.status !== 'SAFE').length;
   const hasActiveAlerts = activePolesCount > 0;
   const hasCritical = Array.from(latestAlertsByPole.values()).some(a => a.status === 'CRITICAL');
+
+  const groupedAlerts = Array.from(latestAlertsByPole.keys()).map(poleId => {
+    return filteredAlerts.filter(a => a.poleId === poleId);
+  });
 
   const getDotColor = () => {
     if (activePolesCount === 0) return '#22c55e'; // Green
@@ -83,8 +92,7 @@ export function NativeAlertDashboard({ alerts }) {
         </View>
 
         <Image 
-          // ⚠️ IMPORTANT: Update this require path to point to your actual local logo file!
-          source={require('./assets/icon.png')} 
+          source={require('./assets/header.png')} 
           style={styles.logo}
           resizeMode="contain"
         />
@@ -126,32 +134,81 @@ export function NativeAlertDashboard({ alerts }) {
             <Text style={styles.emptyText}>No alerts</Text>
           </View>
         ) : (
-          filteredAlerts.map(alert => {
-            const isLatest = alert.id === latestAlertsByPole.get(alert.poleId)?.id;
+          groupedAlerts.map(poleAlerts => {
+            const latestAlert = poleAlerts[0];
+            const history = poleAlerts.slice(1);
+            const isExpanded = expandedPoles[latestAlert.poleId];
+            const hasHistory = history.length > 0;
+
             return (
-            <View key={alert.id} style={[styles.card, !isLatest && styles.cardOpaque]}>
-              <View style={styles.iconBox}>
-                {renderIcon(alert.status)}
-              </View>
-              <View style={styles.cardContent}>
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.cardTitle, isLatest && styles.cardTitleCurrent]}>{alert.poleId}</Text>
-                  {alert.status !== 'SAFE' && (
-                    <View style={[styles.badge, getBadgeStyle(alert.status)]}>
-                      <Text style={[styles.badgeText, getBadgeTextStyle(alert.status)]}>{getBadgeLabel(alert.status)}</Text>
+              <View key={latestAlert.poleId} style={styles.poleGroup}>
+                <TouchableOpacity 
+                  activeOpacity={0.7} 
+                  onPress={() => togglePole(latestAlert.poleId)}
+                  style={[styles.card, styles.cardMain]}
+                >
+                  <View style={styles.iconBox}>
+                    {renderIcon(latestAlert.status)}
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardTitleCurrent}>{latestAlert.poleId}</Text>
+                      <View style={styles.headerRight}>
+                        {latestAlert.status !== 'SAFE' && (
+                          <View style={[styles.badge, getBadgeStyle(latestAlert.status)]}>
+                            <Text style={[styles.badgeText, getBadgeTextStyle(latestAlert.status)]}>{getBadgeLabel(latestAlert.status)}</Text>
+                          </View>
+                        )}
+                        <View style={styles.caretBox}>
+                          {isExpanded ? <ChevronUp color="#94a3b8" size={20} /> : <ChevronDown color="#94a3b8" size={20} />}
+                        </View>
+                      </View>
                     </View>
-                  )}
-                </View>
-                <Text style={[styles.message, isLatest && styles.messageCurrent]}>
-                  {alert.status === 'CRITICAL' ? 'Floodwaters present. Road closed for civilian safety.' 
-                   : alert.status === 'WARNING' ? 'Heavy Rain in the area. Drive Cautiously.' 
-                   : 'Roads clear. Safe to drive.'}
-                </Text>
-                <Text style={styles.timestamp}>
-                  {alert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
+                    <Text style={styles.messageCurrent}>
+                      {latestAlert.status === 'CRITICAL' ? 'Floodwaters present. Road closed for civilian safety.' 
+                       : latestAlert.status === 'WARNING' ? 'Heavy Rain in the area. Drive Cautiously.' 
+                       : 'Roads clear. Safe to drive.'}
+                    </Text>
+                    <Text style={styles.timestamp}>
+                      {latestAlert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {isExpanded && (
+                  <View style={styles.historyContainer}>
+                    {hasHistory ? history.map(histAlert => (
+                      <View key={histAlert.id} style={[styles.card, styles.cardOpaque, styles.historyCard]}>
+                        <View style={[styles.iconBox, styles.historyIconBox]}>
+                          {renderIcon(histAlert.status)}
+                        </View>
+                        <View style={styles.cardContent}>
+                          <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>{histAlert.poleId}</Text>
+                            {histAlert.status !== 'SAFE' && (
+                              <View style={[styles.badge, getBadgeStyle(histAlert.status), styles.historyBadge]}>
+                                <Text style={[styles.badgeText, getBadgeTextStyle(histAlert.status), styles.historyBadgeText]}>{getBadgeLabel(histAlert.status)}</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={styles.message}>
+                            {histAlert.status === 'CRITICAL' ? 'Floodwaters present. Road closed for civilian safety.' 
+                             : histAlert.status === 'WARNING' ? 'Heavy Rain in the area. Drive Cautiously.' 
+                             : 'Roads clear. Safe to drive.'}
+                          </Text>
+                          <Text style={styles.timestamp}>
+                            {histAlert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Text>
+                        </View>
+                      </View>
+                    )) : (
+                      <View style={[styles.card, styles.historyCard, { alignItems: 'center', opacity: 0.5 }]}>
+                         <Text style={[styles.message, { fontStyle: 'italic', textAlign: 'center' }]}>No older alerts</Text>
+                      </View>
+                    )}
+                  </View>
+                )}
               </View>
-            </View>
             );
           })
         )}
@@ -170,7 +227,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     backgroundColor: '#0f172a',
-    padding: 16,
+    paddingLeft: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingRight: 0,
     borderRadius: 12,
   },
   title: {
@@ -179,9 +239,9 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   logo: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
+    height: 48,
+    width: 150, 
+    transform: [{ translateX: 26 }], // Visually shift right to ignore baked transparent pixels in PNG
   },
   titleWrapper: {
     gap: 4,
@@ -271,6 +331,52 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+  },
+  poleGroup: {
+    marginBottom: 10,
+  },
+  cardMain: {
+    marginBottom: 0,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  caretBox: {
+    opacity: 0.6,
+  },
+  historyContainer: {
+    marginTop: 8,
+    marginLeft: 24,
+    paddingLeft: 12,
+    borderLeftWidth: 2,
+    borderColor: '#f1f5f9',
+    gap: 8,
+  },
+  historyCard: {
+    marginBottom: 0,
+    backgroundColor: '#fafafa',
+    padding: 12,
+    borderWidth: 1,
+  },
+  historyIconBox: {
+    transform: [{ scale: 0.75 }],
+    marginRight: 8,
+  },
+  historyBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  historyBadgeText: {
+    fontSize: 10,
   },
   iconBox: {
     marginRight: 12,

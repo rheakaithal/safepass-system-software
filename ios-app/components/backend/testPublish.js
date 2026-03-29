@@ -6,18 +6,22 @@ client.on("connect", () => {
   console.log("Connected to test publisher. Sending continuous data...");
 
   const poleId = "Pole 1";
-  let baseLevel = 45; // Starts in SAFE range
+  let baseLevel = 1.5; // Starts in SAFE range
 
   // Send a new reading every 3 seconds
   setInterval(() => {
-    // Randomly fluctuate between -5 and +15 to simulate gradually rising water
-    const fluctuation = Math.floor(Math.random() * 20) - 5;
-    baseLevel += fluctuation;
-    
-    // Clamp values between 0 and 100 for safety bounds
-    if (baseLevel < 0) baseLevel = 0;
-    if (baseLevel > 100) baseLevel = 100;
+    // Add random noise between -0.5 and +0.5
+    const noise = (Math.random() * 1) - 0.5;
+    let newLevel = baseLevel + noise;
 
+    // Keep it realistic 0-20 inches
+    if (newLevel < 0) newLevel = 0;
+    if (newLevel > 20) newLevel = 20;
+    
+    // Round to 1 decimal
+    newLevel = parseFloat(newLevel.toFixed(1));
+
+    baseLevel = newLevel; // Update base for next drift
     const payload = JSON.stringify({ poleId, level: baseLevel });
     const topic = `safepass/sensors/${poleId}/waterlevel`;
 
@@ -25,7 +29,7 @@ client.on("connect", () => {
       if (err) {
         console.error("Failed to publish:", err);
       } else {
-        console.log(`Published to ${topic}: ${payload}`);
+        console.log(`Publishing [${poleId}]: Water Level ${newLevel} in`);
       }
     });
 
