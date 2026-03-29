@@ -5,7 +5,7 @@ const client = mqtt.connect("mqtt://broker.hivemq.com");
 client.on("connect", () => {
   console.log("Connected to test publisher. Sending continuous data...");
 
-  const poleId = "Pole-001";
+  const poleId = "Pole 1";
   let baseLevel = 45; // Starts in SAFE range
 
   // Send a new reading every 3 seconds

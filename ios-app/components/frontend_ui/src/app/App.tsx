@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertDashboard, FloodAlert } from "./components/AlertDashboard.tsx";
+import { AlertDashboard, FloodAlert } from "./components/AlertDashboard";
 import { toast, Toaster } from "sonner";
 import mqtt from "mqtt";
 
@@ -78,7 +78,9 @@ function App() {
 
         setAlerts((prev) => [alert, ...prev].slice(0, 10));
 
-        const msgStr = `Level: ${alert.level} cm`;
+        let msgStr = "CLEAR: Roads clear. Safe to drive.";
+        if (alert.status === "CRITICAL") msgStr = "CRITICAL: Floodwaters present. Roads closed for civilian safety.";
+        else if (alert.status === "WARNING") msgStr = "WARNING: Heavy Rain in the area. Drive Cautiously.";
 
         // Toast notifications
         if (alert.status === "CRITICAL") {

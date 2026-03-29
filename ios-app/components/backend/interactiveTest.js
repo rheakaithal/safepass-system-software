@@ -1,5 +1,22 @@
 const mqtt = require("mqtt");
 const readline = require("readline");
+const { spawn } = require("child_process");
+const path = require("path");
+
+// Auto-start the subscriber server in the background
+const subscriberPath = path.join(__dirname, "subscriber.js");
+const subscriberProcess = spawn("node", [subscriberPath], {
+  stdio: "ignore" // Hide logs from the server so the interactive prompt stays clean
+});
+
+console.log("\n▶️  Auto-started subscriber.js backend server in the background.");
+
+// Ensure we kill the backend server when this tester is closed
+process.on("exit", () => subscriberProcess.kill());
+process.on("SIGINT", () => {
+  subscriberProcess.kill();
+  process.exit();
+});
 
 const client = mqtt.connect("mqtt://broker.hivemq.com");
 
@@ -25,7 +42,8 @@ client.on("connect", () => {
 function promptUser() {
   rl.question("Enter water level: ", (input) => {
     if (input.toLowerCase() === 'exit') {
-      console.log("Closing tester...");
+      console.log("Closing tester and shutting down backend server...");
+      subscriberProcess.kill();
       client.end();
       rl.close();
       return;
@@ -38,7 +56,7 @@ function promptUser() {
       return;
     }
 
-    const poleId = "Pole-001";
+    const poleId = "Pole 1";
     const payload = JSON.stringify({ poleId, level });
     const topic = `safepass/sensors/${poleId}/waterlevel`;
 

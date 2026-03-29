@@ -43,3 +43,13 @@ client.on("message", (topic, message) => {
 client.on("error", (err) => {
   console.error("MQTT error:", err);
 });
+
+// Dummy HTTP server to satisfy Render.com Web Service Port binding requirements
+const http = require('http');
+const PORT = process.env.PORT || 8080;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('SafePass MQTT Backend is active.\n');
+}).listen(PORT, () => {
+  console.log(`Dummy health port listening on port ${PORT} to satisfy Render`);
+});
