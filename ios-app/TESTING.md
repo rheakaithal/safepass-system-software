@@ -24,9 +24,11 @@ Open the **Expo Go** app on your physical iOS/Android device and scan the massiv
 
 ## Step 2: Grant Notification Permissions
 When the app launches for the first time, your phone will ask for permission to send notifications. **You must press Allow.**
-Behind the scenes, the app will instantly generate a unique `ExpoPushToken` and publish it to the backend infrastructure.
+
 
 ## Step 3: Run the Interactive Water Tester Script
+Git clone this repository into your IDE of choice. 
+
 Open a new terminal window, navigate to the backend folder, and start the interactive data generator:
 
 ```bash
