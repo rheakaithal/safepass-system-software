@@ -1,6 +1,10 @@
-# Safepass App Testing Guide 🧪
+# Safepass Civilian App Testing Guide
 
-Welcome! Testing the live SafePass mobile architecture is designed to be completely frictionless. You don't need to manually configure any brokers or touch any backend code. 
+Welcome! 
+
+To make the testing process smoother, I have created a user-friendly script that you can run on your local device that will automatically power up the backend data-processing server and allows you to effectively simulate the MCU/MQTT Broker sending data to the app, without having to code anything.
+
+By entering in dummy data through your terminal, you can test the app's real-time UI updates and push notifications. 
 
 ## Step 1 [FOR DEVELOPER]: Boot the Mobile App via Expo
 From the `ios-app` root directory, simply run:
@@ -12,17 +16,19 @@ Open the **Expo Go** app on your physical iOS/Android device and scan the massiv
 *(Note: Push notifications strictly require a physical device. Simulators will run the app but cannot generate Expo Push Tokens).*
 
 ## Step 1 [FOR TESTER]:
-Have ExpoGo app downloaded, this is the demo environment.
-Log in with team gmail (must be logged through [EMAIL_ADDRESS] to work)
-Scan the QR-code in the drive at Software > App > Test to open the app within ExpoGo.
+1. Download Expo Go  
+2. Log in to the app with team capstone gmail (MUST be logged in under the team account in order for the tester's QR code to work).  
+3. Locate the tester QR code in the drive at Software > App > Test.  
+4. Scan the QR code to open the app within ExpoGo.  
 
 
 ## Step 2: Grant Notification Permissions
 When the app launches for the first time, your phone will ask for permission to send notifications. **You must press Allow.**
 Behind the scenes, the app will instantly generate a unique `ExpoPushToken` and publish it to the backend infrastructure.
 
-## Step 3: Run the Interactive Water Tester
-Open a second terminal window, navigate to the backend folder, and start the interactive data generator:
+## Step 3: Run the Interactive Water Tester Script
+Open a new terminal window, navigate to the backend folder, and start the interactive data generator:
+
 ```bash
 cd ios-app/components/backend
 node interactiveTest.js
@@ -36,7 +42,7 @@ You can now freely submit simulated water levels (measured in **inches**) to tes
 ### Input Syntax
 - **Basic:** Type a number like `4.5` (defaults to testing Pole 1)
 - **Advanced:** Type `[Pole] [Level]` like `2 6.5` to explicitly target Pole 2. 
-*(Note: To prevent UI ghost-poles, the system restricts inputs strictly to Pole 1 and Pole 2).*
+
 
 ### Thresholds
 - 🛑 **>= 6.0 in** = CRITICAL (Triggers Red UI & "Road Closed" Push)
