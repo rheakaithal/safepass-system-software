@@ -29,10 +29,10 @@ When the app launches for the first time, your phone will ask for permission to 
 ## Step 3: Run the Interactive Water Tester Script
 Git clone this repository into your IDE of choice. 
 
-Open a new terminal window, navigate to the backend folder, and start the interactive data generator:
+Open a new terminal window, navigate to the backend mqtt folder, and start the interactive data generator:
 
 ```bash
-cd ios-app/components/backend
+cd ios-app/backend
 node interactiveTest.js
 ```
 The script will actively stall and wait. **Once your mobile app successfully connects, the terminal will print:**

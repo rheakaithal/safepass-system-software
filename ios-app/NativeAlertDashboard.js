@@ -293,21 +293,7 @@ const styles = StyleSheet.create({
   poleButtonTextActive: {
     color: '#fff',
   },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  activeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ea580c',
-  },
-  safeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  },
+
   listContainer: {
     paddingBottom: 40,
   },
