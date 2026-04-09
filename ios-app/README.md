@@ -1,4 +1,4 @@
-# RIPPLE Alert — iOS/Android Mobile App
+# RIPPLE Alert — iOS Mobile App
 
 A real-time flood alert app for the SafePass system. Receives live water level data from field sensors via MQTT and delivers native push notifications to civilian devices when road conditions become dangerous.
 
