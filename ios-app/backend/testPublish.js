@@ -1,11 +1,12 @@
 const mqtt = require("mqtt");
+const { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, POLES } = require("./config");
 
-const client = mqtt.connect("mqtt://broker.hivemq.com");
+const client = mqtt.connect(MQTT_BROKER_URL, MQTT_OPTIONS);
 
 client.on("connect", () => {
   console.log("Connected to test publisher. Sending continuous data...");
 
-  const poleId = "Pole 1";
+  const poleId = POLES[0]; // defaults to first defined pole
   let baseLevel = 1.5; // Starts in SAFE range
 
   // Send a new reading every 3 seconds
@@ -23,7 +24,7 @@ client.on("connect", () => {
 
     baseLevel = newLevel; // Update base for next drift
     const payload = JSON.stringify({ poleId, level: baseLevel });
-    const topic = `safepass/sensors/${poleId}/waterlevel`;
+    const topic = `${TOPICS.SENSOR_BASE}/${poleId}/waterlevel`;
 
     client.publish(topic, payload, { qos: 1 }, (err) => {
       if (err) {

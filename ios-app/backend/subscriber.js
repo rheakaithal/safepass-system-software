@@ -1,8 +1,9 @@
 // MQTT processor: Subscribes to raw sensor data and publishes processed alerts
 const mqtt = require("mqtt");
+const { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, THRESHOLDS, EXPO_PUSH_URL } = require("./config");
 
-// Connect to HiveMQ broker
-const client = mqtt.connect("mqtt://broker.hivemq.com");
+// Connect to HiveMQ broker (with automatic reconnection)
+const client = mqtt.connect(MQTT_BROKER_URL, MQTT_OPTIONS);
 
 // Device Push Token Registry
 const registeredTokens = new Set();
@@ -12,24 +13,24 @@ const poleStates = {};
 
 // Classification logic
 function classify(level) {
-  if (level >= 6) return "CRITICAL";
-  if (level >= 2) return "WARNING";
+  if (level >= THRESHOLDS.CRITICAL) return "CRITICAL";
+  if (level >= THRESHOLDS.WARNING)  return "WARNING";
   return "SAFE";
 }
 
 client.on("connect", () => {
   console.log("MQTT connected to broker");
   // Subscribe to raw sensor data and token feeds
-  client.subscribe("safepass/sensors/+/waterlevel", { qos: 1 }, (err) => {
+  client.subscribe(TOPICS.SENSOR_WILDCARD, { qos: 1 }, (err) => {
     if (err) console.error("Subscribe error:", err);
-    else console.log("Subscribed to: safepass/sensors/+/waterlevel");
+    else console.log(`Subscribed to: ${TOPICS.SENSOR_WILDCARD}`);
   });
-  client.subscribe("safepass/tokens", { qos: 1 });
+  client.subscribe(TOPICS.TOKENS, { qos: 1 });
 });
 
 client.on("message", (topic, message) => {
   // Save mobile Push Notifications tokens if they exist
-  if (topic === "safepass/tokens") {
+  if (topic === TOPICS.TOKENS) {
     try {
       const data = JSON.parse(message.toString());
       if (data.token && !registeredTokens.has(data.token)) {
@@ -59,7 +60,7 @@ client.on("message", (topic, message) => {
       console.log(`Publishing State Change Alert:`, alert);
 
       // Publish processed alert to alerts topic
-      client.publish("safepass/alerts", JSON.stringify(alert), { qos: 1 });
+      client.publish(TOPICS.ALERTS, JSON.stringify(alert), { qos: 1 });
 
       // Remotely Ping Registered External Phones
       sendPushNotification(newStatus, alert.poleId, alert);
@@ -86,7 +87,7 @@ async function sendPushNotification(status, poleId, alertData) {
   }));
 
   try {
-    const res = await fetch('https://exp.host/--/api/v2/push/send', {
+    const res = await fetch(EXPO_PUSH_URL, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -103,6 +104,18 @@ async function sendPushNotification(status, poleId, alertData) {
 
 client.on("error", (err) => {
   console.error("MQTT error:", err);
+});
+
+client.on("reconnect", () => {
+  console.log("MQTT disconnected — attempting to reconnect...");
+});
+
+client.on("offline", () => {
+  console.log("MQTT client offline. Will retry when broker is reachable.");
+});
+
+client.on("close", () => {
+  console.log("MQTT connection closed.");
 });
 
 // Dummy HTTP server to satisfy Render.com Web Service Port binding requirements

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView, Platform } from 'react-native';
-import mqtt from '@taoqf/react-native-mqtt'; 
+import mqtt from '@taoqf/react-native-mqtt';
 import { NativeAlertDashboard } from './NativeAlertDashboard';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, ALERT_HISTORY_LIMIT } from './config';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -17,20 +18,22 @@ Notifications.setNotificationHandler({
 export default function App() {
   const [alerts, setAlerts] = useState([]);
   const [expoPushToken, setExpoPushToken] = useState('');
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     // 1. Connect to the Native MQTT Broker via wss
-    const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
+    const client = mqtt.connect(MQTT_BROKER_URL, MQTT_OPTIONS);
 
     client.on('connect', () => {
+      setConnected(true);
       console.log('Connected to MQTT Broker via wss');
-      client.subscribe('safepass/alerts');
+      client.subscribe(TOPICS.ALERTS);
       
       // Setup push notifications
       registerForPushNotificationsAsync().then(token => {
         if (token) {
           setExpoPushToken(token);
-          client.publish('safepass/tokens', JSON.stringify({ token }), { qos: 1 });
+          client.publish(TOPICS.TOKENS, JSON.stringify({ token }), { qos: 1 });
         }
       });
     });
@@ -48,11 +51,14 @@ export default function App() {
         };
 
         // Prepend new alert to the top of the list
-        setAlerts((prevAlerts) => [newAlert, ...prevAlerts].slice(0, 50));
+        setAlerts((prevAlerts) => [newAlert, ...prevAlerts].slice(0, ALERT_HISTORY_LIMIT));
       } catch (e) {
         console.error('Failed to parse message:', e);
       }
     });
+
+    client.on('reconnect', () => setConnected(false));
+    client.on('offline', () => setConnected(false));
 
     return () => {
       client.end();
@@ -64,6 +70,7 @@ export default function App() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <NativeAlertDashboard 
           alerts={alerts}
+          connected={connected}
         />
       </ScrollView>
     </SafeAreaView>
