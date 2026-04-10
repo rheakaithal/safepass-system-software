@@ -6,7 +6,7 @@ A flood alert notification system built for TAMU Capstone. The system ingests se
 
 ```
 safepass-system-software/
-├── backend/           # MQTT test scripts and SQL/Express API backend
+├── sensor-backend/    # MQTT test scripts and SQL/Express API backend
 ├── ios-app/           # React Native (Expo) mobile app with push notifications
 ├── SPS_Dashboard/     # Static HTML web dashboard for RIPPLE Systems
 └── docs/              # Database schema and documentation
@@ -14,7 +14,7 @@ safepass-system-software/
 
 ---
 
-### `/backend`
+### `/sensor-backend`
 
 Backend services for MQTT testing and database integration.
 
@@ -75,7 +75,7 @@ Project documentation and database assets.
 ### Running the SQL API
 
 ```bash
-cd backend/SQL
+cd sensor-backend/SQL
 cp .env.example .env   # fill in DB credentials
 npm install
 npm start
@@ -100,6 +100,6 @@ node subscriber.js
 ### Running MQTT Test Scripts
 
 ```bash
-cd backend/MQTT_testCode
+cd sensor-backend/MQTT_testCode
 python testPublish.py
 ```
