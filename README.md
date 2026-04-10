@@ -8,7 +8,7 @@ A flood alert notification system built for TAMU Capstone. The system ingests se
 safepass-system-software/
 ├── sensor-backend/    # MQTT test scripts and SQL/Express API backend
 ├── ios-app/           # React Native (Expo) mobile app with push notifications
-├── SPS_Dashboard/     # Static HTML web dashboard for RIPPLE Systems
+├── sps-dashboard/     # Static HTML web dashboard for RIPPLE Systems
 └── docs/              # Database schema and documentation
 ```
 
@@ -40,7 +40,7 @@ React Native mobile application (Expo) providing real-time flood alerts via push
   - `config.js` — Backend-specific configuration
   - `testPublish.js` / `interactiveTest.js` — Testing utilities
 
-### `/SPS_Dashboard`
+### `/sps-dashboard`
 
 Static HTML/CSS/JS web dashboard for the RIPPLE Systems interface. Includes pages for home, FAQ, settings, and location-specific content.
 
