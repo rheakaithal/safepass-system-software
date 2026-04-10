@@ -1,6 +1,7 @@
 # SafePass System Software
+Flood alert notification and monitoring software designed alongside a physically deployable embedded sensing system for rural-area roads. 
 
-A flood alert notification system built for TAMU Capstone. The system ingests sensor data via MQTT, stores it in a MySQL database via a REST API, and delivers real-time push notifications to users through a React Native iOS app. A static web dashboard provides an overview of monitored locations.
+The software system ingests sensor data via MQTT, stores it in a MySQL database via a REST API, and delivers real-time push notifications to users through a React Native iOS app. A static web dashboard provides an overview of monitored locations including graphical analysis of flood trends.
 
 ## Repository Structure
 
@@ -8,7 +9,7 @@ A flood alert notification system built for TAMU Capstone. The system ingests se
 safepass-system-software/
 ├── sensor-backend/    # MQTT test scripts and SQL/Express API backend
 ├── ios-app/           # React Native (Expo) mobile app with push notifications
-├── sps-dashboard/     # Static HTML web dashboard for RIPPLE Systems
+├── sps-dashboard/     # HTML web dashboard for RIPPLE Systems
 └── docs/              # Database schema and documentation
 ```
 
