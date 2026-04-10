@@ -1,5 +1,5 @@
 # SafePass System Software
-Flood alert notification and monitoring software designed alongside a physically deployable embedded sensing system for rural-area roads. 
+This is a repository for any and all software required for the RIPPLE roadside flood-detection system, notably the civilian-alert iOS app and the EMS monitoring dashboard.
 
 The software system ingests sensor data via MQTT, stores it in a MySQL database via a REST API, and delivers real-time push notifications to users through a React Native iOS app. A static web dashboard provides an overview of monitored locations including graphical analysis of flood trends.
 
