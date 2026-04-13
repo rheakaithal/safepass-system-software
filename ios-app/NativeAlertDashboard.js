@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { AlertTriangle, CheckCircle, Hand, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { PREDEFINED_POLES, ALERT_WINDOW_HOURS } from './config';
 
-export function NativeAlertDashboard({ alerts }) {
+export function NativeAlertDashboard({ alerts, connected }) {
   const [selectedPole, setSelectedPole] = useState('all');
   const [expandedPoles, setExpandedPoles] = useState({});
 
@@ -10,15 +11,12 @@ export function NativeAlertDashboard({ alerts }) {
     setExpandedPoles(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // 24hr filter
   const now = new Date();
-  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const recentAlerts = alerts.filter(a => a.timestamp >= twentyFourHoursAgo);
+  const windowStart = new Date(now.getTime() - ALERT_WINDOW_HOURS * 60 * 60 * 1000);
+  const recentAlerts = alerts.filter(a => a.timestamp >= windowStart);
 
-  // Unique poles
   const activePoleIds = recentAlerts.map(a => a.poleId);
-  const predefinedPoles = ['Pole 1', 'Pole 2'];
-  const poleIds = Array.from(new Set([...predefinedPoles, ...activePoleIds])).sort();
+  const poleIds = Array.from(new Set([...PREDEFINED_POLES, ...activePoleIds])).sort();
 
   // Selected pole
   const filteredAlerts = selectedPole === 'all' 
@@ -89,6 +87,12 @@ export function NativeAlertDashboard({ alerts }) {
               {hasActiveAlerts ? (activePolesCount === 1 ? '1 Active Alert' : `${activePolesCount} Active Alerts`) : 'No Active Alerts'}
             </Text>
           </View>
+          {!connected && (
+            <View style={styles.connectingBadge}>
+              <View style={styles.connectingDot} />
+              <Text style={styles.connectingText}>Connecting...</Text>
+            </View>
+          )}
         </View>
 
         <Image 
@@ -265,6 +269,27 @@ const styles = StyleSheet.create({
     color: '#cbd5e1',
     fontWeight: '500',
   },
+  connectingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginTop: 2,
+  },
+  connectingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#94a3b8',
+  },
+  connectingText: {
+    fontSize: 11,
+    color: '#94a3b8',
+    fontWeight: '500',
+  },
   filterRow: {
     marginBottom: 16,
   },
@@ -293,21 +318,7 @@ const styles = StyleSheet.create({
   poleButtonTextActive: {
     color: '#fff',
   },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  activeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ea580c',
-  },
-  safeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  },
+
   listContainer: {
     paddingBottom: 40,
   },

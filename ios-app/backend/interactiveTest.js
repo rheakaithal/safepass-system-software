@@ -2,6 +2,7 @@ const mqtt = require("mqtt");
 const readline = require("readline");
 const { spawn } = require("child_process");
 const path = require("path");
+const { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, POLES } = require("./config");
 
 // Auto-start the subscriber server in the background
 const subscriberPath = path.join(__dirname, "subscriber.js");
@@ -34,7 +35,7 @@ process.on("SIGINT", () => {
   process.exit();
 });
 
-const client = mqtt.connect("mqtt://broker.hivemq.com");
+const client = mqtt.connect(MQTT_BROKER_URL, MQTT_OPTIONS);
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -42,7 +43,7 @@ const rl = readline.createInterface({
 });
 
 client.on("connect", () => {
-  client.subscribe("safepass/tokens", { qos: 1 });
+  client.subscribe(TOPICS.TOKENS, { qos: 1 });
   console.log("\n==============================================");
   console.log(" 🌊 SAFEPASS INTERACTIVE WATER TESTER 🌊 ");
   console.log("==============================================\n");
@@ -68,19 +69,20 @@ function promptUser() {
     }
 
     const parts = input.trim().split(/\s+/);
-    let poleId = "Pole 1";
+    let poleId = POLES[0];
     let level = NaN;
 
     if (parts.length === 1) {
       level = parseFloat(parts[0]);
     } else if (parts.length >= 2) {
       const poleNum = parseInt(parts[0], 10);
-      if (poleNum !== 1 && poleNum !== 2) {
-        console.log("❌ Invalid Pole! Our system currently only supports Pole 1 or Pole 2.\n");
+      const targetPole = `Pole ${poleNum}`;
+      if (!POLES.includes(targetPole)) {
+        console.log(`❌ Invalid Pole! Supported poles: ${POLES.join(', ')}.\n`);
         promptUser();
         return;
       }
-      poleId = `Pole ${poleNum}`;
+      poleId = targetPole;
       level = parseFloat(parts[1]);
     }
 
@@ -90,7 +92,7 @@ function promptUser() {
       return;
     }
     const payload = JSON.stringify({ poleId, level });
-    const topic = `safepass/sensors/${poleId}/waterlevel`;
+    const topic = `${TOPICS.SENSOR_BASE}/${poleId}/waterlevel`;
 
     client.publish(topic, payload, { qos: 1 }, (err) => {
       if (err) {
@@ -108,7 +110,7 @@ client.on("error", (err) => {
 });
 
 client.on("message", (topic, message) => {
-  if (topic === "safepass/tokens") {
+  if (topic === TOPICS.TOKENS) {
     console.log("\n📱 Push Device Connected! You can now trigger alerts.");
   }
 });

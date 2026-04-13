@@ -1,33 +1,106 @@
 # SafePass System Software
+This is a repository for any and all software required for the RIPPLE roadside flood-detection system, notably the civilian-alert app and the EMS monitoring dashboard.
 
-A comprehensive flood alert notification system with backend data ingestion using MQTT, GUI interface, and an iOS app for real-time flood risk alerts.
+The software system ingests sensor data via MQTT, stores it in a MySQL database via a REST API, and delivers real-time push notifications to users through a React Native iOS app. A static web dashboard provides an overview of monitored locations including graphical analysis of flood trends.
 
-## Folder Structure
+## Repository Structure
 
-### `/backend`
-Backend services and MQTT integration:
-- `MQTT_subscriber/` - MQTT subscriber for app 
-- `MQTT_testCode/` - Test Pub/Sub with local MQTT Broker (hosted through Robert's machine)
-- `public_broker/` - Test Pub/Sub with public MQTT broker for 24/7 testing ability
-- `SQL/` - SQL database backend with Express API
+```
+safepass-system-software/
+├── sensor-backend/    # MQTT test scripts and SQL/Express API backend
+├── ios-app/           # React Native (Expo) mobile app with push notifications
+├── sps-dashboard/     # HTML web dashboard for RIPPLE Systems
+└── docs/              # Database schema and documentation
+```
 
-### `/GUIv2`
-Main web-based GUI for monitoring water levels and flood predictions
+---
 
-### `/GUIv3`
-Alternative GUI version with location-based pages
+### `/sensor-backend`
 
-### `/SPS_Dashboard`
-RIPPLE Systems dashboard interface
+Backend services for MQTT testing and database integration.
+
+- **`MQTT_testCode/`** — Python scripts for testing MQTT publish/subscribe against a local broker
+  - `demoPublish.py` — Demo sensor data publisher
+  - `testPublish.py` — Minimal publish test
+  - `testDatabaseSubscriberScript.py` — Subscriber that writes incoming messages to the database
+- **`SQL/`** — Express.js REST API with MySQL integration
+  - `src/index.js` — API entry point
+  - `src/db.js` — MySQL connection
+  - `src/routes/` — API route handlers
+  - `.env.example` — Template for required environment variables
 
 ### `/ios-app`
-iOS app frontend (React-based) with UI components and navigation
+
+React Native mobile application (Expo) providing real-time flood alerts via push notifications.
+
+- `App.js` — App root and navigation
+- `NativeAlertDashboard.js` — Main alert dashboard screen
+- `config.js` — Centralized configuration (broker URL, thresholds, etc.)
+- `backend/` — Node.js MQTT subscriber service that bridges MQTT messages to Expo push notifications
+  - `subscriber.js` — Core MQTT → push notification bridge
+  - `config.js` — Backend-specific configuration
+  - `testPublish.js` / `interactiveTest.js` — Testing utilities
+
+### `/sps-dashboard`
+
+Static HTML/CSS/JS web dashboard for the RIPPLE Systems interface. Includes pages for home, FAQ, settings, and location-specific content.
 
 ### `/docs`
-Documentation including database schema
-- MQTT Username: `Sensor` / Password: `Team13Capstone`
-- Database: `my_database`
 
+Project documentation and database assets.
 
+- `schema.sql` — MySQL database schema
 
-Mar/26/2026: Vercel deployment fails because the frontend_ui folder was relocated in a recent git push. Update its folder path for the root directory selection in Vercel & all should be well. 
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Mobile App | React Native (Expo) |
+| Push Notifications | Expo Push Notification Service |
+| MQTT Broker | Public broker (HiveMQ / configurable) |
+| Backend API | Node.js + Express |
+| Database | MySQL |
+| Dashboard | Static HTML/CSS/JS |
+| Test Scripts | Python (`paho-mqtt`) |
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Python 3 with `paho-mqtt` installed (`pip install paho-mqtt`)
+- MySQL database instance
+- Expo CLI (`npm install -g expo-cli`)
+
+### Running the SQL API
+
+```bash
+cd sensor-backend/SQL
+cp .env.example .env   # fill in DB credentials
+npm install
+npm start
+```
+
+### Running the iOS App
+
+```bash
+cd ios-app
+npm install
+npx expo start
+```
+
+### Running the MQTT → Push Notification Bridge
+
+```bash
+cd ios-app/backend
+npm install
+node subscriber.js
+```
+
+### Running MQTT Test Scripts
+
+```bash
+cd sensor-backend/MQTT_testCode
+python testPublish.py
+```
