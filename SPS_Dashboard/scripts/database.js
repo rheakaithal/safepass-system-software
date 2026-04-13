@@ -43,6 +43,7 @@ const connectUrl = `mqtts://${HOSTNAME}:${PORT}`;
 
 const pubImageRequestTopic = process.env.MQTT_PUB_IMAGE_REQUEST;
 const pubPingRequestTopic  = process.env.MQTT_PUB_PING_REQUEST;
+const pubPingTopic  = process.env.MQTT_PING;
 
 const subImageRequestTopic = process.env.MQTT_SUB_IMAGE_RESULT;
 const subPingRequestTopic  = process.env.MQTT_SUB_PING_RESULT;
@@ -252,7 +253,7 @@ app.get("/api/ping", async (req, res) => {
         const timer = setTimeout(() => resolve(false), 3000);
 
         client.publish(
-            pubPingRequestTopic,
+            pubPingTopic,
             JSON.stringify({ timestamp: Date.now() }),
             { qos: 1 },           // QoS 1 requires a PUBACK from the broker
             (err) => {
@@ -275,18 +276,85 @@ app.get("/api/ping", async (req, res) => {
         });
     }
 
+    // --- Active Pole Check ---
+    // Publish ping request to MQTT broker and wait for response.
+    // 45 second timeout awaiting for main sensor pole response
+    const poleStatus = await new Promise((resolve) => {
+
+        const timer = setTimeout(() => resolve(false), 45000);  //45 seconds
+
+        client.publish(pubPingRequestTopic,"",{ qos: 1 });
+
+        client.on('message',  (topic, message) => {
+            if(topic !== subPingRequestTopic) return;
+            
+            let poleStatusResponse = message.toString().split(",");
+            resolve(true);
+        });
+    });
+
+    if (poleStatus) 
+    {
+        let warnPoleStatus = true;
+        let secPoleStatus = true;
+        if(poleStatusResponse[1] == 1)
+        {
+            secPoleStatus = false;
+            errors.push("Secondary Pole not connected");
+        }
+        if(poleStatusResponse[2] == 1)
+        {
+            warnPoleStatus = false;
+            errors.push("Warning Pole not connected");
+        }
+        return res.status(500).json({
+            success: false,
+            mysql: true,
+            mqtt: true,
+            mainPole: true,
+            secPole: secPoleStatus,
+            warnPole: warnPoleStatus,
+            errors
+        });
+    } else {
+        error.push("Main Pole not connected");
+        return res.status(500).json({
+            success: false,
+            mysql: true,
+            mqtt: true,
+            mainPole: false,
+            secPole: null, //unknown
+            warnPole: null, //unkown
+            errors
+        });
+    }
+
     res.json({
         success: true,
         mysql: true,
-        mqtt: true
+        mqtt: true,
+        mainPole: false,
+        secPole: false,
+        warnPole: false
     });
 });
 
     
 app.get("/api/imagerequest", async (req, res) => {
     //send broker image request
-    client.publish()
-    //wait for image to return from broker
+    client.publish(pubPingRequestTopic, "", { qos: 1});
+    
+    let iamgeBuffer = {};
+    const imageResult = await new promiseHooks((resolve) =>{
+
+        const timer = setTimeout(() => resolve(false), 120000);     //2 minute timeout
+
+        client.on('message', (topic, message) => {
+            if(topic !== subImageRequestTopic) return;
+
+            //Image packet recunstruction
+        });
+    });
 });
 
 

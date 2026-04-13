@@ -511,15 +511,21 @@ async function checkSystemHealth() {
 
         const mysql = result.mysql ?? false;
         const mqtt  = result.mqtt  ?? false;
+        const mainPole = result.mainPole ?? false;
+        const secPole = result.secPole ?? null;
+        const warnPole = result.warnPole ?? null;
 
-        if (mysql && mqtt) {
+        if (mysql && mqtt && mainPole && secPole && warnPole) {
             console.info('[Health] All systems online — MySQL: OK, MQTT: OK');
         } else {
             if (!mysql) console.error('[Health] MySQL is unreachable');
             if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
+            if (!mainPole) console.error('[Health] Main pole is unreachable');
+            if (!secPole) console.error('[Health] Secondary pole is unreachable');
+            if (!warnPole) console.error('[Health] Warning pole is unreachable');
         }
 
-        updateHealthDisplay({ mysql, mqtt });
+        updateHealthDisplay({ mysql, mqtt, mainPole, secPole, warnPole });
 
     } catch (error) {
         if (error.name === 'AbortError') {
@@ -528,7 +534,7 @@ async function checkSystemHealth() {
             console.error('[Health] Health check failed:', error);
         }
 
-        updateHealthDisplay({ mysql: false, mqtt: false });
+        updateHealthDisplay({ mysql: false, mqtt: false, mainPole: false, secPole: null, warnPole: null});
     }
 }
 
@@ -579,8 +585,8 @@ function updateHealthDisplay(status) {
     }
 
     healthUpdateTimeout = setTimeout(() => {
-        const allOnline  = status.mysql && status.mqtt;
-        const allOffline = !status.mysql && !status.mqtt;
+        const allOnline  = status.mysql && status.mqtt && status.mainPole && status.secPole && status.warnPole;
+        const allOffline = !status.mysql && !status.mqtt;   //If MQTT is down, downstream systems are unable to be checked - assumed to be offline
 
         // --- Overall summary (ping card) ---
         if (allOnline) {
@@ -590,14 +596,27 @@ function updateHealthDisplay(status) {
             console.error('[Health] All systems offline — dashboard is running without live data');
             setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
-        } else {
-            const downService = !status.mysql ? 'SQL Server is Down' : 'MQTT Broker is Down';
-            console.warn(`[Health] Degraded — ${downService}`);
-            setIndicatorState('overall-indicator', 'systemStatus', 'warning', downService);
-            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
+        } else if(!status.mysql){
+            console.warn('[Health] MySQL database is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
+        } else if(!status.mqtt){
+            console.error('[Health] MQTT Broker is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
+        } else if(!status.mainPole){
+            console.error('[Health] Main Sensor Pole is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
+        } else if(!status.secPole){
+            console.warn('[Health] Secondary Pole is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
+        } else if(!status.warnPole){
+            console.warn('[Health] Warning Pole is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
         }
-
-        // --- Per-service rows ---
 
     }, 500);
 }
@@ -708,12 +727,14 @@ function initializeImageRequestButton(){
             imageRequestButton.style.opacity = '0.6';
             
             console.info('[Images] Image request sent to RIPPLE system');
+            const response = await fetch(`/api/imagerequest`);
+            console.info(response);
             //TEMP
-            setTimeout(() => {
-                imageRequestButton.disabled = false;
-                imageRequestButton.style.opacity = '1';
-                console.info('[Images] Image request button re-enabled');
-            }, 1500);
+            // setTimeout(() => {
+            //     imageRequestButton.disabled = false;
+            //     imageRequestButton.style.opacity = '1';
+            //     console.info('[Images] Image request button re-enabled');
+            // }, 1500);
         })
     } else {
         console.warn('[Images] Image request button element not found in DOM');
