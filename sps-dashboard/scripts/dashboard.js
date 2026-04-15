@@ -477,6 +477,15 @@ function initializeImageButtons() {
 ** Return:
 **     None
 */
+/* Wires the Ping button to pingPoles() — the full active pole ping.
+** The button is the only place that should trigger a live MQTT ping request.
+** The automatic 10-second interval uses checkSystemHealth() instead, which
+** only reads the database and never contacts the poles.
+** Parameters:
+**     None
+** Return:
+**     None
+*/
 function initializePingButton() {
     const pingButton = document.querySelector('.ping-button');
     if (!pingButton) return;
@@ -484,59 +493,162 @@ function initializePingButton() {
     pingButton.addEventListener('click', async () => {
         pingButton.disabled = true;
         pingButton.style.opacity = '0.6';
+        try {
+            setIndicatorState('overall-indicator',     'systemStatus',  'checking', 'Checking...');
+            setIndicatorState('pole-status-indicator', 'poleStatusText','checking', 'Checking...');
 
-        // Show a "checking" state while the request is in-flight
-        setIndicatorState('overall-indicator', 'systemStatus', 'checking', 'Checking...');
-        setIndicatorState('pole-status-indicator', 'poleStatusText', 'checking', 'Checking...');
-
-        await checkSystemHealth();
-
-        pingButton.disabled = false;
-        pingButton.style.opacity = '1';
+            await pingPoles();
+        } catch (err) {
+            console.error('Ping Failed:', err);
+        } finally {
+            pingButton.disabled = false;
+            pingButton.style.opacity = '1.0';
+        }
     });
-}
+}/* initializePingButton() */
 
-/* initializePingButton() */
 
+/* Parses a 3-character binary pole status string into individual booleans.
+** Format: "XYZ" where X=main pole, Y=secondary pole, Z=warning pole
+** '1' means active, '0' means inactive.
+** Known values:
+**   "000" — no pole responding
+**   "100" — main pole only
+**   "101" — main + warning pole
+**   "110" — main + secondary pole
+**   "111" — all poles responding
+** Parameters:
+**     string raw  e.g. "110"
+** Return:
+**     { mainPole: bool, secPole: bool, warnPole: bool }
+*/
+function parsePoleStatus(raw) {
+    if (!raw || raw.length < 3) return { mainPole: false, secPole: false, warnPole: false };
+    return {
+        mainPole: raw[0] === '1',
+        secPole:  raw[1] === '1',
+        warnPole: raw[2] === '1',
+    };
+}/* parsePoleStatus() */
+
+
+/* DB-only health check. Calls /api/ping/status which verifies MySQL and MQTT
+** liveness then returns the latest pole status row from the database.
+** Never sends an MQTT ping request to the poles.
+** Used by the automatic 10-second interval.
+** Parameters:
+**     None
+** Return:
+**     None (async)
+*/
 async function checkSystemHealth() {
     try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 4000);
+        const timeout = setTimeout(() => controller.abort(), 6000);   // MySQL + MQTT checks take ~3s each max
 
-        const response = await fetch('/api/ping', { signal: controller.signal });
-
+        const response = await fetch('/api/ping/status', { signal: controller.signal });
         clearTimeout(timeout);
 
         const result = await response.json();
 
         const mysql = result.mysql ?? false;
         const mqtt  = result.mqtt  ?? false;
-        const mainPole = result.mainPole ?? false;
-        const secPole = result.secPole ?? null;
-        const warnPole = result.warnPole ?? null;
 
-        if (mysql && mqtt && mainPole && secPole && warnPole) {
-            console.info('[Health] All systems online — MySQL: OK, MQTT: OK');
-        } else {
-            if (!mysql) console.error('[Health] MySQL is unreachable');
-            if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
-            if (!mainPole) console.error('[Health] Main pole is unreachable');
-            if (!secPole) console.error('[Health] Secondary pole is unreachable');
-            if (!warnPole) console.error('[Health] Warning pole is unreachable');
+        if (!mysql) console.error('[Health] MySQL is unreachable');
+        if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
+
+        if (!mysql || !mqtt) {
+            updateHealthDisplay({ mysql, mqtt, mainPole: false, secPole: null, warnPole: null });
+            return;
         }
 
-        updateHealthDisplay({ mysql, mqtt, mainPole, secPole, warnPole });
+        // No pole status in DB yet — infrastructure is up, poles unknown
+        if (!result.poleStatus) {
+            console.info('[Health] MySQL and MQTT online — no pole status on record yet');
+            updateHealthDisplay({ mysql: true, mqtt: true, mainPole: null, secPole: null, warnPole: null });
+            return;
+        }
+
+        const { mainPole, secPole, warnPole } = parsePoleStatus(result.poleStatus);
+
+        console.info(
+            `[Health] DB status check — "${result.poleStatus}" (${result.updated_at}) ` +
+            `Main: ${mainPole}, Sec: ${secPole}, Warn: ${warnPole}`
+        );
+
+        if (!mainPole) console.error('[Health] Main pole last recorded as offline');
+        if (!secPole)  console.warn('[Health] Secondary pole last recorded as offline');
+        if (!warnPole) console.warn('[Health] Warning pole last recorded as offline');
+
+        updateHealthDisplay({ mysql: true, mqtt: true, mainPole, secPole, warnPole });
 
     } catch (error) {
         if (error.name === 'AbortError') {
-            console.error('[Health] Ping request timed out after 4s — server may be unreachable');
+            console.error('[Health] Status check timed out — server may be unreachable');
         } else {
-            console.error('[Health] Health check failed:', error);
+            console.error('[Health] Status check failed:', error);
+        }
+        updateHealthDisplay({ mysql: false, mqtt: false, mainPole: false, secPole: null, warnPole: null });
+    }
+}/* checkSystemHealth() */
+
+
+/* Full active pole ping. Calls /api/ping/full which publishes an MQTT ping
+** request to the poles and waits up to 45 seconds for a response.
+** Called ONLY from the Ping button — never on any automatic interval.
+** Parameters:
+**     None
+** Return:
+**     None (async)
+*/
+async function pingPoles() {
+    try {
+        // Allow 50s — backend needs up to 45s for the pole timeout
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 50000);
+
+        const response = await fetch('/api/ping/full', { signal: controller.signal });
+        clearTimeout(timeout);
+
+        const result = await response.json();
+
+        const mysql = result.mysql ?? false;
+        const mqtt  = result.mqtt  ?? false;
+
+        if (!mysql) console.error('[Ping] MySQL is unreachable');
+        if (!mqtt)  console.error('[Ping] MQTT broker is unreachable');
+
+        if (!mysql || !mqtt) {
+            updateHealthDisplay({ mysql, mqtt, mainPole: false, secPole: null, warnPole: null });
+            return;
         }
 
-        updateHealthDisplay({ mysql: false, mqtt: false, mainPole: false, secPole: null, warnPole: null});
+        const { mainPole, secPole, warnPole } = parsePoleStatus(result.poleStatus ?? '000');
+
+        console.info(
+            `[Ping] Full ping result — "${result.poleStatus}" ` +
+            `Main: ${mainPole}, Sec: ${secPole}, Warn: ${warnPole}`
+        );
+
+        if (mainPole && secPole && warnPole) {
+            console.info('[Ping] All poles responding');
+        } else {
+            if (!mainPole) console.error('[Ping] Main pole did not respond');
+            if (!secPole)  console.error('[Ping] Secondary pole did not respond');
+            if (!warnPole) console.error('[Ping] Warning pole did not respond');
+        }
+
+        updateHealthDisplay({ mysql: true, mqtt: true, mainPole, secPole, warnPole });
+
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error('[Ping] Full ping timed out — poles may be unreachable');
+        } else {
+            console.error('[Ping] Full ping failed:', error);
+        }
+        updateHealthDisplay({ mysql: false, mqtt: false, mainPole: false, secPole: null, warnPole: null });
     }
-}
+}/* pingPoles() */
 
 let healthUpdateTimeout = null;
 
@@ -598,24 +710,28 @@ function updateHealthDisplay(status) {
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
         } else if(!status.mysql){
             console.warn('[Health] MySQL database is offline');
-            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
-            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'MySQL is Unreachable');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         } else if(!status.mqtt){
             console.error('[Health] MQTT Broker is offline');
-            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
-            setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'MQTT Broker is Unreachable');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         } else if(!status.mainPole){
             console.error('[Health] Main Sensor Pole is offline');
-            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Systems Offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Main Pole is Unreachable');
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
+        } else if(!status.secPole && status.warnPole){
+            console.error('[Health] Secondary Sensor Pole and Warning Pole is offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Secondary and Warning Pole are Unreachable');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         } else if(!status.secPole){
             console.warn('[Health] Secondary Pole is offline');
-            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
-            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Secondary Pole is Unreachable');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         } else if(!status.warnPole){
             console.warn('[Health] Warning Pole is offline');
-            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Systems Offline');
-            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Offline');
+            setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Warning Pole is Unreachable');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
         }
 
     }, 500);
@@ -712,32 +828,213 @@ function trimOldData(dataArray) {
     }
 }/* trimOldData() */
 
-/* requests image from ripple system
-** For now, just takes image on laptop camera
+/* Manages the live image request workflow.
+** Sends a request to /api/imagerequest which forwards to the RIPPLE system via MQTT.
+** The system sends 2 images (one per sensor pole), each split into multiple ASCII packets.
+** Packet format:
+**   Start packet : "<imageSize>,<totalPackets>,<checksum>"
+**   Data packets : "<packetIndex>,<asciiImageData>"
+** Images are received in series (image 1 fully received before image 2 begins).
+** Received image data is assembled and injected into the dashboard image viewer.
 ** Parameters:
 **     None
 ** Return:
 **     None
 */
-function initializeImageRequestButton(){
+function initializeImageRequestButton() {
     const imageRequestButton = document.getElementById('image-request-button');
-    if(imageRequestButton){
-        imageRequestButton.addEventListener('click', async () => {
-            imageRequestButton.disabled = true;
-            imageRequestButton.style.opacity = '0.6';
-            
-            console.info('[Images] Image request sent to RIPPLE system');
-            const response = await fetch(`/api/imagerequest`);
-            console.info(response);
-            //TEMP
-            // setTimeout(() => {
-            //     imageRequestButton.disabled = false;
-            //     imageRequestButton.style.opacity = '1';
-            //     console.info('[Images] Image request button re-enabled');
-            // }, 1500);
-        })
-    } else {
+    if (!imageRequestButton) {
         console.warn('[Images] Image request button element not found in DOM');
+        return;
+    }
+
+    imageRequestButton.addEventListener('click', async () => {
+        imageRequestButton.disabled = true;
+        imageRequestButton.style.opacity = '0.6';
+        console.info('[Images] Image request sent to RIPPLE system — awaiting response...');
+
+        try {
+            // 2-minute timeout — image transfer can be slow over MQTT
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 125000);
+
+            const response = await fetch('/api/imagerequest', { signal: controller.signal });
+            clearTimeout(timeout);
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                console.error(`[Images] Server returned ${response.status}: ${err.error ?? 'unknown error'}`);
+                return;
+            }
+
+            const result = await response.json();
+
+            // The backend returns an array of images, one per sensor pole.
+            // Each entry is a data URI string: "data:image/jpeg;base64,<data>"
+            if (!result.images || result.images.length === 0) {
+                console.warn('[Images] Response contained no images');
+                return;
+            }
+
+            console.info(`[Images] Received ${result.images.length} image(s) from RIPPLE system`);
+
+            // Map received images to their selector buttons and the image viewer.
+            // Button order: index 0 = Pole 1 image, index 1 = Pole 2 image.
+            const imageTargets = [
+                { btnSelector: '[data-image="images/Pole1Image.jpg"]', dataAttr: 'images/Pole1Image.jpg' },
+                { btnSelector: '[data-image="images/Pole2Image.jpg"]', dataAttr: 'images/Pole2Image.jpg' },
+            ];
+
+            result.images.forEach((dataUri, i) => {
+                if (!dataUri) return;
+
+                const target = imageTargets[i];
+                if (!target) return;
+
+                // Update the button's data-image so clicking it later shows the live image
+                const btn = document.querySelector(target.btnSelector);
+                if (btn) btn.setAttribute('data-image', dataUri);
+
+                console.info(`[Images] Pole ${i + 1} image loaded (${Math.round(dataUri.length / 1024)} KB)`);
+            });
+
+            // Auto-show the first received image in the viewer
+            const firstImage = result.images[0];
+            if (firstImage) {
+                changeImage(firstImage);
+
+                // Mark Pole 1 button as active since we're showing its image
+                const imageButtons = document.querySelectorAll('.image-selector-btn');
+                imageButtons.forEach(btn => btn.classList.remove('active'));
+                const pole1Btn = document.querySelector('[data-image="images/Pole1Image.jpg"]') ??
+                                 document.querySelector('[data-image]');  // fallback to first btn
+                // After setAttribute above the data-image is now the dataUri, so re-query by label
+                const allBtns = document.querySelectorAll('.image-selector-btn');
+                if (allBtns[1]) allBtns[1].classList.add('active');  // index 1 = Pole 1 button
+            }
+
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.error('[Images] Image request timed out after 2 minutes');
+            } else {
+                console.error('[Images] Image request failed:', error);
+            }
+        } finally {
+            imageRequestButton.disabled = false;
+            imageRequestButton.style.opacity = '1';
+            console.info('[Images] Image request button re-enabled');
+        }
+    });
+}/* initializeImageRequestButton() */
+
+
+/* Loads the most recently saved pole status from the database and applies it
+** to the health display indicators on startup, so the last known state is
+** shown immediately before the user manually pings.
+** Parameters:
+**     None
+** Return:
+**     None (async)
+*/
+async function loadSavedPoleStatus() {
+    try {
+        const response = await fetch('/api/polestatus/latest');
+        if (!response.ok) {
+            console.warn('[Init] Could not fetch saved pole status — server returned', response.status);
+            return;
+        }
+
+        const result = await response.json();
+        if (!result.status) {
+            console.info('[Init] No saved pole status found in database');
+            return;
+        }
+
+        const { mainPole, secPole, warnPole } = parsePoleStatus(result.status);
+
+        console.info(
+            `[Init] Loaded saved pole status: "${result.status}" (as of ${result.updated_at}) ` +
+            `— Main: ${mainPole}, Sec: ${secPole}, Warn: ${warnPole}`
+        );
+
+        // mysql/mqtt marked true because the DB responded to deliver this row
+        updateHealthDisplay({ mysql: true, mqtt: true, mainPole, secPole, warnPole });
+
+    } catch (error) {
+        console.warn('[Init] Failed to load saved pole status:', error);
+    }
+}/* loadSavedPoleStatus() */
+
+
+/* Loads the most recently saved images from the database and populates the
+** image viewer and selector buttons so the last captured view is shown on load.
+** Buttons whose images have not yet been captured keep their default src paths.
+** Parameters:
+**     None
+** Return:
+**     None (async)
+*/
+async function loadSavedImages() {
+    console.info('[Init] Loading saved images from database...');
+
+    try {
+        // Add timeout like the request function
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000); // shorter timeout for DB
+
+        const response = await fetch('/api/images/latest', { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            console.warn(`[Init] Server returned ${response.status}: ${err.error ?? 'unknown error'}`);
+            return;
+        }
+
+        const result = await response.json();
+
+        if (!result.images || result.images.length === 0) {
+            console.warn('[Images] Response contained no images');
+            return;
+        }
+
+        console.info(`[Init] Loaded ${result.images.length} saved image(s) from database`);
+
+        const imageTargets = [
+            { btnSelector: '[data-image="images/Pole1Image.jpg"]' },
+            { btnSelector: '[data-image="images/Pole2Image.jpg"]' },
+        ];
+
+        result.images.forEach((dataUri, i) => {
+            if (!dataUri) return;
+
+            const target = imageTargets[i];
+            if (!target) return;
+
+            const btn = document.querySelector(target.btnSelector);
+            if (btn) btn.setAttribute('data-image', dataUri);
+
+            console.info(`[Images] Pole ${i + 1} image loaded (${Math.round(dataUri.length / 1024)} KB)`);
+        });
+
+        // Show first image (same logic)
+        const firstImage = result.images[0];
+        if (firstImage) {
+            changeImage(firstImage);
+
+            const imageButtons = document.querySelectorAll('.image-selector-btn');
+            imageButtons.forEach(btn => btn.classList.remove('active'));
+
+            const allBtns = document.querySelectorAll('.image-selector-btn');
+            if (allBtns[1]) allBtns[1].classList.add('active');
+        }
+
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.warn('[Init] Loading saved images timed out');
+        } else {
+            console.warn('[Init] Failed to load saved images:', error);
+        }
     }
 }
 
@@ -769,21 +1066,32 @@ async function initializeDashboard() {
     initializeImageRequestButton();
     initializeChart();
 
+    // Load persisted state from DB so the UI shows last-known values
+    // immediately — before the first live poll or manual ping completes.
+    // await Promise.all([
+    //     //loadSavedPoleStatus(),
+    //     loadSavedImages(),
+    // ]);
+    await loadSavedImages()
+
     // Initial Data (async — listeners are already live by this point)
     await initializeData();
     console.info('[Init] Dashboard components initialized');
     
     // Start updating pole data
     updatePoleData();
-    // Check system health on load
-    checkSystemHealth();
 
     // Update pole data at interval specified in settings
     chartUpdateInterval = setInterval(updatePoleData, settings.updateFrequency);
     console.info(`[Init] Poll interval set to ${settings.updateFrequency}ms`);
 
-    // Check system health every 10 seconds
+    // Poll the database for the latest pole status every 10 seconds.
+    // This reads the DB only — it never sends an MQTT ping to the poles.
+    // The DB is kept current by the server's persistent MQTT listener which
+    // saves every broker-pushed status update automatically.
+    checkSystemHealth()
     setInterval(checkSystemHealth, 10000);
+    console.info('[Init] DB health poll interval set to 10s');
 
     console.info('[Init] Dashboard ready');
 }/* initializeDashboard() */
