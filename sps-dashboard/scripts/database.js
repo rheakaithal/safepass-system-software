@@ -7,7 +7,6 @@
 ** Contains the code for the backend server for the ems dashboard
 */
 
-let i = 0;
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -17,8 +16,19 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 
-const showErrors = true;
-const showErrorMsgs = true;
+const showErrors = false;
+const showErrorMsgs = false;
+
+if(showErrors) {
+    console.log("Showing Errors");
+} else {
+    console.log("Not Showing Errors");
+}
+if(showErrorMsgs) {
+    console.log("Showing Error Messages");
+} else {
+    console.log("Not Showing Error Messages");
+}
 
 // Project root is one level up from the scripts folder
 const ROOT = path.resolve(__dirname, '..');
@@ -38,7 +48,6 @@ const WEBSITEPORT = parseInt(process.env.WEBSITE_PORT);
 // ── MySQL table names (configured in .env) ────────────────────────────────────
 const TABLE_USERS       = process.env.DB_TABLE_USERS;
 const TABLE_POLE_STATUS = process.env.DB_TABLE_POLE_STATUS;
-const TABLE_POLE_IMAGES = process.env.DB_TABLE_POLE_IMAGES;
 
 // ── MQTT constants ─────────────────────────────────────────────────────────────
 const HOSTNAME = process.env.MQTT_HOSTNAME;
