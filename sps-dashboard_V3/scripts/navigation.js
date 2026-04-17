@@ -82,3 +82,19 @@ if (document.readyState === 'loading') {
     initializeApp();
 }
 
+/* Event listener to resize graph when page size changes
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (waterLevelChart) {
+            waterLevelChart.resize();
+            console.info('[Nav] Chart resized to fit new window dimensions');
+        }
+    }, 250);
+});

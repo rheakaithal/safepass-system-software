@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
     <div class="container">
@@ -59,12 +60,17 @@
                 <iframe id="content-frame" src="Home.html" title="Dashboard Content"></iframe>
             </div>
 
-
+            <!-- Old Dashboard Grid (now moved to separate RossSt.html file) -->
+            <div class="dashboard-grid" style="display: none;">
+            <!-- Old Dashboard Grid (now moved to separate RossSt.html file) -->
+            <div class="dashboard-grid" style="display: none;">
+            </div>
         </main>
     </div>
-    <!-- The parent shell only needs settings (for the diagnostic log interceptor)
-         and navigation (to wire the sidebar). All other scripts load inside the iframe. -->
+    <!-- Load JavaScript modules in order -->
     <script src="scripts/settings.js"></script>
+    <script src="scripts/chart.js"></script>
+    <script src="scripts/dashboard.js"></script>
     <script src="scripts/navigation.js"></script>
 </body>
 </html>

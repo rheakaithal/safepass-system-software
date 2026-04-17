@@ -191,75 +191,34 @@ function refreshAll() {
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
-/* Navigates the parent shell's iframe to the given page.
-** Called from location card onclick handlers inside the Home iframe.
+/* Navigates the parent window's iframe to the given page and syncs the
+** header title, subtitle, and active sidebar link.
 ** Parameters:
-**     string page      filename passed to iframe src, e.g. 'RossStContent.html'
-**     string title     text for the parent header title element
-**     string subtitle  text for the parent header subtitle element
+**     string page      iframe src, e.g. 'RossStContent.html'
+**     string title     header title text
+**     string subtitle  header subtitle text
 ** Return:
 **     None
 */
 function navigateTo(page, title, subtitle) {
-    // Home.html always runs inside the iframe, so window.top is SafePassSystem.html.
-    // Guard against the rare case of opening Home.html directly in a tab.
-    if (window.self === window.top) {
-        console.warn('[Home] navigateTo() called outside of iframe context — cannot navigate');
-        return;
-    }
-
     const parent = window.top;
+    if (!parent) return;
 
-    loadContentFrame(parent, page);
-    updateHeaderText(parent, title, subtitle);
-    syncActiveSidebarLink(parent, page);
+    const frame   = parent.document.getElementById('content-frame');
+    const hTitle  = parent.document.getElementById('page-title');
+    const hSub    = parent.document.getElementById('page-subtitle');
+    const links   = parent.document.querySelectorAll('.sidebar-link');
 
-    console.info(`[Home] Navigated parent to: ${page}`);
-}/* navigateTo() */
-
-
-/* Sets the parent shell's content iframe to the given page.
-** Parameters:
-**     Window parent
-**     string page  filename, e.g. 'RossStContent.html'
-** Return:
-**     None
-*/
-function loadContentFrame(parent, page) {
-    const frame = parent.document.getElementById('content-frame');
-    if (frame) frame.src = page;
-}/* loadContentFrame() */
-
-
-/* Updates the header title and subtitle text in the parent shell.
-** Parameters:
-**     Window parent
-**     string title
-**     string subtitle
-** Return:
-**     None
-*/
-function updateHeaderText(parent, title, subtitle) {
-    const hTitle = parent.document.getElementById('page-title');
-    const hSub   = parent.document.getElementById('page-subtitle');
+    if (frame)  frame.src = page;
     if (hTitle) hTitle.textContent = title;
     if (hSub)   hSub.textContent   = subtitle;
-}/* updateHeaderText() */
 
-
-/* Adds 'active' to the sidebar link matching page; removes it from all others.
-** Parameters:
-**     Window parent
-**     string page  must match the link's data-page attribute exactly
-** Return:
-**     None
-*/
-function syncActiveSidebarLink(parent, page) {
-    const links = parent.document.querySelectorAll('.sidebar-link');
-    links.forEach(link =>
-        link.classList.toggle('active', link.getAttribute('data-page') === page)
+    links.forEach(l =>
+        l.classList.toggle('active', l.getAttribute('data-page') === page)
     );
-}/* syncActiveSidebarLink() */
+
+    console.info(`[Home] Navigated to: ${page}`);
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadSettings();

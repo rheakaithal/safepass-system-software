@@ -12,14 +12,12 @@
 
 // Default settings for the dashboard
 const DEFAULT_SETTINGS = {
-    updateFrequency:   1000,    // Data poll interval in milliseconds
-    distanceUnits:     'Inches',
-    warningThreshold:  3.0,     // Always stored in inches
-    criticalThreshold: 6.0,     // Always stored in inches
-    alarmEnabled:      true,    // Alarm sound on/off
-    alarmVolume:       0.7,     // 0.0 to 1.0
-    heartbeatEnabled:  true,    // Run the automatic DB health check interval
-    heartbeatInterval: 45000    // Milliseconds between DB health checks
+    updateFrequency: 1000, // milliseconds
+    distanceUnits: 'Inches',
+    warningThreshold: 3.0,      // Always stored in inches
+    criticalThreshold: 6.0,      // Always stored in inches
+    alarmEnabled: true,          // Alarm sound on/off
+    alarmVolume: 0.7            // 0.0 to 1.0
 };
 
 //loads default settings as the dashboards settings
@@ -37,7 +35,7 @@ function loadSettings() {
     const savedSettings = localStorage.getItem('dashboardSettings');
     if (savedSettings) {
         settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
-        console.info(`[Settings] Loaded from localStorage — frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in, alarm: ${settings.alarmEnabled ? 'on' : 'off'} @ ${Math.round(settings.alarmVolume * 100)}%, heartbeat: ${settings.heartbeatEnabled ? 'on' : 'off'} @ ${settings.heartbeatInterval}ms`);
+        console.info(`[Settings] Loaded from localStorage — frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in, alarm: ${settings.alarmEnabled ? 'on' : 'off'} @ ${Math.round(settings.alarmVolume * 100)}%`);
     } else {
         console.info('[Settings] No saved settings found — using defaults');
     }
@@ -103,307 +101,169 @@ function getUnitLabel() {
 function initializeSettingsPage() {
     console.info('[Settings] Initializing settings page');
 
-    // ── Gather all form elements ──────────────────────────────────────────────
-    const updateFreqSelect        = document.getElementById('updateFrequencySelect');
-    const distanceUnitSelect      = document.getElementById('distanceUnitSelect');
-    const warningInput            = document.getElementById('warningInput');
-    const criticalInput           = document.getElementById('criticalInput');
-    const warningLabel            = document.getElementById('warningLabel');
-    const criticalLabel           = document.getElementById('criticalLabel');
-    const alarmEnabledCheckbox    = document.getElementById('alarmEnabledCheckbox');
-    const alarmVolumeSlider       = document.getElementById('alarmVolumeSlider');
-    const volumeDisplay           = document.getElementById('volumeDisplay');
-    const testAlarmButton         = document.getElementById('testAlarmButton');
-    const heartbeatEnabledCheckbox = document.getElementById('heartbeatEnabledCheckbox');
-    const heartbeatIntervalSelect  = document.getElementById('heartbeatIntervalSelect');
-    const saveButton              = document.getElementById('saveSettings');
+    // Get form elements by ID
+    const updateFreqSelect = document.getElementById('updateFrequencySelect');
+    const distanceUnitSelect = document.getElementById('distanceUnitSelect');
+    const warningInput = document.getElementById('warningInput');
+    const criticalInput = document.getElementById('criticalInput');
+    const warningLabel = document.getElementById('warningLabel');
+    const criticalLabel = document.getElementById('criticalLabel');
+    const alarmEnabledCheckbox = document.getElementById('alarmEnabledCheckbox');
+    const alarmVolumeSlider = document.getElementById('alarmVolumeSlider');
+    const volumeDisplay = document.getElementById('volumeDisplay');
+    const testAlarmButton = document.getElementById('testAlarmButton');
+    const saveButton = document.getElementById('saveSettings');
 
-    // Warn about missing DOM elements so layout regressions are easy to spot
-    const requiredElements = {
-        updateFreqSelect, distanceUnitSelect, warningInput, criticalInput,
-        alarmEnabledCheckbox, alarmVolumeSlider,
-        heartbeatEnabledCheckbox, heartbeatIntervalSelect, saveButton
-    };
-    warnAboutMissingElements(requiredElements);
-
-    // ── Populate form with current settings ───────────────────────────────────
-    populateDisplaySettings(updateFreqSelect, distanceUnitSelect);
-    populateThresholdSettings(warningInput, criticalInput, warningLabel, criticalLabel, distanceUnitSelect);
-    populateAlarmSettings(alarmEnabledCheckbox, alarmVolumeSlider, volumeDisplay);
-    populateHeartbeatSettings(heartbeatEnabledCheckbox, heartbeatIntervalSelect);
-
-    // ── Wire live update listeners ────────────────────────────────────────────
-    wireDistanceUnitListener(distanceUnitSelect, warningInput, criticalInput, warningLabel, criticalLabel);
-    wireVolumeSliderListener(alarmVolumeSlider, volumeDisplay);
-    wireTestAlarmButton(testAlarmButton, alarmVolumeSlider);
-    wireHeartbeatEnabledToggle(heartbeatEnabledCheckbox, heartbeatIntervalSelect);
-
-    console.info('[Settings] Settings page ready');
-
-    // ── Save button ───────────────────────────────────────────────────────────
-    if (saveButton) {
-        saveButton.addEventListener('click', () => {
-            const newSettings = collectFormValues(
-                updateFreqSelect, distanceUnitSelect,
-                warningInput, criticalInput,
-                alarmEnabledCheckbox, alarmVolumeSlider,
-                heartbeatEnabledCheckbox, heartbeatIntervalSelect
-            );
-            saveSettings(newSettings);
-            flashSaveButton(saveButton);
-        });
-    }
-} /* initializeSettingsPage() */
-
-
-/* Logs a warning for every key in the elements object whose value is null/undefined.
-** Parameters:
-**     object elements  { elementName: domElement, ... }
-** Return:
-**     None
-*/
-function warnAboutMissingElements(elements) {
+    // Warn about any missing elements so layout regressions are easy to spot
+    const elements = { updateFreqSelect, distanceUnitSelect, warningInput, criticalInput, alarmEnabledCheckbox, alarmVolumeSlider, saveButton };
     Object.entries(elements).forEach(([name, el]) => {
         if (!el) console.warn(`[Settings] Expected element not found in DOM: ${name}`);
     });
-}/* warnAboutMissingElements() */
 
+    /* Updates threshold labels and values based on distance unit
+    ** Parameters:
+    **     distanceUnitSelect, warningLabel, criticalLabel, warningInput, criticalInput
+    ** Return:
+    **     void None
+    */
+    function updateThresholdDisplay() {
+        const currentUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
+        const unitLabel = currentUnit === 'Centimeters' ? 'centimeters' : 'inches';
+        
+        // Update labels
+        if (warningLabel) {
+            warningLabel.textContent = `Warning Level (${unitLabel})`;
+        }
+        if (criticalLabel) {
+            criticalLabel.textContent = `Critical Level (${unitLabel})`;
+        }
+        
+        // Convert and display threshold values
+        if (warningInput) {
+            const warningInches = parseFloat(settings.warningThreshold);
+            if (currentUnit === 'Centimeters') {
+                warningInput.value = (warningInches * 2.54).toFixed(2);
+            } else {
+                warningInput.value = warningInches.toFixed(2);
+            }
+        }
+        
+        if (criticalInput) {
+            const criticalInches = parseFloat(settings.criticalThreshold);
+            if (currentUnit === 'Centimeters') {
+                criticalInput.value = (criticalInches * 2.54).toFixed(2);
+            } else {
+                criticalInput.value = criticalInches.toFixed(2);
+            }
+        }
+    } /* updateThresholdDistance() */
 
-/* Loads display-section values (update frequency, distance units) into the form.
-** Parameters:
-**     HTMLSelectElement updateFreqSelect
-**     HTMLSelectElement distanceUnitSelect
-** Return:
-**     None
-*/
-function populateDisplaySettings(updateFreqSelect, distanceUnitSelect) {
-    if (updateFreqSelect)   updateFreqSelect.value   = settings.updateFrequency.toString();
-    if (distanceUnitSelect) distanceUnitSelect.value = settings.distanceUnits;
-}/* populateDisplaySettings() */
+    // Load current settings into form
+    if (updateFreqSelect) {
+        updateFreqSelect.value = settings.updateFrequency.toString();
+    }
 
+    if (distanceUnitSelect) {
+        distanceUnitSelect.value = settings.distanceUnits;
+        
+        // Add change listener to update threshold labels and values
+        distanceUnitSelect.addEventListener('change', () => {
+            console.info(`[Settings] Distance unit changed to: ${distanceUnitSelect.value}`);
+            updateThresholdDisplay();
+        });
+    }
 
-/* Loads threshold values into the form, converting from inches to the current
-** display unit if necessary.
-** Parameters:
-**     HTMLInputElement  warningInput
-**     HTMLInputElement  criticalInput
-**     HTMLElement       warningLabel
-**     HTMLElement       criticalLabel
-**     HTMLSelectElement distanceUnitSelect
-** Return:
-**     None
-*/
-function populateThresholdSettings(warningInput, criticalInput, warningLabel, criticalLabel, distanceUnitSelect) {
-    updateThresholdDisplay(warningInput, criticalInput, warningLabel, criticalLabel, distanceUnitSelect);
-}/* populateThresholdSettings() */
-
-
-/* Loads alarm values (enabled checkbox, volume slider) into the form.
-** Parameters:
-**     HTMLInputElement  alarmEnabledCheckbox
-**     HTMLInputElement  alarmVolumeSlider
-**     HTMLElement       volumeDisplay
-** Return:
-**     None
-*/
-function populateAlarmSettings(alarmEnabledCheckbox, alarmVolumeSlider, volumeDisplay) {
-    if (alarmEnabledCheckbox) alarmEnabledCheckbox.checked = settings.alarmEnabled;
+    // Load alarm settings
+    if (alarmEnabledCheckbox) {
+        alarmEnabledCheckbox.checked = settings.alarmEnabled;
+    }
 
     if (alarmVolumeSlider && volumeDisplay) {
-        const pct = Math.round(settings.alarmVolume * 100);
-        alarmVolumeSlider.value    = pct;
-        volumeDisplay.textContent  = pct + '%';
-    }
-}/* populateAlarmSettings() */
-
-
-/* Loads heartbeat values (enabled checkbox, interval select) into the form.
-** Also sets the interval select's disabled state to match the checkbox.
-** Parameters:
-**     HTMLInputElement  heartbeatEnabledCheckbox
-**     HTMLSelectElement heartbeatIntervalSelect
-** Return:
-**     None
-*/
-function populateHeartbeatSettings(heartbeatEnabledCheckbox, heartbeatIntervalSelect) {
-    if (heartbeatEnabledCheckbox) heartbeatEnabledCheckbox.checked = settings.heartbeatEnabled;
-
-    if (heartbeatIntervalSelect) {
-        heartbeatIntervalSelect.value    = settings.heartbeatInterval.toString();
-        heartbeatIntervalSelect.disabled = !settings.heartbeatEnabled;
-    }
-}/* populateHeartbeatSettings() */
-
-
-/* Updates threshold labels and input values when the distance unit changes.
-** Converts the stored inch values to the selected display unit.
-** Parameters:
-**     HTMLInputElement  warningInput
-**     HTMLInputElement  criticalInput
-**     HTMLElement       warningLabel
-**     HTMLElement       criticalLabel
-**     HTMLSelectElement distanceUnitSelect
-** Return:
-**     None
-*/
-function updateThresholdDisplay(warningInput, criticalInput, warningLabel, criticalLabel, distanceUnitSelect) {
-    const unit      = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
-    const unitLabel = unit === 'Centimeters' ? 'centimeters' : 'inches';
-
-    if (warningLabel)  warningLabel.textContent  = `Warning Level (${unitLabel})`;
-    if (criticalLabel) criticalLabel.textContent = `Critical Level (${unitLabel})`;
-
-    if (warningInput) {
-        const inches = parseFloat(settings.warningThreshold);
-        warningInput.value = unit === 'Centimeters' ? (inches * 2.54).toFixed(2) : inches.toFixed(2);
+        const volumePercent = Math.round(settings.alarmVolume * 100);
+        alarmVolumeSlider.value = volumePercent;
+        volumeDisplay.textContent = volumePercent + '%';
+        
+        // Update volume display as slider moves
+        alarmVolumeSlider.addEventListener('input', () => {
+            volumeDisplay.textContent = alarmVolumeSlider.value + '%';
+        });
     }
 
-    if (criticalInput) {
-        const inches = parseFloat(settings.criticalThreshold);
-        criticalInput.value = unit === 'Centimeters' ? (inches * 2.54).toFixed(2) : inches.toFixed(2);
-    }
-}/* updateThresholdDisplay() */
-
-
-/* Attaches a 'change' listener to the distance unit select so threshold labels
-** and values update live as the user switches units.
-** Parameters:
-**     HTMLSelectElement distanceUnitSelect
-**     HTMLInputElement  warningInput
-**     HTMLInputElement  criticalInput
-**     HTMLElement       warningLabel
-**     HTMLElement       criticalLabel
-** Return:
-**     None
-*/
-function wireDistanceUnitListener(distanceUnitSelect, warningInput, criticalInput, warningLabel, criticalLabel) {
-    if (!distanceUnitSelect) return;
-    distanceUnitSelect.addEventListener('change', () => {
-        console.info(`[Settings] Distance unit changed to: ${distanceUnitSelect.value}`);
-        updateThresholdDisplay(warningInput, criticalInput, warningLabel, criticalLabel, distanceUnitSelect);
-    });
-}/* wireDistanceUnitListener() */
-
-
-/* Attaches an 'input' listener to the volume slider so the percentage
-** label updates in real time as the user drags.
-** Parameters:
-**     HTMLInputElement alarmVolumeSlider
-**     HTMLElement      volumeDisplay
-** Return:
-**     None
-*/
-function wireVolumeSliderListener(alarmVolumeSlider, volumeDisplay) {
-    if (!alarmVolumeSlider || !volumeDisplay) return;
-    alarmVolumeSlider.addEventListener('input', () => {
-        volumeDisplay.textContent = alarmVolumeSlider.value + '%';
-    });
-}/* wireVolumeSliderListener() */
-
-
-/* Attaches a click listener to the test alarm button.
-** Parameters:
-**     HTMLButtonElement testAlarmButton
-**     HTMLInputElement  alarmVolumeSlider
-** Return:
-**     None
-*/
-function wireTestAlarmButton(testAlarmButton, alarmVolumeSlider) {
-    if (!testAlarmButton || !alarmVolumeSlider) return;
-    testAlarmButton.addEventListener('click', () => {
-        const volume = parseInt(alarmVolumeSlider.value) / 100;
-        console.info(`[Settings] Test alarm triggered at volume: ${Math.round(volume * 100)}%`);
-        playAlarmSound(volume, 2000);
-    });
-}/* wireTestAlarmButton() */
-
-
-/* Attaches a 'change' listener to the heartbeat enabled checkbox.
-** Enables or disables the interval select to reflect the current state.
-** Parameters:
-**     HTMLInputElement  heartbeatEnabledCheckbox
-**     HTMLSelectElement heartbeatIntervalSelect
-** Return:
-**     None
-*/
-function wireHeartbeatEnabledToggle(heartbeatEnabledCheckbox, heartbeatIntervalSelect) {
-    if (!heartbeatEnabledCheckbox || !heartbeatIntervalSelect) return;
-    heartbeatEnabledCheckbox.addEventListener('change', () => {
-        heartbeatIntervalSelect.disabled = !heartbeatEnabledCheckbox.checked;
-        console.info(`[Settings] Heartbeat ${heartbeatEnabledCheckbox.checked ? 'enabled' : 'disabled'}`);
-    });
-}/* wireHeartbeatEnabledToggle() */
-
-
-/* Reads all form inputs and returns a settings object ready for saveSettings().
-** Converts threshold values from the displayed unit back to inches for storage.
-** Parameters:
-**     HTMLSelectElement updateFreqSelect
-**     HTMLSelectElement distanceUnitSelect
-**     HTMLInputElement  warningInput
-**     HTMLInputElement  criticalInput
-**     HTMLInputElement  alarmEnabledCheckbox
-**     HTMLInputElement  alarmVolumeSlider
-**     HTMLInputElement  heartbeatEnabledCheckbox
-**     HTMLSelectElement heartbeatIntervalSelect
-** Return:
-**     object  settings delta to pass to saveSettings()
-*/
-function collectFormValues(
-    updateFreqSelect, distanceUnitSelect,
-    warningInput, criticalInput,
-    alarmEnabledCheckbox, alarmVolumeSlider,
-    heartbeatEnabledCheckbox, heartbeatIntervalSelect
-) {
-    const newSettings = {};
-    const saveUnit    = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
-
-    if (updateFreqSelect)   newSettings.updateFrequency = parseInt(updateFreqSelect.value);
-    if (distanceUnitSelect) newSettings.distanceUnits   = distanceUnitSelect.value;
-
-    // Thresholds are displayed in the current unit but always stored in inches
-    if (warningInput) {
-        const val = parseFloat(warningInput.value);
-        newSettings.warningThreshold = saveUnit === 'Centimeters'
-            ? (val / 2.54).toFixed(2)
-            : val.toFixed(2);
+    // Test alarm button
+    if (testAlarmButton && alarmVolumeSlider) {
+        testAlarmButton.addEventListener('click', () => {
+            const volume = parseInt(alarmVolumeSlider.value) / 100;
+            console.info(`[Settings] Test alarm triggered at volume: ${Math.round(volume * 100)}%`);
+            playAlarmSound(volume, 2000);
+        });
     }
 
-    if (criticalInput) {
-        const val = parseFloat(criticalInput.value);
-        newSettings.criticalThreshold = saveUnit === 'Centimeters'
-            ? (val / 2.54).toFixed(2)
-            : val.toFixed(2);
+    // Initial display update
+    updateThresholdDisplay();
+    console.info('[Settings] Settings page ready');
 
-        if (parseFloat(newSettings.criticalThreshold) <= parseFloat(newSettings.warningThreshold)) {
-            console.warn(`[Settings] Critical threshold (${newSettings.criticalThreshold}) is not greater than warning (${newSettings.warningThreshold}) — may cause unexpected behaviour`);
-        }
+    // Handle save button click
+    if (saveButton) {
+        saveButton.addEventListener('click', () => {
+            const newSettings = {};
+
+            if (updateFreqSelect) {
+                newSettings.updateFrequency = parseInt(updateFreqSelect.value);
+            }
+
+            if (distanceUnitSelect) {
+                newSettings.distanceUnits = distanceUnitSelect.value;
+            }
+
+            // Thresholds are entered in the currently-selected display unit.
+            // Convert back to inches (the storage format) before saving.
+            const saveUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
+
+            if (warningInput) {
+                const warningValue = parseFloat(warningInput.value);
+                // Input is in the currently selected display unit — convert back to inches for storage
+                newSettings.warningThreshold = saveUnit === 'Centimeters'
+                    ? (warningValue / 2.54).toFixed(2)
+                    : warningValue.toFixed(2);
+            }
+
+            if (criticalInput) {
+                const criticalValue = parseFloat(criticalInput.value);
+                // Input is in the currently selected display unit — convert back to inches for storage
+                newSettings.criticalThreshold = saveUnit === 'Centimeters'
+                    ? (criticalValue / 2.54).toFixed(2)
+                    : criticalValue.toFixed(2);
+
+                // Warn if thresholds are inverted or equal
+                if (parseFloat(newSettings.criticalThreshold) <= parseFloat(newSettings.warningThreshold)) {
+                    console.warn(`[Settings] Critical threshold (${newSettings.criticalThreshold}) is not greater than warning threshold (${newSettings.warningThreshold}) — this may cause unexpected behaviour`);
+                }
+            }
+
+            // Save alarm settings
+            if (alarmEnabledCheckbox) {
+                newSettings.alarmEnabled = alarmEnabledCheckbox.checked;
+            }
+
+            if (alarmVolumeSlider) {
+                newSettings.alarmVolume = parseInt(alarmVolumeSlider.value) / 100;
+            }
+
+            // Save settings
+            saveSettings(newSettings);
+            
+            // Show success message
+            saveButton.textContent = 'Settings Saved!';
+            saveButton.style.backgroundColor = '#10b981';
+            
+            // Change back after 2 seconds
+            setTimeout(() => {
+                saveButton.textContent = "Save Settings";
+                saveButton.style.backgroundColor = '#073763';
+            }, 2000);
+        });
     }
-
-    if (alarmEnabledCheckbox) newSettings.alarmEnabled = alarmEnabledCheckbox.checked;
-    if (alarmVolumeSlider)    newSettings.alarmVolume  = parseInt(alarmVolumeSlider.value) / 100;
-
-    if (heartbeatEnabledCheckbox) newSettings.heartbeatEnabled  = heartbeatEnabledCheckbox.checked;
-    if (heartbeatIntervalSelect)  newSettings.heartbeatInterval = parseInt(heartbeatIntervalSelect.value);
-
-    return newSettings;
-}/* collectFormValues() */
-
-
-/* Briefly turns the save button green to confirm the save, then resets it.
-** Parameters:
-**     HTMLButtonElement saveButton
-** Return:
-**     None
-*/
-function flashSaveButton(saveButton) {
-    saveButton.textContent         = 'Settings Saved!';
-    saveButton.style.backgroundColor = '#10b981';
-    setTimeout(() => {
-        saveButton.textContent         = 'Save Settings';
-        saveButton.style.backgroundColor = '#073763';
-    }, 2000);
-}/* flashSaveButton() */
+} /* initializeSettingPage() */
 
 
 /* ─── Diagnostic Console ─────────────────────────────────────────────────────

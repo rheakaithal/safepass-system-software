@@ -434,7 +434,6 @@ app.get('/api/ping/full', async (req, res) => {
             errors
         });
     }
-
     // --- Active pole ping ---
     // Publishes a ping request and waits for the pole to respond with a
     // 3-character binary status string. The persistent listener above will
@@ -489,11 +488,11 @@ app.get('/api/ping/full', async (req, res) => {
         success:    allPolesUp,
         mysql:      true,
         mqtt:       true,
-        mainPole,
-        secPole,
-        warnPole,
+        mainPole: mainPole,
+        secPole: secPole,
+        warnPole: warnPole,
         poleStatus: poleResponse,
-        updated_at: savedAt,
+        updated_at: null,
         errors
     });
 });
@@ -586,62 +585,6 @@ app.get('/api/images/latest', async (req, res) => {
 });
 
 
-/* Accepts base64 JPEG data URIs from the dashboard client and writes them
-** to disk as static JPEG files so the browser can load them by URL on
-** subsequent visits without hitting the database.
-**
-** Writes to:
-**   <project root>/images/Pole1Image.jpg
-**   <project root>/images/Pole2Image.jpg
-**
-** The client calls this after receiving images from /api/images/latest
-** or /api/imagerequest.
-**
-** Body (JSON): { images: [dataUri|null, dataUri|null] }
-**   dataUri format: "data:image/jpeg;base64,<b64data>"
-**
-** Returns: { saved: [string] }  — list of filenames successfully written
-*/
-app.post('/api/images/save', (req, res) => {
-    const { images } = req.body;
-
-    if (!Array.isArray(images) || images.length === 0) {
-        return res.status(400).json({ error: 'images array required' });
-    }
-
-    const filenames = ['Pole1Image.jpg', 'Pole2Image.jpg'];
-    const imagesDir = path.join(ROOT, 'images');
-    const saved     = [];
-
-    images.forEach((dataUri, i) => {
-        if (!dataUri || typeof dataUri !== 'string') return;
-
-        const filename = filenames[i];
-        if (!filename) return;
-
-        // Strip the data URI prefix and decode to raw bytes
-        const base64Data = dataUri.replace(/^data:image\/\w+;base64,/, '');
-        const buffer      = Buffer.from(base64Data, 'base64');
-        const filePath    = path.join(imagesDir, filename);
-
-        try {
-            fs.writeFileSync(filePath, buffer);
-            saved.push(filename);
-            console.log(`[Images] Saved ${filename} (${buffer.length} bytes)`);
-        } catch (err) {
-            if (showErrorMsgs) console.error(`[Images] Failed to write ${filename}:`, err.message);
-            else if (showErrors) console.error(`[Images] Failed to write ${filename}`);
-        }
-    });
-
-    if (saved.length === 0) {
-        return res.status(500).json({ error: 'No images could be written to disk' });
-    }
-
-    res.json({ saved });
-});
-
-
 /* Requests images from the RIPPLE system via MQTT, then reads the assembled
 ** images from the MySQL database once the broker signals completion.
 **
@@ -657,7 +600,7 @@ app.post('/api/images/save', (req, res) => {
 ** Returns: { images: string[] } — base64 data URIs, one per pole
 */
 app.get('/api/imagerequest', async (req, res) => {
-    const IMAGE_TIMEOUT = 120000;   // 2 minutes for the DB write to complete
+    const IMAGE_TIMEOUT = 300000;   // 5 minutes for the DB write to complete
 
     console.log('[Image] Publishing image request to RIPPLE system');
     client.publish(pubImageRequestTopic, 'IMAGE REQUEST', { qos: 1 });
@@ -670,7 +613,7 @@ app.get('/api/imagerequest', async (req, res) => {
     const dbReady = await new Promise((resolve) => {
         const timer = setTimeout(() => {
             client.removeListener('message', onStatusMessage);
-            console.error('[Image] Timed out waiting for DB-complete signal');
+            console.error(`[Image] Timed out after ${IMAGE_TIMEOUT / 1000 / 60} Minutes waiting for DB-complete signal`);
             resolve(false);
         }, IMAGE_TIMEOUT);
 
@@ -715,28 +658,6 @@ app.get('/api/imagerequest', async (req, res) => {
 
     console.log(`[Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
     console.log(`[Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
-
-    // ── Cache images in pole_images for dashboard reload ─────────────────────
-    // const insertPromises = images.map((dataUri, i) => {
-    //     if (!dataUri) return Promise.resolve();     // skip missing images
-    //     return new Promise((resolve) => {
-    //         db.query(
-    //             `INSERT INTO ${TABLE_POLE_IMAGES} (pole_id, image_data) VALUES (?, ?)`,
-    //             [i + 1, dataUri],
-    //             (err) => {
-    //                 if (err) {
-    //                     if (showErrorMsgs) console.error(`[DB] Failed to cache image for pole ${i + 1}:`, err);
-    //                     else if (showErrors) console.error(`[DB] Failed to cache image for pole ${i + 1}`);
-    //                 } else {
-    //                     console.log(`[DB] Pole ${i + 1} image cached in ${TABLE_POLE_IMAGES}`);
-    //                 }
-    //                 resolve();
-    //             }
-    //         );
-    //     });
-    // });
-
-    // await Promise.all(insertPromises);
 
     res.json({ images });
 });

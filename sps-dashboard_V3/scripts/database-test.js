@@ -91,45 +91,9 @@ app.get('/api/data', (req, res) => {
     }]);
 });
 
-// Mirrors /api/ping/status — DB-only health check (used by 10-second interval)
-// Always reports infrastructure healthy and returns a mock "all poles up" status.
-app.get('/api/ping/status', (req, res) => {
-    res.json({
-        success:    true,
-        mysql:      true,
-        mqtt:       true,
-        mainPole:   true,
-        secPole:    true,
-        warnPole:   true,
-        poleStatus: '111',
-        updated_at: new Date().toISOString()
-    });
-});
-
-// Mirrors /api/ping/full — active pole ping (used by Ping button only)
-// Simulates a 1-second pole response then returns all-poles-up.
-app.get('/api/ping/full', async (req, res) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));  // simulate pole round-trip
-    res.json({
-        success:    true,
-        mysql:      true,
-        mqtt:       true,
-        mainPole:   true,
-        secPole:    true,
-        warnPole:   true,
-        poleStatus: '111',
-        updated_at: new Date().toISOString()
-    });
-});
-
-// Mirrors /api/polestatus/latest — returns the most recent saved pole status
-app.get('/api/polestatus/latest', (req, res) => {
-    res.json({ poleStatus: '111', updated_at: new Date().toISOString() });
-});
-
-// Mirrors /api/images/latest — returns empty (no saved images in test mode)
-app.get('/api/images/latest', (req, res) => {
-    res.json({ images: [] });
+// Mirrors /api/ping — always reports both services healthy
+app.get('/api/ping', (req, res) => {
+    res.json({ success: true, mysql: true, mqtt: true });
 });
 
 const PORT = 80;

@@ -96,13 +96,13 @@
             </div>
             
             <div class="image-controls">
-                <button class="image-selector-btn active" data-image="images/LocationImage.jpg">
+                <button class="image-selector-btn active" data-image="images/LocationImage.jpg" onclick="changeImage('images/LocationImage.jpg')">
                     <span class="btn-label">Location</span>
                 </button>
-                <button class="image-selector-btn" data-image="images/Pole1Image.jpg">
+                <button class="image-selector-btn" data-image="images/Pole1Image.jpg" onclick="changeImage('images/Pole1Image.jpg')">
                     <span class="btn-label">Pole 1</span>
                 </button>
-                <button class="image-selector-btn" data-image="images/Pole2Image.jpg">
+                <button class="image-selector-btn" data-image="images/Pole2Image.jpg" onclick="changeImage('images/Pole2Image.jpg')">
                     <span class="btn-label">Pole 2</span>
                 </button>
             </div>
@@ -139,18 +139,9 @@
         </section>
     </div>
     <!-- Load JavaScript modules in order -->
-    <!-- globals and settings must be first — all other modules depend on them -->
     <script src="scripts/settings.js"></script>
-    <script src="scripts/globals.js"></script>
-    <!-- Function modules (order within this group does not matter) -->
-    <script src="scripts/alarm.js"></script>
-    <script src="scripts/flood.js"></script>
-    <script src="scripts/data.js"></script>
-    <script src="scripts/ping.js"></script>
-    <script src="scripts/images.js"></script>
     <script src="scripts/chart.js"></script>
-    <!-- Entry point — must come after all function modules -->
-    <script src="scripts/dashboard.main.js"></script>
+    <script src="scripts/dashboard.js"></script>
     <script src="scripts/navigation.js"></script>
 </body>
 </html>

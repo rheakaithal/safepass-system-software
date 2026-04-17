@@ -1,0 +1,42 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Circle -->
+    <defs>
+        <radialGradient id="warningGradient">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.15"/>
+        </radialGradient>
+    </defs>
+    
+    <circle cx="100" cy="100" r="95" fill="url(#warningGradient)"/>
+    <circle cx="100" cy="100" r="95" fill="none" stroke="#f59e0b" stroke-width="3"/>
+    
+    <!-- Inner Circle -->
+    <circle cx="100" cy="100" r="75" fill="#f59e0b" opacity="0.15"/>
+    
+    <!-- Warning Triangle -->
+    <g transform="translate(100, 80)">
+        <!-- Triangle background -->
+        <path d="M 0,-28 L 26,20 L -26,20 Z" fill="#fbbf24" opacity="0.9"/>
+        <path d="M 0,-28 L 26,20 L -26,20 Z" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        
+        <!-- Exclamation mark -->
+        <rect x="-3" y="-12" width="6" height="18" rx="2" fill="#78350f"/>
+        <circle cx="0" cy="12" r="3.5" fill="#78350f"/>
+    </g>
+    
+    <!-- Water drops rising -->
+    <g opacity="0.6">
+        <!-- Drop 1 -->
+        <path d="M 70,135 C 65,130 63,125 63,120 C 63,113 67,108 73,108 C 79,108 83,113 83,120 C 83,125 81,130 76,135 C 74,137 72,137 70,135 Z" 
+              fill="#f59e0b"/>
+        
+        <!-- Drop 2 -->
+        <path d="M 120,145 C 115,140 113,135 113,130 C 113,123 117,118 123,118 C 129,118 133,123 133,130 C 133,135 131,140 126,145 C 124,147 122,147 120,145 Z" 
+              fill="#f59e0b"/>
+    </g>
+    
+    <!-- Status Text -->
+    <text x="100" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#f59e0b">
+        WARNING
+    </text>
+</svg>

@@ -7,6 +7,7 @@
 ** contentDescription
 */
 
+let doHeartBeat = false;
 
 //Creates global variables
 let chartUpdateInterval = null;
@@ -337,9 +338,20 @@ async function updatePoleData() {
         const pole2Lvl = document.getElementById("pole2-lvl");
         const unitLabel = getUnitLabel();
         
-        if (pole1Lvl) pole1Lvl.textContent = `${convertDistance(pole1WaterLevel)} ${unitLabel}`;
-        if (pole2Lvl) pole2Lvl.textContent = `${convertDistance(pole2WaterLevel)} ${unitLabel}`;
-
+        if (pole1Lvl) {
+           if(pole1WaterLevel < 1.0) {
+                pole1Lvl.textContent = `Less Than ${convertDistance(1)} ${unitLabel}`;
+           } else {
+                pole1Lvl.textContent = `${convertDistance(pole1WaterLevel)} ${unitLabel}`;
+           }
+        }
+        if (pole2Lvl) {
+            if (pole2WaterLevel < 1.0) {
+                pole2Lvl.textContent = `Less Than ${convertDistance(1)} ${unitLabel}`;
+            } else {
+                pole2Lvl.textContent = `${convertDistance(pole2WaterLevel)} ${unitLabel}`;
+            }
+        }
         // Update pole status images (uses inches internally)
         updatePoleStatus('pole1-image', pole1WaterLevel, settings.warningThreshold, settings.criticalThreshold);
         updatePoleStatus('pole2-image', pole2WaterLevel, settings.warningThreshold, settings.criticalThreshold);
@@ -488,11 +500,15 @@ function initializeImageButtons() {
 */
 function initializePingButton() {
     const pingButton = document.querySelector('.ping-button');
+    const imageRequestButton = document.getElementById('image-request-button');
+
     if (!pingButton) return;
 
     pingButton.addEventListener('click', async () => {
         pingButton.disabled = true;
+        imageRequestButton.disable = true;
         pingButton.style.opacity = '0.6';
+        imageRequestButton.style.opacity = '0.6';
         try {
             setIndicatorState('overall-indicator',     'systemStatus',  'checking', 'Checking...');
             setIndicatorState('pole-status-indicator', 'poleStatusText','checking', 'Checking...');
@@ -502,7 +518,9 @@ function initializePingButton() {
             console.error('Ping Failed:', err);
         } finally {
             pingButton.disabled = false;
+            imageRequestButton.diable = false;
             pingButton.style.opacity = '1.0';
+            imageRequestButton.style.opacity = '1.0';
         }
     });
 }/* initializePingButton() */
@@ -720,7 +738,7 @@ function updateHealthDisplay(status) {
             console.error('[Health] Main Sensor Pole is offline');
             setIndicatorState('overall-indicator', 'systemStatus', 'offline', 'Main Pole is Unreachable');
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'offline', 'Offline');
-        } else if(!status.secPole && status.warnPole){
+        } else if(!status.secPole && !status.warnPole){
             console.error('[Health] Secondary Sensor Pole and Warning Pole is offline');
             setIndicatorState('overall-indicator', 'systemStatus', 'warning', 'Secondary and Warning Pole are Unreachable');
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'warning', 'Degraded');
@@ -843,6 +861,7 @@ function trimOldData(dataArray) {
 */
 function initializeImageRequestButton() {
     const imageRequestButton = document.getElementById('image-request-button');
+    const pingButton = document.querySelector('.ping-button');
     if (!imageRequestButton) {
         console.warn('[Images] Image request button element not found in DOM');
         return;
@@ -850,13 +869,15 @@ function initializeImageRequestButton() {
 
     imageRequestButton.addEventListener('click', async () => {
         imageRequestButton.disabled = true;
+        pingButton.disabled = true;
         imageRequestButton.style.opacity = '0.6';
+        pingButton.style.opacity = '0.6';
         console.info('[Images] Image request sent to RIPPLE system — awaiting response...');
 
         try {
             // 2-minute timeout — image transfer can be slow over MQTT
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 125000);
+            const timeout = setTimeout(() => controller.abort(), 300000);
 
             const response = await fetch('/api/imagerequest', { signal: controller.signal });
             clearTimeout(timeout);
@@ -921,49 +942,13 @@ function initializeImageRequestButton() {
             }
         } finally {
             imageRequestButton.disabled = false;
+            pingButton.disabled = false;
             imageRequestButton.style.opacity = '1';
+            pingButton.style.opacity = '1';
             console.info('[Images] Image request button re-enabled');
         }
     });
 }/* initializeImageRequestButton() */
-
-
-/* Loads the most recently saved pole status from the database and applies it
-** to the health display indicators on startup, so the last known state is
-** shown immediately before the user manually pings.
-** Parameters:
-**     None
-** Return:
-**     None (async)
-*/
-async function loadSavedPoleStatus() {
-    try {
-        const response = await fetch('/api/polestatus/latest');
-        if (!response.ok) {
-            console.warn('[Init] Could not fetch saved pole status — server returned', response.status);
-            return;
-        }
-
-        const result = await response.json();
-        if (!result.status) {
-            console.info('[Init] No saved pole status found in database');
-            return;
-        }
-
-        const { mainPole, secPole, warnPole } = parsePoleStatus(result.status);
-
-        console.info(
-            `[Init] Loaded saved pole status: "${result.status}" (as of ${result.updated_at}) ` +
-            `— Main: ${mainPole}, Sec: ${secPole}, Warn: ${warnPole}`
-        );
-
-        // mysql/mqtt marked true because the DB responded to deliver this row
-        updateHealthDisplay({ mysql: true, mqtt: true, mainPole, secPole, warnPole });
-
-    } catch (error) {
-        console.warn('[Init] Failed to load saved pole status:', error);
-    }
-}/* loadSavedPoleStatus() */
 
 
 /* Loads the most recently saved images from the database and populates the
@@ -1068,10 +1053,6 @@ async function initializeDashboard() {
 
     // Load persisted state from DB so the UI shows last-known values
     // immediately — before the first live poll or manual ping completes.
-    // await Promise.all([
-    //     //loadSavedPoleStatus(),
-    //     loadSavedImages(),
-    // ]);
     await loadSavedImages()
 
     // Initial Data (async — listeners are already live by this point)
@@ -1090,8 +1071,10 @@ async function initializeDashboard() {
     // The DB is kept current by the server's persistent MQTT listener which
     // saves every broker-pushed status update automatically.
     checkSystemHealth()
-    setInterval(checkSystemHealth, 10000);
-    console.info('[Init] DB health poll interval set to 10s');
+    if(doHeartBeat){
+        setInterval(checkSystemHealth, 10000);
+        console.info('[Init] DB health poll interval set to 10s');
+    }
 
     console.info('[Init] Dashboard ready');
 }/* initializeDashboard() */

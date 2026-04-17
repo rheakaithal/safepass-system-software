@@ -2,7 +2,7 @@
 ** Safe Pass Systems - RIPPLE
 ** Emergency Service Dashboard
 ** Author: Parker Williamson
-** File: response-test.js
+** File: database.js
 ** --------
 ** Contains the code for the backend server for the ems dashboard
 */
@@ -45,8 +45,7 @@ const pubImageRequestTopic = process.env.MQTT_PUB_IMAGE_REQUEST;
 const pubPingRequestTopic  = process.env.MQTT_PUB_PING_REQUEST;
 const pubPingTopic  = process.env.MQTT_PING;
 
-// Image status signal — broker publishes "1" here when DB write is complete
-const subImageStatusTopic  = process.env.MQTT_SUB_IMAGE_STATUS;
+const subImageRequestTopic = process.env.MQTT_SUB_IMAGE_RESULT;
 const subPingRequestTopic  = process.env.MQTT_SUB_PING_RESULT;
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -69,8 +68,8 @@ client.on('connect', () => {
     mqttConnected = true;
     console.log('Connected to MQTT');
 
-    client.subscribe([subImageStatusTopic], () => {
-        console.log(`Subscribe to topic '${subImageStatusTopic}'`);
+    client.subscribe([subImageRequestTopic], () => {
+        console.log(`Subscribe to topic '${subImageRequestTopic}'`);
     });
     client.subscribe([subPingRequestTopic], () => {
         console.log(`Subscribe to topic '${subPingRequestTopic}'`);
@@ -85,8 +84,8 @@ console.log('Running Test Code...');
 
 client.on('message', (topic, message) => {
     console.log('Message Received\n');
-    if(topic === subImageStatusTopic){
-        console.log(`[Image Status] DB-complete signal received on ${topic}\nPayload: ${message.toString()}\nType: ${typeof(message)}`);
+    if(topic === subImageRequestTopic){
+        console.log(`[Image Req] Image data received on ${topic}\nPayload: ${message}\nType: ${typeof(message)}`);
     }
     else if(topic === subPingRequestTopic){
         console.log(`[Ping Req] Ping results received on ${topic}\nPayload: ${message}\nType: ${typeof(message)}`);
