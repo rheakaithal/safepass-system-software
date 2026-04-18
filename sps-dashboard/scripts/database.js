@@ -13,21 +13,22 @@ const cors = require('cors');
 const mqtt = require('mqtt');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, 'ripple.env') });
 const app = express();
 
 const showErrors = false;
 const showErrorMsgs = false;
 
+console.log("Error Reporting:")
 if(showErrors) {
-    console.log("Showing Errors");
+    console.log("\tShowing Errors");
 } else {
-    console.log("Not Showing Errors");
+    console.log("\tNot Showing Errors");
 }
 if(showErrorMsgs) {
-    console.log("Showing Error Messages");
+    console.log("\tShowing Error Messages");
 } else {
-    console.log("Not Showing Error Messages");
+    console.log("\tNot Showing Error Messages");
 }
 
 // Project root is one level up from the scripts folder
@@ -771,4 +772,12 @@ function startCountdown(label, totalMs, intervalMs = 1000) {
     };
 }
 
-app.listen(WEBSITEPORT, () => console.log(`Server running at http://localhost:${WEBSITEPORT}`));
+app.listen(WEBSITEPORT, () => {
+    console.log('');
+    console.log('================================================');
+    console.log('  RIPPLE Dashboard — Live');
+    console.log('================================================');
+    console.log('');
+    console.log(`Server running at http://localhost:${WEBSITEPORT}`);
+    console.log('');
+});

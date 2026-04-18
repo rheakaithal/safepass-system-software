@@ -45,6 +45,54 @@ const CACHE_META_KEY = 'ripple_images_meta';
 const IMG_BTN_STATE_KEY = 'ripple_img_btn_disabled';
 const IMG_BTN_STATE_TIME_KEY = 'ripple_img_btn_disabled_time';
 
+/* Validates that a base64 data URI is a real JPEG by checking its magic bytes.
+** Every valid JPEG file begins with the hex sequence FF D8 FF regardless of
+** content, so decoding just the first 3 bytes is enough to confirm the format.
+** Parameters:
+**     string dataUri  e.g. "data:image/jpeg;base64,/9j/4AAQ..."
+** Return:
+**     boolean  true if the data URI is a valid JPEG, false otherwise
+*/
+function isValidJpeg(dataUri) {
+    if (!dataUri || typeof dataUri !== 'string') return false;
+
+    // Must be a data URI with a base64 payload
+    const match = dataUri.match(/^data:image\/\w+;base64,(.+)$/);
+    if (!match) return false;
+
+    try {
+        // Decode only the first 4 base64 chars — enough to get 3 raw bytes
+        const raw = atob(match[1].slice(0, 4));
+        // JPEG magic bytes: FF D8 FF
+        return raw.charCodeAt(0) === 0xFF &&
+               raw.charCodeAt(1) === 0xD8 &&
+               raw.charCodeAt(2) === 0xFF;
+    } catch (_) {
+        return false;
+    }
+}/* isValidJpeg() */
+
+
+/* Filters an image array, replacing any invalid or non-JPEG entries with null.
+** Logs a warning for each image that fails validation.
+** Parameters:
+**     array images  [pole1DataUri|null, pole2DataUri|null]
+** Return:
+**     array  same length, invalid entries replaced with null
+*/
+function validateImages(images) {
+    return images.map((img, i) => {
+        if (!img) return null;
+        if (!isValidJpeg(img)) {
+            console.warn(`[Images] Pole ${i + 1} image failed JPEG validation — discarding`);
+            return null;
+        }
+        console.info(`[Images] Pole ${i + 1} image passed JPEG validation`);
+        return img;
+    });
+}/* validateImages() */
+
+
 /* Sets the main image viewer <img> to the given src (file path or data URI).
 ** Parameters:
 **     string src
@@ -203,10 +251,19 @@ async function loadSavedImages() {
             return;
         }
 
-        console.info(`[Images] Received images from database — saving to disk...`);
+        console.info(`[Images] Received images from database — validating...`);
+
+        // Validate JPEG magic bytes before writing to disk
+        const validatedImages = validateImages(images);
+        if (!validatedImages[0] && !validatedImages[1]) {
+            console.warn('[Images] All images failed JPEG validation — aborting save');
+            return;
+        }
+
+        console.info(`[Images] Validation passed — saving to disk...`);
 
         // Write to disk so next load uses the fast path
-        const saved = await saveImagesToDisk(images);
+        const saved = await saveImagesToDisk(validatedImages);
 
         if (saved.length > 0) {
             markImagesAsFresh(saved);
@@ -321,16 +378,24 @@ function initializeImageRequestButton() {
                 return;
             }
 
-            console.info(`[Images] Received ${images.filter(Boolean).length} image(s) from RIPPLE system`);
+            console.info(`[Images] Received ${images.filter(Boolean).length} image(s) from RIPPLE system — validating...`);
 
-            const saved = await saveImagesToDisk(images);
+            // Validate JPEG magic bytes before writing to disk
+            const validatedImages = validateImages(images);
+            if (!validatedImages[0] && !validatedImages[1]) {
+                console.warn('[Images] All images failed JPEG validation — aborting save');
+                _enableActionButtons(pingButton, imageButton);
+                return;
+            }
+
+            const saved = await saveImagesToDisk(validatedImages);
 
             if (saved.length > 0) {
                 markImagesAsFresh(saved);
                 _applyImagesToButtons([POLE1_IMAGE_PATH, POLE2_IMAGE_PATH]);
             } else {
                 console.warn('[Images] Disk save failed — displaying images from memory (will not persist)');
-                _applyImagesToButtons(images);
+                _applyImagesToButtons(validatedImages);
             }
 
             _enableActionButtons(pingButton, imageButton);
@@ -343,4 +408,4 @@ function initializeImageRequestButton() {
             }
         }
     });
-}/* initializeImageRequestButton() *//* initializeImageRequestButton() */
+}/* initializeImageRequestButton() */

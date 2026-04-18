@@ -181,18 +181,23 @@
 }
 
 .image-viewer {
-    flex: 1;
+    height: 400px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: var(--spacing-lg);
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    overflow: hidden;
 }
 
 .live-image {
-    width: 100%;
+    min-width: 100px;
+    max-width: 100%;
+    min-height: 100px;
+    max-height: 100%;
+    width: auto;
     height: auto;
-    max-height: 500px;
     object-fit: contain;
     border-radius: var(--border-radius-sm);
     box-shadow: var(--shadow-lg);
