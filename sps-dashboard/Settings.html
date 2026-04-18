@@ -37,15 +37,16 @@
                         </div>
                     </div>
 
-                    <h3 style="margin-bottom: var(--spacing-md); color: var(--primary-color);">Threshold Settings</h3>
+                    <h3 style="margin-bottom: 4px; color: var(--primary-color);">Threshold Settings</h3>
+                    <p style="margin-left: 28px; margin-top: 0px; color: var(--text-secondary); font-size: 13px; margin-bottom: var(--spacing-md);">Only effects dashboard. Will not change field threshold levels.</p>
                     <div style="margin-bottom: var(--spacing-lg);">
                         <div style="margin-bottom: var(--spacing-md);">
                             <label id="warningLabel" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Warning Level (inches)</label>
-                            <input id="warningInput" type="number" value="3.0" step="0.1" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                            <input id="warningInput" type="number" value="3.0" step="0.1" min="0" max="12" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
                         </div>
                         <div style="margin-bottom: var(--spacing-md);">
                             <label id="criticalLabel" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Critical Level (inches)</label>
-                            <input id="criticalInput" type="number" value="6.0" step="0.1" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                            <input id="criticalInput" type="number" value="6.0" step="0.1" min="0" max="12" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
                         </div>
                     </div>
 
@@ -97,7 +98,20 @@
                             </p>
                         </div>
                     </div>
-
+                    <!-- ── Button Lock Reset ─────────────────────────────────────────── -->
+                    <div class="settings-section" style="margin-bottom: var(--spacing-lg);">
+                        <h3 class="settings-section-title" style="margin-bottom: var(--spacing-md); color: var(--primary-color);">Action Button Reset</h3>
+                        <p class="settings-description" style="margin-left: 28px; color: var(--text-secondary); font-size: 13px; margin-top: 4px;">
+                            If the Ping or Image Request buttons are stuck as disabled after a timeout,
+                            use this to manually unlock them.
+                        </p>
+                        <div class="settings-row">
+                            <button id="resetButtonLocks" type="button" style="margin-top: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer; font-size: 13px;">
+                                Reset Button Locks
+                            </button>
+                            <span id="resetButtonLocksStatus" style="font-size: 13px; color: #64748b;"></span>
+                        </div>
+                    </div>
                     <button id='saveSettings' style="padding: var(--spacing-md) var(--spacing-xl); background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 600; cursor: pointer;">
                         Save Settings
                     </button>
@@ -112,9 +126,9 @@
                 <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
                     <label style="font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap;">Log Level</label>
                     <select id="diagnostic-level" style="padding: 4px 8px; font-size: 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); background: var(--bg-secondary); cursor: pointer;">
-                        <option value="info" selected>All (Info + Warn + Error)</option>
+                        <option value="info">All (Info + Warn + Error)</option>
                         <option value="warn">Warn + Error</option>
-                        <option value="error">Error Only</option>
+                        <option value="error" selected>Error Only</option>
                     </select>
                     <button id="diagnostic-copy" style="padding: 4px 10px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer;">&#x2398; Copy</button>
                     <button id="diagnostic-clear" style="padding: 4px 10px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer;">&#x2715; Clear</button>

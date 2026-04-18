@@ -176,12 +176,11 @@ function initializeChart() {
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
+                            if (label) label += ': ';
                             const inches = context.parsed.y;
-                            const converted = convertDistance(inches);
-                            label += converted + ' ' + unitLabel;
+                            // ── Read unit live so tooltip reflects current setting ──────────
+                            const currentUnit = getUnitLabel();
+                            label += convertDistance(inches) + ' ' + currentUnit;
                             return label;
                         }
                     }
@@ -234,8 +233,9 @@ function initializeChart() {
                     ticks: {
                         color: '#64748b',
                         callback: function(value) {
-                            const converted = convertDistance(value);
-                            return converted + ' ' + unitLabel;
+                            // Read from settings live so unit changes reflect immediately
+                            const currentUnit = getUnitLabel();
+                            return convertDistance(value) + ' ' + currentUnit;
                         }
                     },
                     grid: {
@@ -257,6 +257,8 @@ function initializeChart() {
     // Setup pole selector
     setupPoleSelector();
 
+    // Fix Time range
+    updateChartTimeRange();
     console.info('[Chart] Chart initialized successfully');
 }/* initializeChart() */
 

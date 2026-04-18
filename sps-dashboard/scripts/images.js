@@ -42,7 +42,8 @@ const POLE2_IMAGE_PATH = 'images/Pole2Image.jpg';
 
 // localStorage key — stores only metadata (timestamp + filenames), not image data
 const CACHE_META_KEY = 'ripple_images_meta';
-
+const IMG_BTN_STATE_KEY = 'ripple_img_btn_disabled';
+const IMG_BTN_STATE_TIME_KEY = 'ripple_img_btn_disabled_time';
 
 /* Sets the main image viewer <img> to the given src (file path or data URI).
 ** Parameters:
@@ -179,8 +180,9 @@ async function loadSavedImages() {
     console.info('[Images] No disk images on record — fetching from database...');
 
     try {
+        const loadImageTimeout = remoteConfig.LOAD_IMAGE_TIMEOUT;
         const controller = new AbortController();
-        const timeout    = setTimeout(() => controller.abort(), 10000);
+        const timeout    = setTimeout(() => controller.abort(), loadImageTimeout +  1000);
 
         const response = await fetch('/api/images/latest', { signal: controller.signal });
         clearTimeout(timeout);
@@ -280,28 +282,33 @@ function _applyImagesToButtons(sources) {
 **     None
 */
 function initializeImageRequestButton() {
-    const btn = document.getElementById('image-request-button');
-    if (!btn) {
+    const pingButton  = document.querySelector('.ping-button');
+    const imageButton = document.getElementById('image-request-button');
+    if (!imageButton) {
         console.warn('[Images] Image request button not found in DOM');
         return;
     }
 
-    btn.addEventListener('click', async () => {
-        btn.disabled      = true;
-        btn.style.opacity = '0.6';
+    // ── Restore button state on load ──────────────────────────────────────────
+    _restoreButtonDisabledState(pingButton, imageButton);
+
+    imageButton.addEventListener('click', async () => {
+        _disableActionButtons(pingButton, imageButton);
+
         console.info('[Images] Image request sent to RIPPLE system — awaiting response...');
 
         try {
-            // Allow 2 minutes — the DB write can be slow over MQTT
+            const imageRequestTimeout = remoteConfig.IMAGE_REQUEST_TIMEOUT;
             const controller = new AbortController();
-            const timeout    = setTimeout(() => controller.abort(), 125000);
+            const abortTimer = setTimeout(() => controller.abort(), imageRequestTimeout + 1000);
 
             const response = await fetch('/api/imagerequest', { signal: controller.signal });
-            clearTimeout(timeout);
+            clearTimeout(abortTimer);
 
             if (!response.ok) {
                 const err = await response.json().catch(() => ({}));
                 console.error(`[Images] Server returned ${response.status}: ${err.error ?? 'unknown error'}`);
+                _enableActionButtons(pingButton, imageButton);
                 return;
             }
 
@@ -310,33 +317,30 @@ function initializeImageRequestButton() {
 
             if (images.length === 0 || (!images[0] && !images[1])) {
                 console.warn('[Images] Response contained no images');
+                _enableActionButtons(pingButton, imageButton);
                 return;
             }
 
             console.info(`[Images] Received ${images.filter(Boolean).length} image(s) from RIPPLE system`);
 
-            // Save to disk and update the viewer
             const saved = await saveImagesToDisk(images);
 
             if (saved.length > 0) {
                 markImagesAsFresh(saved);
                 _applyImagesToButtons([POLE1_IMAGE_PATH, POLE2_IMAGE_PATH]);
             } else {
-                // Disk save failed — show in viewer from memory as a fallback
                 console.warn('[Images] Disk save failed — displaying images from memory (will not persist)');
                 _applyImagesToButtons(images);
             }
 
+            _enableActionButtons(pingButton, imageButton);
+            console.info('[Images] Image Request Button Re-Enabled');
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('[Images] Image request timed out after 2 minutes');
             } else {
                 console.error('[Images] Image request failed:', error);
             }
-        } finally {
-            btn.disabled      = false;
-            btn.style.opacity = '1';
-            console.info('[Images] Image request button re-enabled');
         }
     });
-}/* initializeImageRequestButton() */
+}/* initializeImageRequestButton() *//* initializeImageRequestButton() */

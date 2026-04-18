@@ -119,6 +119,13 @@
     transform: translateY(0);
 }
 
+/* ── Disabled state for action buttons ───────────────────────────────────── */
+.ping-button.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .ping-icon {
     width: 20px;
     height: 20px;
@@ -241,6 +248,15 @@
     background-color: var(--bg-hover);
     border-color: var(--primary-color);
     color: var(--primary-color);
+}
+
+.image-request-button.btn-disabled {
+    background-color: #94a3b8;   /* darkened grey — visibly inactive */
+    border-color: #94a3b8;
+    color: #475569;
+    cursor: not-allowed;
+    pointer-events: none;
+    /* No opacity change — button stays fully visible, just clearly inactive */
 }
 
 .button-icon {

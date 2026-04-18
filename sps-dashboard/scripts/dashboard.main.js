@@ -35,6 +35,9 @@
 async function initializeDashboard() {
     console.info('[Init] Dashboard initializing...');
 
+    // ── 0. Load remote config FIRST ───────────────────────────────────────────
+    await loadRemoteConfig();
+    
     // ── 1. Settings ───────────────────────────────────────────────────────────
     loadSettings();
     console.info(
@@ -102,7 +105,7 @@ function startHeartbeat() {
         heartbeatIntervalHandle = null;
     }
 
-    // Run once immediately so the indicators show current state on load
+    // Run once immediately so the indicators show current state on load'
     checkSystemHealth();
     
     if (!settings.heartbeatEnabled) {

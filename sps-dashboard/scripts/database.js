@@ -390,6 +390,9 @@ app.get('/api/ping/status', async (req, res) => {
 */
 app.get('/api/ping/full', async (req, res) => {
     let errors = [];
+    const hardPingTimeout = process.env.HARD_PING_TIMEOUT;
+
+    const stopCountdown = startCountdown('Pole Ping', hardPingTimeout);
 
     // --- MySQL liveness check ---
     const mysqlStatus = await new Promise((resolve) => {
@@ -399,7 +402,7 @@ app.get('/api/ping/full', async (req, res) => {
 
         db.query('SELECT 1', (err) => {
             clearTimeout(timer);
-            if (err) { mysqlConnected = false; resolve(false); }
+            if (err) { mysqlConnected = false; stopCountdown(); resolve(false); }
             else     { mysqlConnected = true;  resolve(true);  }
         });
     });
@@ -427,6 +430,7 @@ app.get('/api/ping/full', async (req, res) => {
 
     if (!mysqlStatus || !mqttStatus) {
         mqttConnected = mqttStatus;
+        stopCountdown();
         return res.status(500).json({
             success: false,
             mysql:   mysqlStatus,
@@ -440,7 +444,7 @@ app.get('/api/ping/full', async (req, res) => {
     // 3-character binary status string. The persistent listener above will
     // also catch this response and save it to the database automatically.
     const poleResponse = await new Promise((resolve) => {
-        const timer = setTimeout(() => resolve(null), 15000);
+        const timer = setTimeout(() => resolve(null), hardPingTimeout - 6000);
 
         // One-shot listener — removes itself after the first valid response
         // so it doesn't accumulate across repeated button presses
@@ -450,12 +454,15 @@ app.get('/api/ping/full', async (req, res) => {
             if (!/^[01]{3}$/.test(raw)) return;  // ignore malformed messages
             clearTimeout(timer);
             client.removeListener('message', onMessage);
+            stopCountdown();
             resolve(raw);
         };
 
         client.on('message', onMessage);
         client.publish(pubPingRequestTopic, 'PING REQUEST', { qos: 1 });
     });
+
+    const savedAt = Date.now();
 
     if (!poleResponse) {
         errors.push('Main pole did not respond within 45 seconds');
@@ -469,7 +476,7 @@ app.get('/api/ping/full', async (req, res) => {
             secPole:    null,
             warnPole:   null,
             poleStatus: '000',
-            updated_at: null,
+            updated_at: savedAt,
             errors
         });
     }
@@ -657,7 +664,7 @@ app.post('/api/images/save', (req, res) => {
 ** Returns: { images: string[] } — base64 data URIs, one per pole
 */
 app.get('/api/imagerequest', async (req, res) => {
-    const IMAGE_TIMEOUT = 120000;   // 2 minutes for the DB write to complete
+    const imageRequestTimeout = process.env.IMAGE_REQUEST_TIMEOUT;   // timeout for the DB write to complete
 
     console.log('[Image] Publishing image request to RIPPLE system');
     client.publish(pubImageRequestTopic, 'IMAGE REQUEST', { qos: 1 });
@@ -667,12 +674,16 @@ app.get('/api/imagerequest', async (req, res) => {
     // subImageStatusTopic. We wait for that signal before querying the DB.
     console.log(`[Image] Waiting for DB-complete signal on "${subImageStatusTopic}"...`);
 
+    // ── Start single-line countdown ───────────────────────────────────────────
+    const stopCountdown = startCountdown('Image Request', imageRequestTimeout);
+
     const dbReady = await new Promise((resolve) => {
         const timer = setTimeout(() => {
             client.removeListener('message', onStatusMessage);
+            stopCountdown(); // clears the line
             console.error('[Image] Timed out waiting for DB-complete signal');
             resolve(false);
-        }, IMAGE_TIMEOUT);
+        }, imageRequestTimeout);
 
         const onStatusMessage = (topic, message) => {
             if (topic !== subImageStatusTopic) return;
@@ -680,6 +691,7 @@ app.get('/api/imagerequest', async (req, res) => {
             if (payload !== '1') return;    // ignore any other payloads on this topic
             clearTimeout(timer);
             client.removeListener('message', onStatusMessage);
+            stopCountdown(); // clears the line
             console.log('[Image] DB-complete signal received');
             resolve(true);
         };
@@ -716,30 +728,47 @@ app.get('/api/imagerequest', async (req, res) => {
     console.log(`[Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
     console.log(`[Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
 
-    // ── Cache images in pole_images for dashboard reload ─────────────────────
-    // const insertPromises = images.map((dataUri, i) => {
-    //     if (!dataUri) return Promise.resolve();     // skip missing images
-    //     return new Promise((resolve) => {
-    //         db.query(
-    //             `INSERT INTO ${TABLE_POLE_IMAGES} (pole_id, image_data) VALUES (?, ?)`,
-    //             [i + 1, dataUri],
-    //             (err) => {
-    //                 if (err) {
-    //                     if (showErrorMsgs) console.error(`[DB] Failed to cache image for pole ${i + 1}:`, err);
-    //                     else if (showErrors) console.error(`[DB] Failed to cache image for pole ${i + 1}`);
-    //                 } else {
-    //                     console.log(`[DB] Pole ${i + 1} image cached in ${TABLE_POLE_IMAGES}`);
-    //                 }
-    //                 resolve();
-    //             }
-    //         );
-    //     });
-    // });
-
-    // await Promise.all(insertPromises);
-
     res.json({ images });
 });
 
+// ── API: Public client config ─────────────────────────────────────────────────
+// Exposes only safe, non-sensitive values from .env to the browser.
+// Never include DB credentials, MQTT passwords, or hostnames here.
+app.get('/api/config', (req, res) => {
+    res.json({
+        SOFT_PING_TIMEOUT:    parseInt(process.env.SOFT_PING_TIMEOUT)    || 10000,
+        HARD_PING_TIMEOUT:    parseInt(process.env.HARD_PING_TIMEOUT)    || 45000,
+        LOAD_IMAGE_TIMEOUT:   parseInt(process.env.LOAD_IMAGE_TIMEOUT)   || 30000,
+        IMAGE_REQUEST_TIMEOUT: parseInt(process.env.IMAGE_REQUEST_TIMEOUT) || 120000,
+    });
+});
+
+/* Starts a single-line countdown timer in the terminal.
+** Uses \r to overwrite the same line on each tick.
+** Parameters:
+**     string label        e.g. 'Image Request' or 'Pole Ping'
+**     int    totalMs      total timeout in milliseconds
+**     int    intervalMs   how often to refresh (default 1000ms)
+** Return:
+**     function  call this to stop the timer early
+*/
+function startCountdown(label, totalMs, intervalMs = 1000) {
+    let remaining = Math.ceil(totalMs / 1000);
+    let startAmount = remaining;
+    const tick = () => {
+        process.stdout.write(`\r[${label}] Waiting... ${remaining}s remaining`);
+        remaining--;
+    };
+
+    tick(); // show immediately
+    const handle = setInterval(tick, intervalMs);
+
+    // Returns a stop function — call it when the operation finishes or times out
+    return () => {
+        clearInterval(handle);
+        // Clear the line cleanly on completion
+        process.stdout.write(`\r[${label}] Done.\n`);
+    };
+}
 
 app.listen(WEBSITEPORT, () => console.log(`Server running at http://localhost:${WEBSITEPORT}`));

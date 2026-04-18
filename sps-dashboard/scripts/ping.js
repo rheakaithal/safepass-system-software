@@ -21,13 +21,13 @@
 **   initializePingButton()
 */
 
-
 // ── Ping state persistence ────────────────────────────────────────────────────
 // The last known health status is stored in localStorage so the ping card
 // shows the previous result immediately on reload instead of staying blank
 // until the first heartbeat fires.
 const PING_STATE_KEY = 'ripple_last_ping_state';
-
+const PING_BTN_STATE_KEY = 'ripple_ping_btn_disabled';
+const PING_BTN_STATE_TIME_KEY = 'ripple_ping_btn_disabled_time';
 
 /* Saves the current health status to localStorage so it survives page reloads.
 ** Stored as a JSON object with the same shape as the status parameter passed
@@ -116,12 +116,12 @@ function parsePoleStatus(raw) {
 */
 function setIndicatorState(indicatorId, textElId, state, text) {
     const indicator = document.getElementById(indicatorId);
-    const textEl    = document.getElementById(textElId);
+    const textEl = document.getElementById(textElId);
 
     const dotColors = {
-        online:   '#22c55e',
-        warning:  '#f59e0b',
-        offline:  '#ef4444',
+        online: '#22c55e',
+        warning: '#f59e0b',
+        offline: '#ef4444',
         checking: '#a3a3a3',
     };
 
@@ -167,8 +167,7 @@ function updateHealthDisplay(status) {
 **     { state: string, overallText: string, poleText: string }
 */
 function resolveHealthDisplayState(status) {
-    const allOnline  = status.mysql && status.mqtt
-                    && status.mainPole && status.secPole && status.warnPole;
+    const allOnline  = status.mysql && status.mqtt && status.mainPole && status.secPole && status.warnPole;
     const allOffline = !status.mysql && !status.mqtt;
 
     if (allOnline) {
@@ -197,7 +196,7 @@ function resolveHealthDisplayState(status) {
 
     if (!status.secPole && !status.warnPole) {
         console.error('[Health] Secondary and warning poles are offline');
-        return { state: 'warning', overallText: 'Secondary & Warning Unreachable', poleText: 'Degraded' };
+        return { state: 'warning', overallText: 'Secondary & Warning Pole Unreachable', poleText: 'Degraded' };
     }
 
     if (!status.secPole) {
@@ -222,8 +221,9 @@ function resolveHealthDisplayState(status) {
 */
 async function checkSystemHealth() {
     try {
+        const softPingTimeout = remoteConfig.SOFT_PING_TIMEOUT;
         const controller = new AbortController();
-        const timeout    = setTimeout(() => controller.abort(), 6000);
+        const timeout    = setTimeout(() => controller.abort(), softPingTimeout + 1000);
 
         const response = await fetch('/api/ping/status', { signal: controller.signal });
         clearTimeout(timeout);
@@ -280,8 +280,9 @@ async function checkSystemHealth() {
 */
 async function pingPoles() {
     try {
+        const hardPingTimeout = remoteConfig.HARD_PING_TIMEOUT;
         const controller = new AbortController();
-        const timeout    = setTimeout(() => controller.abort(), 50000);
+        const timeout    = setTimeout(() => controller.abort(), hardPingTimeout + 1000);
 
         const response = await fetch('/api/ping/full', { signal: controller.signal });
         clearTimeout(timeout);
@@ -335,22 +336,26 @@ async function pingPoles() {
 **     None
 */
 function initializePingButton() {
-    const pingButton = document.querySelector('.ping-button');
+    const pingButton  = document.querySelector('.ping-button');
+    const imageButton = document.getElementById('image-request-button');
     if (!pingButton) return;
 
+    // ── Restore button state on load ──────────────────────────────────────────
+    _restoreButtonDisabledState(pingButton, imageButton);
+
     pingButton.addEventListener('click', async () => {
-        pingButton.disabled      = true;
-        pingButton.style.opacity = '0.6';
+        _disableActionButtons(pingButton, imageButton);
 
         try {
-            setIndicatorState('overall-indicator',     'systemStatus',  'checking', 'Checking...');
-            setIndicatorState('pole-status-indicator', 'poleStatusText','checking', 'Checking...');
+            setIndicatorState('overall-indicator',     'systemStatus',   'checking', 'Checking...');
+            setIndicatorState('pole-status-indicator', 'poleStatusText', 'checking', 'Checking...');
             await pingPoles();
+
+            // ── Only re-enable on clean completion ────────────────────────────
+            _enableActionButtons(pingButton, imageButton);
+
         } catch (err) {
             console.error('[Ping] Button handler error:', err);
-        } finally {
-            pingButton.disabled      = false;
-            pingButton.style.opacity = '1.0';
         }
     });
 }/* initializePingButton() */

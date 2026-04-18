@@ -266,3 +266,10 @@ loadSettings();
 refreshAll();
 // Keep the home page live without hammering the server
 setInterval(refreshAll, 5000);
+
+// Re-render immediately when units change in settings
+window.addEventListener('ripple:settingsChanged', (e) => {
+    if (!e.detail?.changed?.includes('distanceUnits')) return;
+    loadSettings();  // pull new unit into the settings object
+    refreshAll();    // re-render all location cards
+});

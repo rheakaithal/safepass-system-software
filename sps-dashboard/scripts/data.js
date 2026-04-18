@@ -229,3 +229,30 @@ function updateFloodPredictions(p1Level, p2Level) {
     updateTimeToFlood('pole1', ttf1, alarmState.pole1Flooding);
     updateTimeToFlood('pole2', ttf2, alarmState.pole2Flooding);
 }/* updateFloodPredictions() */
+
+// ── Re-render immediately when units change ───────────────────────────────
+window.addEventListener('ripple:settingsChanged', (e) => {
+    if (!e.detail?.changed?.includes('distanceUnits')) return;
+
+    // Pull the new unit from localStorage into the live settings object
+    loadSettings();
+
+    // Re-render badges if we have data
+    if (pole1Data.length && pole2Data.length) {
+        const p1 = pole1Data[pole1Data.length - 1].waterlevel;
+        const p2 = pole2Data[pole2Data.length - 1].waterlevel;
+        updateWaterLevelBadges(p1, p2);
+        updateWarningIcons(p1, p2);
+    }
+
+    // Update y-axis label on the chart
+    if (waterLevelChart) {
+        const unitLabel = getUnitLabel();
+        waterLevelChart.options.scales.y.title.text = `Water Level (${unitLabel})`;
+        // Also update the tick callback so axis values convert correctly
+        waterLevelChart.options.scales.y.ticks.callback = function(value) {
+            return convertDistance(value) + ' ' + unitLabel;
+        };
+        waterLevelChart.update('none');
+    }
+});
