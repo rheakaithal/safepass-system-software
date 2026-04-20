@@ -16,10 +16,10 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, 'ripple.env') });
 const app = express();
 
-const showErrors = false;
+const showErrors = true;
 const showErrorMsgs = false;
 
-console.log("Error Reporting:")
+console.log(" [Server] Error Reporting:")
 if(showErrors) {
     console.log("\tShowing Errors");
 } else {
@@ -84,34 +84,34 @@ let mqttConnected = false;
 
 client.on('connect', () => {
     mqttConnected = true;
-    console.log('Connected to MQTT');
+    console.log(' [MQTT] Connected to MQTT');
 
     client.subscribe([subImageStatusTopic], () => {
-        console.log(`Subscribed to topic '${subImageStatusTopic}'`);
+        console.log(` [MQTT] Subscribed to topic '${subImageStatusTopic}'`);
     });
     client.subscribe([subPingRequestTopic], () => {
-        console.log(`Subscribed to topic '${subPingRequestTopic}'`);
+        console.log(` [MQTT] Subscribed to topic '${subPingRequestTopic}'`);
     });
 });
 
 client.on('disconnect', () => {
     mqttConnected = false;
-    console.log('MQTT disconnected');
+    console.error(' [MQTT] MQTT disconnected');
 });
 
 client.on('offline', () => {
     mqttConnected = false;
-    console.log('MQTT offline');
+    console.log(' [MQTT] MQTT offline');
 });
 
 client.on('error', (err) => {
     mqttConnected = false;
-    if (showErrorMsgs) console.error('MQTT error:', err.message);
-    else if (showErrors) console.error('MQTT error');
+    if (showErrorMsgs) console.error(' [MQTT] MQTT error:', err.message);
+    else if (showErrors) console.error(' [MQTT] MQTT error');
 });
 
 client.on('reconnect', () => {
-    console.log('MQTT reconnecting...');
+    console.log(' [MQTT] MQTT reconnecting...');
 });
 
 /* Persistent top-level MQTT message handler for automatic pole status updates.
@@ -140,20 +140,21 @@ client.on('message', (topic, message) => {
 
     // Validate: must be exactly 3 characters of 0s and 1s
     if (!/^[01]{3}$/.test(raw)) {
-        if (showErrorMsgs) console.error(`[Pole Status] Unexpected format received: "${raw}"`);
+        if (showErrors) console.error(` [Pole Status] Unexpected format received: "${raw}"`);
         return;
     }
 
-    console.log(`[Pole Status] Automatic status update received: "${raw}"`);
+    console.log(` [Pole Status] Automatic status update received: "${raw}"`);
 });
 
 // ── MySQL connection ──────────────────────────────────────────────────────────
 // Config stored separately so createConnection can be called again on reconnect
 const dbConfig = {
-    host:     process.env.DB_HOST,
-    user:     process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    host:            process.env.DB_HOST,
+    user:            process.env.DB_USER,
+    password:        process.env.DB_PASSWORD,
+    database:        process.env.DB_NAME,
+    connectTimeout:  10000      // 10s — forces the callback to fire if the host is unreachable
 };
 
 let db;
@@ -177,21 +178,38 @@ function connectMySQL() {
 
     db.on('error', (err) => {
         mysqlConnected = false;
-        if (showErrorMsgs) console.error('MySQL connection error:', err.message);
-        else if (showErrors) console.error('MySQL connection error');
+        if (showErrorMsgs) console.error(' [MySQL] MySQL connection error:', err.message);
+        else console.error(' [MySQL] MySQL connection error');
         scheduleReconnect();
     });
 
+    // mysql2 silently hangs when the host is unreachable — the connect callback
+    // never fires. This manual timer forces a failure after 10 seconds.
+    let callbackFired = false;
+    const hangTimer = setTimeout(() => {
+        if (!callbackFired) {
+            callbackFired = true;
+            mysqlConnected = false;
+            console.error(` [MySQL] Connect timed out — Database is unreachable`);
+            try { db.destroy(); } catch (_) {}
+            scheduleReconnect();
+        }
+    }, 10000);
+
     db.connect((err) => {
+        if (callbackFired) return;   // hang timer already handled this
+        callbackFired = true;
+        clearTimeout(hangTimer);
+
         if (err) {
             mysqlConnected = false;
-            if (showErrorMsgs) console.error('MySQL connect failed:', err.message);
-            else if (showErrors) console.error('MySQL connect failed');
+            if (showErrorMsgs) console.error(' [MySQL] MySQL connect failed:', err.message);
+            else console.error(' [MySQL] MySQL connect failed');
             scheduleReconnect();
             return;
         }
         mysqlConnected = true;
-        console.log('Connected to MySQL!');
+        console.log(' [MySQL] Connected to MySQL!');
         if (mysqlReconnectTimer) {
             clearTimeout(mysqlReconnectTimer);
             mysqlReconnectTimer = null;
@@ -208,7 +226,7 @@ function connectMySQL() {
 */
 function scheduleReconnect() {
     if (mysqlReconnectTimer) return;
-    console.log('MySQL reconnecting in 5s...');
+    console.log(' [MySQL] MySQL attempting to reconnect in 10s...');
     mysqlReconnectTimer = setTimeout(() => {
         mysqlReconnectTimer = null;
         connectMySQL();
@@ -234,9 +252,11 @@ app.get('/api/initdata', (req, res) => {
         [poleId],
         (err, results) => {
             if (err) {
-                if (showErrorMsgs) console.error('Query error:', err);
-                else if (showErrors) console.error('Query error');
-                return res.status(500).json({ error: 'Query failed' });
+                if (mysqlConnected) {
+                    if (showErrorMsgs) console.error(' [Initial Data] Query error - Failed to get historic data:', err);
+                    else if (showErrors) console.error(' [Initial Data] Query error - Failed to get historic data');
+                }
+                return res.status(500).json({ error: 'Query failed to get historic data' });
             }
             res.json(results);
         }
@@ -255,9 +275,11 @@ app.get('/api/data', (req, res) => {
         [poleID],
         (err, results) => {
             if (err) {
-                if (showErrorMsgs) console.error('Query error:', err);
-                else if (showErrors) console.error('Query error');
-                return res.status(500).send('Error retrieving users');
+                if (mysqlConnected) {
+                    if (showErrorMsgs) console.error(' [Live Data] Query error - Failed to get latest data:', err);
+                    else if (showErrors) console.error(' [Live Data] Query error - Failed to get latest data');
+                }
+                return res.status(500).send('Query failed to get latest data');
             }
             res.json(results);
         }
@@ -391,7 +413,7 @@ app.get('/api/ping/status', async (req, res) => {
 */
 app.get('/api/ping/full', async (req, res) => {
     let errors = [];
-    const hardPingTimeout = process.env.HARD_PING_TIMEOUT;
+    const hardPingTimeout = parseInt(process.env.HARD_PING_TIMEOUT);
 
     const stopCountdown = startCountdown('Pole Ping', hardPingTimeout);
 
@@ -445,7 +467,7 @@ app.get('/api/ping/full', async (req, res) => {
     // 3-character binary status string. The persistent listener above will
     // also catch this response and save it to the database automatically.
     const poleResponse = await new Promise((resolve) => {
-        const timer = setTimeout(() => resolve(null), hardPingTimeout - 6000);
+        const timer = setTimeout(() => resolve(null), hardPingTimeout);
 
         // One-shot listener — removes itself after the first valid response
         // so it doesn't accumulate across repeated button presses
@@ -468,7 +490,7 @@ app.get('/api/ping/full', async (req, res) => {
     if (!poleResponse) {
         errors.push('Main pole did not respond within 45 seconds');
         client.publish('sensor/ping/response', "000", {qos: 1});
-        console.log("[Ping] DB Updated");
+        console.log(" [Ping Full] DB Updated with 000");
         return res.status(500).json({
             success:    false,
             mysql:      true,
@@ -518,9 +540,11 @@ app.get('/api/polestatus/latest', (req, res) => {
         `SELECT * FROM ${TABLE_POLE_STATUS}`,
         (err, results) => {
             if (err) {
-                if (showErrorMsgs) console.error('Query error:', err);
-                else if (showErrors) console.error('Query error');
-                return res.status(500).json({ error: 'Query failed' });
+                if (mysqlConnected) {
+                    if (showErrorMsgs) console.error(' [Pole Status] Query error - Failed to get last pole status:', err);
+                    else if (showErrors) console.error(' [Pole Status] Query error - Failed to get last pole status');
+                }
+                return res.status(500).json({ error: 'Query failed to get last pole status' });
             }
             if (results.length === 0) return res.json({ poleStatus: null, updated_at: null });
             res.json({ poleStatus: results[0].status, updated_at: results[0].updated_at });
@@ -546,13 +570,14 @@ function fetchRawImageFromDB(tableName) {
             `SELECT * FROM ${tableName}`,
             (err, results) => {
                 if (err) {
-                    console.log(err);
-                    if (showErrorMsgs) console.error(`[DB] Failed to read ${tableName}:`, err);
-                    else if (showErrors) console.error(`[DB] Failed to read ${tableName}`);
+                    if (mysqlConnected) {
+                        if (showErrorMsgs) console.error(` [Fetch Images] Failed to read ${tableName}:`, err);
+                        else if (showErrors) console.error(` [Fetch Images] Failed to read ${tableName}`);
+                    }
                     return resolve(null);
                 }
                 if (!results || results.length === 0) {
-                    console.warn(`[DB] No rows found in ${tableName}`);
+                    console.warn(`[Fetch Images] No rows found in ${tableName}`);
                     return resolve(null);
                 }
                 // Column index 1 (0=id, 1=raw binary, 2=created_at)
@@ -587,8 +612,8 @@ app.get('/api/images/latest', async (req, res) => {
 
     const images = [toDataUri(raw1), toDataUri(raw2)];
 
-    console.log(`[Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
-    console.log(`[Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
+    console.log(` [Latest Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
+    console.log(` [Latest Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
 
     res.json({ images });
 });
@@ -635,10 +660,10 @@ app.post('/api/images/save', (req, res) => {
         try {
             fs.writeFileSync(filePath, buffer);
             saved.push(filename);
-            console.log(`[Images] Saved ${filename} (${buffer.length} bytes)`);
+            console.log(` [Save Image] Saved ${filename} (${buffer.length} bytes)`);
         } catch (err) {
-            if (showErrorMsgs) console.error(`[Images] Failed to write ${filename}:`, err.message);
-            else if (showErrors) console.error(`[Images] Failed to write ${filename}`);
+            if (showErrorMsgs) console.error(` [Save Image] Failed to write ${filename}:`, err.message);
+            else if (showErrors) console.error(` [Save Image] Failed to write ${filename}`);
         }
     });
 
@@ -667,13 +692,13 @@ app.post('/api/images/save', (req, res) => {
 app.get('/api/imagerequest', async (req, res) => {
     const imageRequestTimeout = process.env.IMAGE_REQUEST_TIMEOUT;   // timeout for the DB write to complete
 
-    console.log('[Image] Publishing image request to RIPPLE system');
+    console.log(' [Image Request] Publishing image request to RIPPLE system');
     client.publish(pubImageRequestTopic, 'IMAGE REQUEST', { qos: 1 });
 
     // ── Wait for the DB-complete signal from the broker ───────────────────────
     // The RIPPLE system writes both images to the DB, then publishes "1" to
     // subImageStatusTopic. We wait for that signal before querying the DB.
-    console.log(`[Image] Waiting for DB-complete signal on "${subImageStatusTopic}"...`);
+    console.log(` [Image Request] Waiting for DB-complete signal on "${subImageStatusTopic}"...`);
 
     // ── Start single-line countdown ───────────────────────────────────────────
     const stopCountdown = startCountdown('Image Request', imageRequestTimeout);
@@ -682,7 +707,7 @@ app.get('/api/imagerequest', async (req, res) => {
         const timer = setTimeout(() => {
             client.removeListener('message', onStatusMessage);
             stopCountdown(); // clears the line
-            console.error('[Image] Timed out waiting for DB-complete signal');
+            console.error(' [Image Request] Timed out waiting for DB-complete signal');
             resolve(false);
         }, imageRequestTimeout);
 
@@ -693,7 +718,7 @@ app.get('/api/imagerequest', async (req, res) => {
             clearTimeout(timer);
             client.removeListener('message', onStatusMessage);
             stopCountdown(); // clears the line
-            console.log('[Image] DB-complete signal received');
+            console.log(' [Image Request] DB-complete signal received');
             resolve(true);
         };
 
@@ -705,7 +730,7 @@ app.get('/api/imagerequest', async (req, res) => {
     }
 
     // ── Read raw images from the hardware tables ──────────────────────────────
-    console.log('[Image] Reading raw images from database...');
+    console.log(' [Image Request] Reading raw images from database...');
 
     const [raw1, raw2] = await Promise.all([
         fetchRawImageFromDB(TABLE_POLE1_IMAGE),
@@ -726,8 +751,8 @@ app.get('/api/imagerequest', async (req, res) => {
 
     const images = [toDataUri(raw1), toDataUri(raw2)];
 
-    console.log(`[Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
-    console.log(`[Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
+    console.log(` [Image Request] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
+    console.log(` [Image Request] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
 
     res.json({ images });
 });
@@ -755,29 +780,51 @@ app.get('/api/config', (req, res) => {
 */
 function startCountdown(label, totalMs, intervalMs = 1000) {
     let remaining = Math.ceil(totalMs / 1000);
-    let startAmount = remaining;
+
     const tick = () => {
-        process.stdout.write(`\r[${label}] Waiting... ${remaining}s remaining`);
+        process.stdout.write(`\r [${label}] Waiting... ${remaining}s remaining`);
         remaining--;
     };
 
-    tick(); // show immediately
+    tick();
     const handle = setInterval(tick, intervalMs);
+
+    // Intercept console.log so any log that fires mid-countdown starts on a
+    // fresh line instead of colliding with the \r countdown output
+    const originalLog   = console.log;
+    const originalWarn  = console.warn;
+    const originalError = console.error;
+    const originalInfo  = console.info;
+
+    const wrap = (fn) => (...args) => {
+        process.stdout.write('\n');   // move off the countdown line first
+        fn(...args);
+    };
+
+    console.log   = wrap(originalLog);
+    console.warn  = wrap(originalWarn);
+    console.error = wrap(originalError);
+    console.info  = wrap(originalInfo);
 
     // Returns a stop function — call it when the operation finishes or times out
     return () => {
         clearInterval(handle);
-        // Clear the line cleanly on completion
-        process.stdout.write(`\r[${label}] Done.\n`);
+        // Restore original console methods
+        console.log   = originalLog;
+        console.warn  = originalWarn;
+        console.error = originalError;
+        console.info  = originalInfo;
+        // Clear the countdown line cleanly
+        process.stdout.write(`\r [${label}] Done.\n`);
     };
 }
 
 app.listen(WEBSITEPORT, () => {
     console.log('');
-    console.log('================================================');
+    console.log(' ========================================================== ');
     console.log('  RIPPLE Dashboard — Live');
-    console.log('================================================');
+    console.log(' ========================================================== ');
     console.log('');
-    console.log(`Server running at http://localhost:${WEBSITEPORT}`);
+    console.log(` Server running at http://localhost:${WEBSITEPORT}`);
     console.log('');
 });

@@ -66,7 +66,12 @@ async function loadRemoteConfig() {
         const res  = await fetch('/api/config');
         const data = await res.json();
         remoteConfig = { ...remoteConfig, ...data };
-        console.info('[Config] Remote config loaded:', remoteConfig);
+        console.info('[Config] Remote config loaded:' + 
+            `\n- Soft Ping Timeout: ${remoteConfig.SOFT_PING_TIMEOUT / 1000} seconds` +
+            `\n- Hard Ping Timeout: ${remoteConfig.HARD_PING_TIMEOUT / 1000} seconds` +
+            `\n- Load Images Timeout: ${remoteConfig.LOAD_IMAGE_TIMEOUT / 1000} seconds` +
+            `\n- Image Request Timeout: ${remoteConfig.IMAGE_REQUEST_TIMEOUT / 1000 / 60} minutes`
+        );
     } catch (err) {
         console.warn('[Config] Failed to load remote config — using defaults:', err.message);
     }

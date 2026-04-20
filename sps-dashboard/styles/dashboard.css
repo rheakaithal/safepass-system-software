@@ -179,9 +179,39 @@
     display: flex;
     flex-direction: column;
 }
+/* ── Image request status badge ──────────────────────────────────────────── */
+.image-request-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: none;          /* hidden until a result arrives */
+    white-space: nowrap;
+}
+
+.image-request-status.status-pending {
+    display: inline-block;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.image-request-status.status-success {
+    display: inline-block;
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.image-request-status.status-error {
+    display: inline-block;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
 
 .image-viewer {
-    height: 400px;
+    height: 470px;
     flex-shrink: 0;
     display: flex;
     align-items: center;

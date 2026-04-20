@@ -100,9 +100,17 @@ function validateImages(images) {
 **     None
 */
 function changeImage(src) {
-    const imageEl = document.getElementById('image');
-    if (imageEl) imageEl.src = src;
-}/* changeImage() */
+    const img = document.getElementById("image");
+    if (!img) return;
+    // Always append a cache-busting timestamp for file paths so the browser
+    // never serves a stale cached version after a new image has been saved to disk.
+    // Data URIs are always fresh so they don't need it.
+    if (src && !src.startsWith('data:')) {
+        img.src = src.split('?')[0] + '?t=' + Date.now();
+    } else {
+        img.src = src;
+    }
+}
 
 
 /* Wires each .image-selector-btn so clicking it highlights the button
@@ -216,21 +224,53 @@ function getImageFreshness() {
 async function loadSavedImages() {
     console.info('[Images] Loading saved images...');
 
-    // ── 1. On-disk files ──────────────────────────────────────────────────────
+    // ── Helper: check if a static file is actually reachable ─────────────────
+    const fileExists = (filePath) => fetch(filePath, { method: 'HEAD' })
+        .then(r => r.ok)
+        .catch(() => false);
+
+    // ── 1. Check which disk files actually exist ──────────────────────────────
     const meta = getImageFreshness();
-    if (meta) {
-        console.info(`[Images] Disk images exist (saved ${meta.savedAt}) — loading from file paths`);
+    const [pole1Exists, pole2Exists] = meta
+        ? await Promise.all([fileExists(POLE1_IMAGE_PATH), fileExists(POLE2_IMAGE_PATH)])
+        : [false, false];
+
+    if (pole1Exists && pole2Exists) {
+        // Fast path — both files confirmed on disk, no DB needed
+        console.info(`[Images] Both disk images verified (saved ${meta.savedAt}) — loading from file paths`);
         _applyImagesToButtons([POLE1_IMAGE_PATH, POLE2_IMAGE_PATH]);
         return;
     }
 
-    // ── 2. Database fallback ──────────────────────────────────────────────────
-    console.info('[Images] No disk images on record — fetching from database...');
+    // Build the result array — start with whatever is already on disk
+    const finalSources = [
+        pole1Exists ? POLE1_IMAGE_PATH : null,
+        pole2Exists ? POLE2_IMAGE_PATH : null,
+    ];
+
+    if (meta) {
+        if (!pole1Exists) console.warn('[Images] Pole 1 image missing from disk — will fetch from database');
+        if (!pole2Exists) console.warn('[Images] Pole 2 image missing from disk — will fetch from database');
+        try { localStorage.removeItem(CACHE_META_KEY); } catch (_) {}
+    }
+
+    // If at least one exists already, show it immediately while DB fetch runs
+    if (pole1Exists || pole2Exists) {
+        _applyImagesToButtons(finalSources);
+    }
+
+    // ── 2. Fetch only the missing images from the database ────────────────────
+    const needsPole1 = !pole1Exists;
+    const needsPole2 = !pole2Exists;
+
+    if (!needsPole1 && !needsPole2) return;  // shouldn't reach here but guard anyway
+
+    console.info(`[Images] Fetching missing image(s) from database — Pole 1: ${needsPole1}, Pole 2: ${needsPole2}`);
 
     try {
         const loadImageTimeout = remoteConfig.LOAD_IMAGE_TIMEOUT;
         const controller = new AbortController();
-        const timeout    = setTimeout(() => controller.abort(), loadImageTimeout +  1000);
+        const timeout = setTimeout(() => controller.abort(), loadImageTimeout + 1000);
 
         const response = await fetch('/api/images/latest', { signal: controller.signal });
         clearTimeout(timeout);
@@ -241,39 +281,37 @@ async function loadSavedImages() {
         }
 
         const result = await response.json();
+        const dbImages = result.images ?? [];
 
-        // /api/images/latest returns { images: [dataUri|null, dataUri|null] }
-        // where index 0 = Pole 1 and index 1 = Pole 2
-        const images = result.images ?? [];
-
-        if (images.length === 0 || (!images[0] && !images[1])) {
+        if (dbImages.length === 0 || (!dbImages[0] && !dbImages[1])) {
             console.info('[Images] No images available in database yet');
             return;
         }
 
-        console.info(`[Images] Received images from database — validating...`);
+        // Only keep the images we actually need — null out the ones already on disk
+        const toFetch = [
+            needsPole1 ? dbImages[0] : null,
+            needsPole2 ? dbImages[1] : null,
+        ];
 
-        // Validate JPEG magic bytes before writing to disk
-        const validatedImages = validateImages(images);
-        if (!validatedImages[0] && !validatedImages[1]) {
-            console.warn('[Images] All images failed JPEG validation — aborting save');
+        console.info('[Images] Received image(s) from database — validating...');
+        const validated = validateImages(toFetch);
+
+        if (!validated[0] && !validated[1]) {
+            console.warn('[Images] All fetched images failed JPEG validation — aborting save');
             return;
         }
 
-        console.info(`[Images] Validation passed — saving to disk...`);
+        console.info('[Images] Validation passed — saving to disk...');
+        const saved = await saveImagesToDisk(validated);
 
-        // Write to disk so next load uses the fast path
-        const saved = await saveImagesToDisk(validatedImages);
+        // Merge newly saved images with whatever was already on disk
+        if (validated[0]) finalSources[0] = saved.includes('Pole1Image.jpg') ? POLE1_IMAGE_PATH : validated[0];
+        if (validated[1]) finalSources[1] = saved.includes('Pole2Image.jpg') ? POLE2_IMAGE_PATH : validated[1];
 
-        if (saved.length > 0) {
-            markImagesAsFresh(saved);
-            // Use the static file paths now that they exist on disk
-            _applyImagesToButtons([POLE1_IMAGE_PATH, POLE2_IMAGE_PATH]);
-        } else {
-            // Disk write failed — fall back to using data URIs directly in the viewer
-            console.warn('[Images] Disk save failed — displaying images from memory (will not persist)');
-            _applyImagesToButtons(images);
-        }
+        if (saved.length > 0) markImagesAsFresh(saved);
+
+        _applyImagesToButtons(finalSources);
 
     } catch (error) {
         if (error.name === 'AbortError') {
@@ -322,6 +360,38 @@ function _applyImagesToButtons(sources) {
     if (buttons[activeIdx]) buttons[activeIdx].classList.add('active');
 }/* _applyImagesToButtons() */
 
+let _imageStatusTimeout = null;
+
+/* Sets the image request status badge to one of three states.
+** Parameters:
+**     string state  'pending' | 'success' | 'error'
+**     string text   label to display
+** Return:
+**     None
+*/
+function setImageRequestStatus(state, text) {
+    const el = document.getElementById('image-request-status');
+    if (!el) return;
+
+    // Clear any pending auto-hide from a previous result
+    if (_imageStatusTimeout) {
+        clearTimeout(_imageStatusTimeout);
+        _imageStatusTimeout = null;
+    }
+
+    el.className = `image-request-status status-${state}`;
+    el.textContent = text;
+
+    // Auto-hide after 5 seconds on terminal states only —
+    // 'pending' stays visible for the full duration of the request
+    if (state !== 'pending') {
+        _imageStatusTimeout = setTimeout(() => {
+            el.className = 'image-request-status';
+            el.textContent = '';
+            _imageStatusTimeout = null;
+        }, 5000);
+    }
+}
 
 /* Wires the "Request Images" button.
 **
@@ -351,7 +421,7 @@ function initializeImageRequestButton() {
 
     imageButton.addEventListener('click', async () => {
         _disableActionButtons(pingButton, imageButton);
-
+        setImageRequestStatus('pending', 'Requesting…');
         console.info('[Images] Image request sent to RIPPLE system — awaiting response...');
 
         try {
@@ -366,6 +436,7 @@ function initializeImageRequestButton() {
                 const err = await response.json().catch(() => ({}));
                 console.error(`[Images] Server returned ${response.status}: ${err.error ?? 'unknown error'}`);
                 _enableActionButtons(pingButton, imageButton);
+                setImageRequestStatus('error', 'Request Failed');
                 return;
             }
 
@@ -375,6 +446,7 @@ function initializeImageRequestButton() {
             if (images.length === 0 || (!images[0] && !images[1])) {
                 console.warn('[Images] Response contained no images');
                 _enableActionButtons(pingButton, imageButton);
+                setImageRequestStatus('error', 'No Images Returned');
                 return;
             }
 
@@ -385,6 +457,7 @@ function initializeImageRequestButton() {
             if (!validatedImages[0] && !validatedImages[1]) {
                 console.warn('[Images] All images failed JPEG validation — aborting save');
                 _enableActionButtons(pingButton, imageButton);
+                setImageRequestStatus('error', 'Invalid Image Data');
                 return;
             }
 
@@ -393,19 +466,23 @@ function initializeImageRequestButton() {
             if (saved.length > 0) {
                 markImagesAsFresh(saved);
                 _applyImagesToButtons([POLE1_IMAGE_PATH, POLE2_IMAGE_PATH]);
+                setImageRequestStatus('success', 'Images Updated');
             } else {
                 console.warn('[Images] Disk save failed — displaying images from memory (will not persist)');
                 _applyImagesToButtons(validatedImages);
+                setImageRequestStatus('error', 'Imaged Failed to save to disk');
             }
 
             _enableActionButtons(pingButton, imageButton);
             console.info('[Images] Image Request Button Re-Enabled');
+            
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('[Images] Image request timed out after 2 minutes');
             } else {
                 console.error('[Images] Image request failed:', error);
             }
+            setImageRequestStatus('error', error.name === 'AbortError' ? 'Timed Out' : 'Request Failed');
         }
     });
 }/* initializeImageRequestButton() */

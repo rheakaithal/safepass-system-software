@@ -37,7 +37,7 @@ function loadSettings() {
     const savedSettings = localStorage.getItem('dashboardSettings');
     if (savedSettings) {
         settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
-        console.info(`[Settings] Loaded from localStorage — frequency: ${settings.updateFrequency}ms, units: ${settings.distanceUnits}, warning: ${settings.warningThreshold} in, critical: ${settings.criticalThreshold} in, alarm: ${settings.alarmEnabled ? 'on' : 'off'} @ ${Math.round(settings.alarmVolume * 100)}%, heartbeat: ${settings.heartbeatEnabled ? 'on' : 'off'} @ ${settings.heartbeatInterval}ms`);
+        console.info(`[Settings] Loaded settings from localStorage`);
     } else {
         console.info('[Settings] No saved settings found — using defaults');
     }

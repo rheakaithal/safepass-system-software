@@ -1,136 +1,521 @@
-const express = require('express');
-const path = require('path');
-const app = express();
+/* Texas A&M University
+** Safe Pass Systems - RIPPLE
+** Emergency Service Dashboard
+** Author: Parker Williamson
+** File: database-test.js
+** --------
+** Simulation server — mirrors every API endpoint in database.js without
+** requiring a real MySQL database or MQTT broker.
+**
+** Simulation behaviour:
+**   - Water level is sampled every 5 minutes when below 2 inches,
+**     every 1 minute when at or above 2 inches (matches real hardware).
+**   - Historic data is pre-generated for the last 8 days using the same
+**     sampling rule, so the chart looks exactly like real field data.
+**   - Water level follows a realistic pattern: slow baseline with
+**     occasional rain events that cause rapid rises and natural recessions.
+**   - Ping endpoints simulate realistic MQTT round-trip delays.
+**   - Image request simulates the full MCU capture-and-upload flow with
+**     a realistic delay, then returns actual placeholder JPEG images.
+**   - /api/config returns the same timeout values the real server uses.
+*/
 
+const express = require('express');
+const path    = require('path');
+const fs      = require('fs');
+
+const app  = express();
 const ROOT = path.resolve(__dirname, '..');
 
 const cors = require('cors');
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+// ── RossStContent.html interception ─────────────────────────────────────────
+// Registered BEFORE express.static so this route wins over static file serving.
+// Reads the file, injects sim-overlay.js before navigation.js, and serves it.
+// The file on disk is never modified.
+app.get('/RossStContent.html', (req, res) => {
+    const filePath = path.join(ROOT, 'RossStContent.html');
+    fs.readFile(filePath, 'utf8', (err, html) => {
+        if (err) {
+            console.error(' [Sim] Could not read RossStContent.html:', err.message);
+            return res.status(500).send('Could not load dashboard page');
+        }
+        // Inject before navigation.js so the overlay redefines
+        // initializeImageRequestButton() before DOMContentLoaded fires it.
+        const injected = html.replace(
+            '<script src="scripts/navigation.js"></script>',
+            '<script src="/sim-overlay.js"></script>\n    <script src="scripts/navigation.js"></script>'
+        );
+        res.setHeader('Content-Type', 'text/html');
+        res.send(injected);
+    });
+});
+
 app.use(express.static(ROOT));
 
-// Project root is one level up from the scripts folder
-
-// Explicitly serve SafePassSystem.html at the root
 app.get('/', (req, res) => {
     res.sendFile(path.join(ROOT, 'SafePassSystem.html'));
 });
 
 
-// --- Mock data helpers ---
+// ── Simulation config ─────────────────────────────────────────────────────────
+const SIM_PORT = 80;
 
-// Generates a week of fake water level readings for a given pole,
-// one entry per minute, with a slow sine wave so the graph looks alive
-function generateMockHistory(poleId) {
-    const records = [];
-    const now = Date.now();
-    const oneWeek = 7 * 24 * 60 * 60 * 1000;
-    const intervalMs = 60 * 1000; // one point per minute
-    const totalPoints = oneWeek / intervalMs;
+// Water level thresholds (inches) — must match dashboard defaults
+const FAST_SAMPLE_THRESHOLD = 2.0;   // above this: 1-min interval
+const SLOW_INTERVAL_MIN     = 5;     // minutes between samples below threshold
+const FAST_INTERVAL_MIN     = 1;     // minutes between samples above threshold
 
-    for (let i = 0; i < totalPoints; i++) {
-        const t = now - oneWeek + i * intervalMs;
-        // Sine wave between 1 and 5 inches, slightly different phase per pole
-        const phase = poleId === 1 ? 0 : Math.PI / 3;
-        const waterlevel = 3 + 2 * Math.sin((i / 200) + phase);
-        records.push({
-            id: i + 1,
-            pole_id: poleId,
-            waterlevel: parseFloat(waterlevel.toFixed(3)),
-            created_at: new Date(t).toISOString()
-        });
+// Realistic delays (ms)
+const SOFT_PING_DELAY_MS    = 400;   // DB-only health check
+const HARD_PING_DELAY_MS    = 1800;  // full active MQTT ping round-trip
+const IMAGE_REQUEST_DELAY_MS = 6000; // MCU capture + DB write simulation
+
+
+// ── Water level model ─────────────────────────────────────────────────────────
+// Generates a realistic water level value for a given unix timestamp (ms).
+// Uses a combination of:
+//   - A slow seasonal baseline (very low frequency sine)
+//   - Periodic rain events (narrow gaussian pulses) seeded by the timestamp
+//     so every call with the same timestamp returns the same value
+//   - A small amount of sensor noise
+//
+// Returns inches (float, clamped to 0–12).
+
+/* Deterministic pseudo-random number in [0, 1) seeded by an integer.
+** Uses a simple xorshift so the same seed always yields the same value.
+** Parameters:
+**     int seed
+** Return:
+**     float  [0, 1)
+*/
+function seededRandom(seed) {
+    let s = seed ^ (seed >>> 17);
+    s = Math.imul(s, 0x45d9f3b);
+    s ^= s >>> 16;
+    return (s >>> 0) / 0xffffffff;
+}
+
+/* Returns a simulated water level in inches for a given timestamp.
+** The pattern is consistent across calls — the same timestamp always
+** returns the same level, making historic generation deterministic.
+** Parameters:
+**     number timestampMs   unix timestamp in milliseconds
+**     int    poleId        1 or 2 (slight phase offset between poles)
+** Return:
+**     float  water level in inches
+*/
+function simulatedWaterLevel(timestampMs, poleId) {
+    const t        = timestampMs / 1000;           // seconds
+    const polePhase = poleId === 1 ? 0 : 0.4;     // poles are slightly out of phase
+
+    // ── Slow baseline: gentle 12-hour tide-like cycle, 0.3–1.0 in
+    const baseline = 0.65 + 0.35 * Math.sin((t / (12 * 3600)) * 2 * Math.PI + polePhase);
+
+    // ── Rain events: check nearby "event seeds" in a ±6 hour window
+    // Seed rain events to a 6-hour grid so they don't overlap heavily
+    const RAIN_GRID_S = 6 * 3600;
+    const gridIdx     = Math.floor(t / RAIN_GRID_S);
+
+    let rainLevel = 0;
+
+    // Look at the current grid cell and the two neighbours
+    for (let offset = -1; offset <= 1; offset++) {
+        const cellIdx    = gridIdx + offset;
+        const cellRng    = seededRandom(cellIdx * 7919 + poleId * 31);
+        const cellRng2   = seededRandom(cellIdx * 6271 + poleId * 17);
+
+        // ~30% chance of a rain event in any 6-hour cell
+        if (cellRng > 0.70) {
+            // Event centre: random position within the cell
+            const eventCentreS = (cellIdx + cellRng2) * RAIN_GRID_S;
+
+            // Peak height: 1.5 – 8.0 inches above baseline
+            const peakRng  = seededRandom(cellIdx * 4999 + poleId * 53);
+            const peakHeight = 1.5 + peakRng * 6.5;
+
+            // Rise is fast (sigma ~20 min), recession is slow (sigma ~90 min)
+            const dt = t - eventCentreS;
+            const sigma = dt < 0 ? (20 * 60) : (90 * 60);
+            rainLevel += peakHeight * Math.exp(-(dt * dt) / (2 * sigma * sigma));
+        }
     }
+
+    // ── Sensor noise: ±0.05 in, seeded to the nearest minute so readings
+    //    taken within the same minute are stable (no jitter on the display)
+    const noiseSeed  = Math.floor(t / 60) * 100 + poleId;
+    const noise      = (seededRandom(noiseSeed) - 0.5) * 0.1;
+
+    const level = baseline + rainLevel + noise;
+    return parseFloat(Math.min(12, Math.max(0, level)).toFixed(3));
+}
+
+
+// ── Historic data generation ──────────────────────────────────────────────────
+// Pre-built once at startup using the real sampling rule:
+//   < 2 in → one record every 5 minutes
+//   ≥ 2 in → one record every 1 minute
+
+/* Builds a full array of historic records for a pole, respecting the
+** variable sampling interval rule used by the real hardware.
+** Parameters:
+**     int poleId   1 or 2
+** Return:
+**     array of { id, pole_id, waterlevel, created_at }
+*/
+function generateMockHistory(poleId) {
+    const records    = [];
+    const now        = Date.now();
+    const eightDaysAgo = now - (8 * 24 * 60 * 60 * 1000);
+
+    let t  = eightDaysAgo;
+    let id = 1;
+
+    while (t <= now) {
+        const level = simulatedWaterLevel(t, poleId);
+        records.push({
+            id:         id++,
+            pole_id:    poleId,
+            waterlevel: level,
+            created_at: new Date(t).toISOString(),
+        });
+
+        // Next sample time depends on current level
+        const intervalMs = level >= FAST_SAMPLE_THRESHOLD
+            ? FAST_INTERVAL_MIN  * 60 * 1000
+            : SLOW_INTERVAL_MIN  * 60 * 1000;
+
+        t += intervalMs;
+    }
+
+    console.log(` [Sim] Generated ${records.length} historic records for Pole ${poleId}`);
     return records;
 }
 
-const mockPole1 = generateMockHistory(1);
-const mockPole2 = generateMockHistory(2);
+console.log(' [Sim] Generating historic water level data...');
+const mockHistory = {
+    1: generateMockHistory(1),
+    2: generateMockHistory(2),
+};
 
-function getMockData(poleId) {
-    return poleId === 1 ? mockPole1 : mockPole2;
+
+// ── Live data state ───────────────────────────────────────────────────────────
+// The live ticker advances the simulation clock every second and decides
+// whether to emit a new record based on the current level and the elapsed
+// time since the last record, matching the real hardware sampling rule.
+
+const liveState = {
+    1: { lastRecordAt: Date.now(), id: 200000, latestRecord: null },
+    2: { lastRecordAt: Date.now(), id: 200000, latestRecord: null },
+};
+
+// Seed the live state with the most recent historic record for each pole
+for (const poleId of [1, 2]) {
+    const hist = mockHistory[poleId];
+    if (hist.length > 0) {
+        const last = hist[hist.length - 1];
+        liveState[poleId].latestRecord = { ...last };
+        liveState[poleId].id = last.id + 1;
+        liveState[poleId].lastRecordAt = new Date(last.created_at).getTime();
+    }
+}
+
+/* Ticks the live simulation forward every second.
+** Emits a new record for a pole only when enough time has elapsed
+** based on the current water level (1-min or 5-min interval).
+*/
+setInterval(() => {
+    const now = Date.now();
+
+    for (const poleId of [1, 2]) {
+        const state       = liveState[poleId];
+        const level       = simulatedWaterLevel(now, poleId);
+        const intervalMs  = level >= FAST_SAMPLE_THRESHOLD
+            ? FAST_INTERVAL_MIN * 60 * 1000
+            : SLOW_INTERVAL_MIN * 60 * 1000;
+
+        if (now - state.lastRecordAt >= intervalMs) {
+            state.latestRecord = {
+                id:         state.id++,
+                pole_id:    poleId,
+                waterlevel: level,
+                created_at: new Date(now).toISOString(),
+            };
+            state.lastRecordAt = now;
+        }
+    }
+}, 1000);
+
+
+// ── Simulation state flags ────────────────────────────────────────────────────
+// Simulate always-connected infrastructure so the ping card shows green
+let simMysqlConnected = true;
+let simMqttConnected  = true;
+let simPoleStatus     = '111';   // all three poles responding
+
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+/* Returns a promise that resolves after the given number of milliseconds.
+** Used throughout to simulate realistic network/hardware delays.
+** Parameters:
+**     int ms
+** Return:
+**     Promise<void>
+*/
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/* Generates a placeholder JPEG data URI for a simulated pole camera image.
+** Draws a simple canvas-style SVG with pole info and current water level,
+** then converts it to a minimal valid JPEG via a Buffer with real magic bytes.
+**
+** In a Node.js environment we can't use Canvas, so we return a small
+** hand-crafted JPEG (the smallest valid JPEG, 1×1 pixel grey) embedded
+** as a Buffer — this passes the front-end's JPEG magic-byte validation.
+**
+** The real dashboard immediately replaces it with the saved file path anyway,
+** so the visual content doesn't matter for sim purposes.
+**
+** Parameters:
+**     int poleId   1 or 2
+** Return:
+**     string  base64 data URI starting with "data:image/jpeg;base64,..."
+*/
+function generateSimImage(poleId) {
+    // Minimal valid JPEG: SOI + APP0 JFIF header + minimal image data + EOI
+    // These are the real magic bytes (FF D8 FF) the front-end checks for
+    const jpeg = Buffer.from([
+        0xFF, 0xD8, 0xFF, 0xE0,  // SOI + APP0 marker
+        0x00, 0x10,              // APP0 length (16 bytes)
+        0x4A, 0x46, 0x49, 0x46, 0x00,  // "JFIF\0"
+        0x01, 0x01,              // version 1.1
+        0x00,                    // pixel aspect ratio: no units
+        0x00, 0x01, 0x00, 0x01, // X/Y density: 1x1
+        0x00, 0x00,              // no thumbnail
+        // Minimal quantization table (required for valid JPEG)
+        0xFF, 0xDB, 0x00, 0x43, 0x00,
+        ...Array(64).fill(0x10),
+        // Minimal start-of-frame (1x1 grey)
+        0xFF, 0xC0, 0x00, 0x0B, 0x08,
+        0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00,
+        // Minimal huffman table
+        0xFF, 0xC4, 0x00, 0x1F, 0x00,
+        0x00, 0x01, 0x05, 0x01, 0x01, 0x01, 0x01, 0x01,
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0A, 0x0B,
+        // Minimal SOS + image data
+        0xFF, 0xDA, 0x00, 0x08, 0x01, 0x01, 0x00, 0x00,
+        0x3F, 0x00, 0xF8, 0x0A,
+        // EOI
+        0xFF, 0xD9,
+    ]);
+
+    return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
 }
 
 
-// Mirrors /api/initdata — returns last 8 days of data for a pole
+// ── API endpoints ─────────────────────────────────────────────────────────────
+
+/* Mirrors /api/config
+** Returns the same timeout values used in the real server so the dashboard
+** initialises with correct timeout constants in simulation mode.
+*/
+app.get('/api/config', (req, res) => {
+    res.json({
+        SOFT_PING_TIMEOUT:     5000,
+        HARD_PING_TIMEOUT:     45000,
+        LOAD_IMAGE_TIMEOUT:    5000,
+        IMAGE_REQUEST_TIMEOUT: 30000,
+    });
+});
+
+
+/* Mirrors /api/initdata
+** Returns the pre-generated 8-day history for the requested pole,
+** filtered to the last 8 days and ordered ASC — identical shape to
+** what the real database returns.
+*/
 app.get('/api/initdata', (req, res) => {
-    const poleId = parseInt(req.query.poleID);
+    const poleId      = parseInt(req.query.poleID);
     const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
-    const data = getMockData(poleId).filter(r => new Date(r.created_at) >= eightDaysAgo);
+    const data = (mockHistory[poleId] ?? [])
+        .filter(r => new Date(r.created_at) >= eightDaysAgo);
     res.json(data);
 });
 
-// Mirrors /api/data — returns the single latest live record for a pole.
-//
-// Each pole gets its own offset and id counter, advanced on a fixed 1-second
-// timer rather than per-request. This means every caller (Home page, dashboard,
-// etc.) reads the exact same value for a given pole within the same tick —
-// matching real database behaviour where the sensor writes one row per second
-// and every page reading within that second gets the same row.
-const liveState = {
-    1: { offset: 0, id: 100000 },
-    2: { offset: 0, id: 100000 }
-};
 
-setInterval(() => {
-    liveState[1].offset += 0.05;
-    liveState[2].offset += 0.05;
-    liveState[1].id++;
-    liveState[2].id++;
-}, 1000);
-
+/* Mirrors /api/data
+** Returns the single most recent live record for the requested pole.
+** If the live ticker hasn't emitted a record yet, falls back to the
+** last historic entry.
+*/
 app.get('/api/data', (req, res) => {
     const poleId = parseInt(req.query.poleID);
     const state  = liveState[poleId];
-    const phase  = poleId === 1 ? 0 : Math.PI / 3;
 
-    res.json([{
-        id:         state.id,
-        pole_id:    poleId,
-        waterlevel: parseFloat((3 + 4 * Math.sin(state.offset + phase)).toFixed(3)),
-        created_at: new Date().toISOString()
-    }]);
+    if (state.latestRecord) {
+        return res.json([state.latestRecord]);
+    }
+
+    // Fallback: last historic record
+    const hist = mockHistory[poleId] ?? [];
+    if (hist.length > 0) return res.json([hist[hist.length - 1]]);
+
+    res.json([]);
 });
 
-// Mirrors /api/ping/status — DB-only health check (used by 10-second interval)
-// Always reports infrastructure healthy and returns a mock "all poles up" status.
-app.get('/api/ping/status', (req, res) => {
+
+/* Mirrors /api/ping/status — DB-only health check used by the 10-second interval.
+** Simulates the SELECT 1 + MQTT publish round-trip with a short delay.
+*/
+app.get('/api/ping/status', async (req, res) => {
+    await delay(SOFT_PING_DELAY_MS);
+
     res.json({
         success:    true,
-        mysql:      true,
-        mqtt:       true,
+        mysql:      simMysqlConnected,
+        mqtt:       simMqttConnected,
         mainPole:   true,
         secPole:    true,
         warnPole:   true,
-        poleStatus: '111',
-        updated_at: new Date().toISOString()
+        poleStatus: simPoleStatus,
+        updated_at: new Date().toISOString(),
+        errors:     [],
     });
 });
 
-// Mirrors /api/ping/full — active pole ping (used by Ping button only)
-// Simulates a 1-second pole response then returns all-poles-up.
+
+/* Mirrors /api/ping/full — active pole ping used by the Ping button only.
+** Simulates the full MQTT publish → pole response round-trip delay.
+*/
 app.get('/api/ping/full', async (req, res) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));  // simulate pole round-trip
+    console.log(' [Sim] Full ping request received — simulating pole round-trip...');
+    await delay(HARD_PING_DELAY_MS);
+
     res.json({
         success:    true,
-        mysql:      true,
-        mqtt:       true,
+        mysql:      simMysqlConnected,
+        mqtt:       simMqttConnected,
         mainPole:   true,
         secPole:    true,
         warnPole:   true,
-        poleStatus: '111',
-        updated_at: new Date().toISOString()
+        poleStatus: simPoleStatus,
+        updated_at: new Date().toISOString(),
+        errors:     [],
     });
 });
 
-// Mirrors /api/polestatus/latest — returns the most recent saved pole status
+
+/* Mirrors /api/polestatus/latest
+** Returns the last known pole status — used on dashboard init.
+*/
 app.get('/api/polestatus/latest', (req, res) => {
-    res.json({ poleStatus: '111', updated_at: new Date().toISOString() });
+    res.json({ poleStatus: simPoleStatus, updated_at: new Date().toISOString() });
 });
 
-// Mirrors /api/images/latest — returns empty (no saved images in test mode)
-app.get('/api/images/latest', (req, res) => {
-    res.json({ images: [] });
+
+/* Mirrors /api/imagerequest
+** Simulates the full image capture flow:
+**   1. MCU receives MQTT publish (instant in sim)
+**   2. MCU captures image (~2s)
+**   3. MCU writes to DB (~2s)
+**   4. Broker signals DB-complete (~1s)
+**   5. Server reads images from DB and returns them
+** Total: IMAGE_REQUEST_DELAY_MS
+*/
+app.get('/api/imagerequest', async (req, res) => {
+    console.log(' [Sim] Image request received — simulating MCU capture and DB write...');
+    await delay(IMAGE_REQUEST_DELAY_MS);
+
+    const images = [
+        generateSimImage(1),
+        generateSimImage(2),
+    ];
+
+    console.log(' [Sim] Image request complete — returning simulated images');
+    res.json({ images });
 });
 
-const PORT = 80;
-app.listen(PORT, '0.0.0.0', () => console.log(`Mock server running at http://localhost:${PORT}`));
+
+/* Mirrors /api/images/latest
+** Returns simulated images for both poles (used on dashboard init
+** when no cached files exist on disk).
+*/
+app.get('/api/images/latest', async (req, res) => {
+    await delay(300);
+    res.json({
+        images: [
+            generateSimImage(1),
+            generateSimImage(2),
+        ],
+    });
+});
+
+
+/* Mirrors /api/images/save
+** Accepts base64 image data and writes it to disk just like the real server.
+** This ensures the caching/freshness logic in images.js works correctly
+** in simulation mode too.
+*/
+app.post('/api/images/save', (req, res) => {
+    const { images } = req.body;
+
+    if (!Array.isArray(images) || images.length === 0) {
+        return res.status(400).json({ error: 'images array required' });
+    }
+
+    const filenames  = ['Pole1Image.jpg', 'Pole2Image.jpg'];
+    const imagesDir  = path.join(ROOT, 'images');
+    const saved      = [];
+
+    images.forEach((dataUri, i) => {
+        if (!dataUri || typeof dataUri !== 'string') return;
+        const filename   = filenames[i];
+        if (!filename) return;
+
+        const base64Data = dataUri.replace(/^data:image\/\w+;base64,/, '');
+        const buffer     = Buffer.from(base64Data, 'base64');
+        const filePath   = path.join(imagesDir, filename);
+
+        try {
+            fs.writeFileSync(filePath, buffer);
+            saved.push(filename);
+            console.log(` [Sim] Saved ${filename} (${buffer.length} bytes)`);
+        } catch (err) {
+            console.error(` [Sim] Failed to write ${filename}:`, err.message);
+        }
+    });
+
+    if (saved.length === 0) {
+        return res.status(500).json({ error: 'No images could be written to disk' });
+    }
+
+    res.json({ saved });
+});
+
+
+// ── Sim overlay script ────────────────────────────────────────────────────────
+/* Serves scripts/sim-overlay.js to the browser.
+** This route does not exist in database.js, so the injected <script> tag
+** simply 404s in production — no effect on the production dashboard.
+*/
+app.get('/sim-overlay.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'sim-overlay.js'));
+});
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+app.listen(SIM_PORT, () => {
+    console.log('');
+    console.log(' ========================================================== ');
+    console.log('  RIPPLE Dashboard — Simulation Mode');
+    console.log(' ========================================================== ');
+    console.log('');
+    console.log(` Server running at http://localhost:${SIM_PORT}`);
+    console.log('');
+    console.log(' [Sim] All systems simulated — no MySQL or MQTT required');
+    console.log(` [Sim] Sampling rule: <${FAST_SAMPLE_THRESHOLD} in → every ${SLOW_INTERVAL_MIN} min | ≥${FAST_SAMPLE_THRESHOLD} in → every ${FAST_INTERVAL_MIN} min`);
+    console.log('');
+});

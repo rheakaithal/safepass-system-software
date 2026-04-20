@@ -41,10 +41,15 @@ async function initializeDashboard() {
     // ── 1. Settings ───────────────────────────────────────────────────────────
     loadSettings();
     console.info(
-        `[Init] Settings loaded — frequency: ${settings.updateFrequency}ms, ` +
-        `units: ${settings.distanceUnits}, ` +
-        `warning: ${settings.warningThreshold} in, ` +
-        `critical: ${settings.criticalThreshold} in`
+        `[Init] Settings loaded:` + 
+        `\n- Frequency: ${settings.updateFrequency}ms` +
+        `\n- Units: ${settings.distanceUnits}` +
+        `\n- Warning: ${settings.warningThreshold} ${getUnitLabel()}` +
+        `\n- Critical: ${settings.criticalThreshold} ${getUnitLabel()}` +
+        `\n- Alarm Enable: ${settings.alarmEnabled}` + 
+        `\n- Alarm Volume: ${settings.alarmVolume * 100}%` + 
+        `\n- Heartbeat Enable: ${settings.heartbeatEnabled}` +
+        `\n- Heartbeat Interval: ${settings.heartbeatInterval / 1000} seconds`
     );
 
     // ── 2. Settings page detection ────────────────────────────────────────────
@@ -67,7 +72,7 @@ async function initializeDashboard() {
     restoreLastPingState();
 
     // ── 4b. Load cached images (disk file → DB fallback) ──────────────────────
-    await loadSavedImages();
+    loadSavedImages();
 
     // ── 5. Historical water level data ────────────────────────────────────────
     await initializeData();
