@@ -222,6 +222,8 @@ function resolveHealthDisplayState(status) {
 async function checkSystemHealth() {
     try {
         const softPingTimeout = remoteConfig.SOFT_PING_TIMEOUT;
+        // AbortController lets us cancel the fetch if the server doesn't respond
+        // within the timeout window rather than waiting indefinitely
         const controller = new AbortController();
         const timeout    = setTimeout(() => controller.abort(), softPingTimeout + 1000);
 
@@ -229,23 +231,27 @@ async function checkSystemHealth() {
         clearTimeout(timeout);
 
         const result = await response.json();
+        // Default to false if the server omits a field — safer than treating undefined as truthy
         const mysql  = result.mysql ?? false;
         const mqtt   = result.mqtt  ?? false;
 
         if (!mysql) console.error('[Health] MySQL is unreachable');
         if (!mqtt)  console.error('[Health] MQTT broker is unreachable');
 
+        // If either core service is down, mark poles as unknown and bail early
         if (!mysql || !mqtt) {
             updateHealthDisplay({ mysql, mqtt, mainPole: false, secPole: null, warnPole: null });
             return;
         }
 
         if (!result.poleStatus) {
+            // Infrastructure is healthy but no pole has reported yet (e.g. fresh deploy)
             console.info('[Health] MySQL and MQTT online — no pole status on record yet');
             updateHealthDisplay({ mysql: true, mqtt: true, mainPole: null, secPole: null, warnPole: null });
             return;
         }
 
+        // Parse the 3-character binary string into individual pole booleans
         const { mainPole, secPole, warnPole } = parsePoleStatus(result.poleStatus);
 
         console.info(
@@ -265,6 +271,7 @@ async function checkSystemHealth() {
         } else {
             console.error('[Health] Status check failed:', error);
         }
+        // Treat any failure as fully offline so the indicators reflect reality
         updateHealthDisplay({ mysql: false, mqtt: false, mainPole: false, secPole: null, warnPole: null });
     }
 }/* checkSystemHealth() */
@@ -344,18 +351,23 @@ function initializePingButton() {
     _restoreButtonDisabledState(pingButton, imageButton);
 
     pingButton.addEventListener('click', async () => {
+        // Lock both action buttons for the duration of the ping
         _disableActionButtons(pingButton, imageButton);
 
         try {
+            // Show a neutral "checking" state on both indicators while the request is in flight
             setIndicatorState('overall-indicator',     'systemStatus',   'checking', 'Checking...');
             setIndicatorState('pole-status-indicator', 'poleStatusText', 'checking', 'Checking...');
             await pingPoles();
 
-            // ── Only re-enable on clean completion ────────────────────────────
+            // Re-enable only on clean completion — error paths in pingPoles()
+            // call updateHealthDisplay which handles its own UI update
             _enableActionButtons(pingButton, imageButton);
 
         } catch (err) {
+            // BUG FIX: buttons were never re-enabled if pingPoles() threw unexpectedly
             console.error('[Ping] Button handler error:', err);
+            _enableActionButtons(pingButton, imageButton);
         }
     });
 }/* initializePingButton() */

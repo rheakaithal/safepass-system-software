@@ -62,13 +62,15 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
     }
 
     console.info(`[Chart] Unified timeline — Pole 1: ${pole1Timestamps.length} pts, Pole 2: ${pole2Timestamps.length} pts, interpolating to ${targetPoints} pts`);
+
+    // Always span the full selected window so both poles start at the left
+    // edge of the chart. Poles with no data in a portion of the window will
+    // return null for those points, leaving that region blank rather than
+    // extending the first reading backwards or cutting the window short.
+    const startTime = minDate.getTime();
+    const endTime   = maxDate.getTime();
     
-    // Find overall time range
-    const allTimestamps = [...pole1Timestamps, ...pole2Timestamps];
-    const startTime = Math.min(...allTimestamps.map(t => t.getTime()));
-    const endTime = Math.max(...allTimestamps.map(t => t.getTime()));
-    
-    // Create evenly-spaced timeline
+    // Create evenly-spaced timeline across the full window
     const unifiedTimestamps = [];
     const timeStep = (endTime - startTime) / (targetPoints - 1);
     
@@ -77,7 +79,9 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
         unifiedTimestamps.push(new Date(time));
     }
     
-    // Interpolate each pole's data onto unified timeline
+    // Interpolate each pole's data onto unified timeline.
+    // getValueAtTime returns null before the pole's first record so the line
+    // only appears where that pole actually has data.
     const unifiedPole1Values = unifiedTimestamps.map(timestamp => 
         getValueAtTime(pole1Timestamps, pole1Values, timestamp)
     );
@@ -102,6 +106,143 @@ function createUnifiedTimeline(pole1Data, pole2Data, minDate, maxDate, targetPoi
 */
 let waterLevelChart = null;
 
+// Crosshair + readout plugin.
+// Draws a thin dashed vertical line at the hovered x-position and writes
+// the time and both pole values into the #chart-readout panel in the card
+// header — keeping all text well clear of the chart canvas.
+const crosshairPlugin = {
+    id: 'crosshair',
+
+    // Tracks the current crosshair x position; null when cursor is off-chart
+    _hoverX: null,
+    _hoverIndex: null,
+
+    // Cache DOM refs once so we're not querying on every frame
+    _els: null,
+    _getEls() {
+        if (!this._els) {
+            this._els = {
+                readout: document.getElementById('chart-readout'),
+                time:    document.getElementById('readout-time'),
+                p1:      document.getElementById('readout-p1'),
+                p2:      document.getElementById('readout-p2'),
+            };
+        }
+        return this._els;
+    },
+
+    _clearReadout() {
+        const els = this._getEls();
+        if (!els.readout) return;
+        els.readout.classList.remove('active');
+        els.time.textContent = '--';
+        els.p1.textContent   = '--';
+        els.p2.textContent   = '--';
+        // Reset row visibility so it's always correct on next hover
+        const pole1Row = els.p1?.closest('.readout-pole');
+        const pole2Row = els.p2?.closest('.readout-pole');
+        if (pole1Row) pole1Row.style.display = '';
+        if (pole2Row) pole2Row.style.display = '';
+    },
+
+    // Called by onHover in chart options — stores position and triggers redraw
+    handleHover(chart, event) {
+        if (!event || event.type === 'mouseout') {
+            this._hoverX     = null;
+            this._hoverIndex = null;
+            this._clearReadout();
+            chart.draw();
+            return;
+        }
+
+        // Get the active elements at this x position (index mode)
+        const elements = chart.getElementsAtEventForMode(
+            event.native, 'index', { intersect: false }, false
+        );
+
+        if (!elements.length) {
+            this._hoverX     = null;
+            this._hoverIndex = null;
+            this._clearReadout();
+            chart.draw();
+            return;
+        }
+
+        const index = elements[0].index;
+        // Convert data index back to canvas x coordinate
+        const meta  = chart.getDatasetMeta(0).data[index] ||
+                      chart.getDatasetMeta(1).data[index];
+        this._hoverX     = meta ? meta.x : null;
+        this._hoverIndex = index;
+        chart.draw();
+    },
+
+    afterDraw(chart) {
+        if (this._hoverX === null || this._hoverIndex === null) return;
+
+        // ── Draw crosshair line ───────────────────────────────────────────
+        const x              = this._hoverX;
+        const ctx            = chart.ctx;
+        const { top, bottom } = chart.chartArea;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, bottom);
+        ctx.lineWidth   = 1;
+        ctx.strokeStyle = 'rgba(100, 116, 139, 0.5)';
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.restore();
+
+        // ── Populate readout panel ────────────────────────────────────────
+        const els = this._getEls();
+        if (!els.readout) return;
+
+        const idx         = this._hoverIndex;
+        const currentUnit = getUnitLabel();
+
+        // Timestamp from labels array
+        const ts = chart.data.labels?.[idx];
+        if (ts != null) {
+            els.time.textContent = new Date(ts).toLocaleString([], {
+                month: 'short', day: 'numeric',
+                hour: 'numeric', minute: '2-digit'
+            });
+        }
+
+        // Read value from each dataset at this index, skipping hidden ones
+        chart.data.datasets.forEach((ds, dsIdx) => {
+            const isHidden = chart.getDatasetMeta(dsIdx).hidden;
+            const pole1Row = els.p1?.closest('.readout-pole');
+            const pole2Row = els.p2?.closest('.readout-pole');
+
+            if (ds.label === 'Pole 1') {
+                if (isHidden) {
+                    if (pole1Row) pole1Row.style.display = 'none';
+                } else {
+                    if (pole1Row) pole1Row.style.display = '';
+                    const val = ds.data?.[idx];
+                    if (val !== null && val !== undefined)
+                        els.p1.textContent = convertDistance(val) + ' ' + currentUnit;
+                }
+            }
+            if (ds.label === 'Pole 2') {
+                if (isHidden) {
+                    if (pole2Row) pole2Row.style.display = 'none';
+                } else {
+                    if (pole2Row) pole2Row.style.display = '';
+                    const val = ds.data?.[idx];
+                    if (val !== null && val !== undefined)
+                        els.p2.textContent = convertDistance(val) + ' ' + currentUnit;
+                }
+            }
+        });
+
+        els.readout.classList.add('active');
+    }
+};
+
 function initializeChart() {
     const ctx = document.getElementById('waterLevelChart');
     if (!ctx) {
@@ -114,6 +255,7 @@ function initializeChart() {
 
     waterLevelChart = new Chart(ctx, {
         type: 'line',
+        plugins: [crosshairPlugin],
         data: {
             labels: [],
             datasets: [
@@ -126,7 +268,8 @@ function initializeChart() {
                     pointHoverRadius: 0,
                     tension: 0.4,
                     fill: false,
-                    hidden: false
+                    hidden: false,
+                    spanGaps: false
                 },
                 {
                     label: 'Pole 2',
@@ -137,17 +280,20 @@ function initializeChart() {
                     pointHoverRadius: 0,
                     tension: 0.4,
                     fill: false,
-                    hidden: false
+                    hidden: false,
+                    spanGaps: false
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onHover(event, elements, chart) {
+                crosshairPlugin.handleHover(chart, event);
+            },
             interaction: {
-                mode: 'nearest',
+                mode: 'index',
                 intersect: false,
-                axis: 'xy'
             },
             plugins: {
                 legend: {
@@ -166,24 +312,7 @@ function initializeChart() {
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#475569',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: true,
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) label += ': ';
-                            const inches = context.parsed.y;
-                            // ── Read unit live so tooltip reflects current setting ──────────
-                            const currentUnit = getUnitLabel();
-                            label += convertDistance(inches) + ' ' + currentUnit;
-                            return label;
-                        }
-                    }
+                    enabled: false  // values shown in the #chart-readout panel instead
                 }
             },
             scales: {
@@ -318,8 +447,8 @@ function updateChartTimeRange() {
             break;
         case '3 Days':
             minDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-            timeUnit = 'hour';
-            stepSizeMinutes = 360;  // ticks every 6 hours
+            timeUnit = 'day';
+            stepSizeMinutes = 1440; // ticks every day
             break;
         case '1 Week':
             minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -388,7 +517,12 @@ function updatePoleVisibility() {
     waterLevelChart.data.datasets[0].hidden = (poleSelect === 'Pole 2');
     waterLevelChart.data.datasets[1].hidden = (poleSelect === 'Pole 1');
 
-    waterLevelChart.update('active');
+    // Only trigger a render if called directly from the dropdown listener.
+    // When called from updateChartData the caller handles the update itself,
+    // so we avoid a redundant second render that was resetting hidden state.
+    if (!updatePoleVisibility._calledFromDataUpdate) {
+        waterLevelChart.update('active');
+    }
 }/* updatePoleVisibility() */
 
 /* Main handler for chart data update
@@ -443,8 +577,10 @@ function updateChartData(pole1Data, pole2Data) {
     // Update time range
     updateChartTimeRange();
     
-    // Update visibility based on selection
+    // Update visibility based on selection — flag prevents a double render
+    updatePoleVisibility._calledFromDataUpdate = true;
     updatePoleVisibility();
+    updatePoleVisibility._calledFromDataUpdate = false;
 
     // Update chart
     waterLevelChart.update('active');
@@ -466,9 +602,9 @@ function getValueAtTime(timestamps, values, targetTime) {
     
     const targetMs = targetTime.getTime();
     
-    // If before first point, return first value
+    // If before first point, return null — no data yet for this period
     if (targetMs <= timestamps[0].getTime()) {
-        return values[0];
+        return null;
     }
     
     // If after last point, return last value

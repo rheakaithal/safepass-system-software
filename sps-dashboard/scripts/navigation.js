@@ -28,22 +28,23 @@ function initializeNavigation() {
     
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function() {
-            const page = this.getAttribute('data-page');
-            const title = this.getAttribute('data-title');
+            const page     = this.getAttribute('data-page');
+            const title    = this.getAttribute('data-title');
             const subtitle = this.getAttribute('data-subtitle');
             
+            // Remove active highlight from all links, then apply to the clicked one
             sidebarLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             
+            // Update header text to match the selected page
             if (pageTitle && title) pageTitle.textContent = title;
             if (pageSubtitle && subtitle) pageSubtitle.textContent = subtitle;
             
             if (contentFrame && page) {
                 console.info(`[Nav] Navigating to: ${page}`);
+                // Changing src reloads the iframe, which re-runs initializeDashboard
+                // automatically via navigation.js — no manual call needed here
                 contentFrame.src = page;
-                // updatePoleData lives inside the iframe, not the parent window.
-                // After setting src the iframe reloads, so the function will run
-                // automatically via initializeDashboard — no manual call needed.
             }
         });
     });
@@ -81,4 +82,3 @@ if (document.readyState === 'loading') {
 } else {
     initializeApp();
 }
-

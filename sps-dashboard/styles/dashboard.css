@@ -309,6 +309,62 @@
     flex-direction: column;
 }
 
+/* ── Graph card header right-side group (readout + controls) ─────────────── */
+.graph-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+/* ── Hover readout panel ─────────────────────────────────────────────────── */
+.chart-readout {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 6px var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-width: 320px;
+    transition: border-color var(--transition-fast);
+}
+
+.chart-readout.active {
+    border-color: var(--accent-color);
+}
+
+.readout-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    padding-right: var(--spacing-md);
+    border-right: 1px solid var(--border-color);
+}
+
+.readout-values {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.readout-pole {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.readout-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
 .graph-controls {
     display: flex;
     gap: var(--spacing-md);

@@ -26,12 +26,14 @@ async function initializeData() {
     try {
         console.info('[Init] Fetching historical data from server...');
 
+        // Fetch both poles in parallel to minimise startup time
         const [res1, res2] = await Promise.all([
             fetch('/api/initdata?poleID=1'),
             fetch('/api/initdata?poleID=2'),
         ]);
 
         pole1Data   = await res1.json();
+        // Track the last ID so getNewData() can detect new records efficiently
         lastIDPole1 = pole1Data[pole1Data.length - 1]?.id;
 
         pole2Data   = await res2.json();
@@ -58,6 +60,7 @@ async function initializeData() {
 */
 async function getNewData() {
     try {
+        // Poll both poles simultaneously to keep latency low
         const [res1, res2] = await Promise.all([
             fetch('/api/data?poleID=1'),
             fetch('/api/data?poleID=2'),
@@ -66,6 +69,7 @@ async function getNewData() {
         const result1 = await res1.json();
         if (result1.length > 0) {
             const record = result1[0];
+            // Only append if this record is newer than the last one we've seen
             if (record.id > (lastIDPole1 ?? -1)) {
                 pole1Data.push(record);
                 lastIDPole1 = record.id;
@@ -78,6 +82,7 @@ async function getNewData() {
         const result2 = await res2.json();
         if (result2.length > 0) {
             const record = result2[0];
+            // Only append if this record is newer than the last one we've seen
             if (record.id > (lastIDPole2 ?? -1)) {
                 pole2Data.push(record);
                 lastIDPole2 = record.id;
@@ -124,26 +129,37 @@ function trimOldData(dataArray) {
 */
 async function updatePoleData() {
     try {
+        // Fetch any records newer than the last seen ID for each pole
         await getNewData();
+        // Drop records older than 1 week to keep the buffers from growing forever
         trimOldData(pole1Data);
         trimOldData(pole2Data);
 
         const lastPole1 = pole1Data[pole1Data.length - 1];
         const lastPole2 = pole2Data[pole2Data.length - 1];
 
-        if (!lastPole1 || !lastPole2) {
+        // BUG FIX: previously bailed if either pole had no data, meaning one dead
+        // pole would freeze the entire dashboard. Now we only skip if BOTH are empty.
+        if (!lastPole1 && !lastPole2) {
             console.warn('[Data] No pole data available yet — skipping UI update');
             return;
         }
 
-        const p1Level = lastPole1.waterlevel;
-        const p2Level = lastPole2.waterlevel;
+        // Use the last known value for a pole if it hasn't reported yet,
+        // falling back to 0 so downstream functions always get a valid number
+        const p1Level = lastPole1?.waterlevel ?? 0;
+        const p2Level = lastPole2?.waterlevel ?? 0;
 
         logPollResult(p1Level, p2Level);
+        // Trigger the alarm and border pulse if either pole is above critical
         checkFloodingStatus(p1Level, p2Level);
+        // Update the water level badge text on the pole status card
         updateWaterLevelBadges(p1Level, p2Level);
+        // Swap the warning-state SVG icons based on current levels
         updateWarningIcons(p1Level, p2Level);
+        // Calculate and display estimated time to flood for each pole
         updateFloodPredictions(p1Level, p2Level);
+        // Push the latest data into the chart and re-render
         updateChartData(pole1Data, pole2Data);
 
     } catch (error) {

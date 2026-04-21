@@ -36,9 +36,12 @@ let settings = { ...DEFAULT_SETTINGS };
 function loadSettings() {
     const savedSettings = localStorage.getItem('dashboardSettings');
     if (savedSettings) {
+        // Merge saved values over defaults so any new keys added in future
+        // releases still get their default values on existing installs
         settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
         console.info(`[Settings] Loaded settings from localStorage`);
     } else {
+        // First run — no saved settings yet, defaults are already active
         console.info('[Settings] No saved settings found — using defaults');
     }
     return settings;
@@ -51,11 +54,14 @@ function loadSettings() {
 **     settings object
 */
 function saveSettings(newSettings) {
+    // Snapshot current values so we can diff what actually changed
     const prev = { ...settings };
+    // Merge new values over the existing settings object
     settings = { ...settings, ...newSettings };
+    // Persist the full merged object to localStorage
     localStorage.setItem('dashboardSettings', JSON.stringify(settings));
 
-    // Log only the keys that actually changed
+    // Log only the keys that actually changed for easier debugging
     const changed = Object.keys(newSettings).filter(k => prev[k] !== settings[k]);
     if (changed.length > 0) {
         const diff = changed.map(k => `${k}: ${prev[k]} → ${settings[k]}`).join(', ');
@@ -72,6 +78,8 @@ function saveSettings(newSettings) {
             const frames = window.top.document.querySelectorAll('iframe');
             frames.forEach(frame => {
                 try {
+                    // Fire the event into each iframe's window so data.js and
+                    // home.js can re-render their unit-sensitive displays immediately
                     frame.contentWindow.dispatchEvent(
                         new CustomEvent('ripple:settingsChanged', {
                             detail: { changed }
@@ -392,11 +400,19 @@ function wireHeartbeatEnabledToggle(heartbeatEnabledCheckbox, heartbeatIntervalS
 ** Return:
 **     object  settings delta to pass to saveSettings()
 */
-function collectFormValues( updateFreqSelect, distanceUnitSelect, warningInput, criticalInput, alarmEnabledCheckbox, alarmVolumeSlider, Select) {
+// BUG FIX: was missing heartbeatEnabledCheckbox and heartbeatIntervalSelect parameters.
+// The old signature had a stray 'Select' as the 7th argument, meaning both heartbeat
+// parameters were undefined inside the function and heartbeat settings were never saved.
+function collectFormValues(updateFreqSelect, distanceUnitSelect, warningInput, criticalInput,
+                           alarmEnabledCheckbox, alarmVolumeSlider,
+                           heartbeatEnabledCheckbox, heartbeatIntervalSelect) {
     const newSettings = {};
+    // Determine which unit the user currently has selected so thresholds are converted correctly
     const saveUnit = distanceUnitSelect ? distanceUnitSelect.value : 'Inches';
+    // Hard cap — sensor range is 0–12 inches
     const maxInches = 12.0;
 
+    // Read poll frequency and unit preference directly from their selects
     if (updateFreqSelect)   newSettings.updateFrequency = parseInt(updateFreqSelect.value);
     if (distanceUnitSelect) newSettings.distanceUnits   = distanceUnitSelect.value;
 
@@ -405,17 +421,18 @@ function collectFormValues( updateFreqSelect, distanceUnitSelect, warningInput, 
         const raw = warningInput.value.trim();
         const val = parseFloat(raw);
 
-        // ── NEW: reject invalid input ─────────────────────────────────────
+        // Reject blank or non-numeric input and restore last saved value
         if (raw === '' || isNaN(val)) {
             console.warn(`[Settings] Warning threshold contains invalid input: "${raw}"`);
-            // Restore the field to the last saved value
             const fallback = parseFloat(settings.warningThreshold);
+            // Restore field to last saved value in the current display unit
             warningInput.value = saveUnit === 'Centimeters'
                 ? (fallback * 2.54).toFixed(2)
                 : fallback.toFixed(2);
-            return null;  // signal: do not save
+            return null;  // null signals the caller not to save
         }
 
+        // Convert back to inches for storage, then clamp to valid sensor range
         let inches = saveUnit === 'Centimeters' ? val / 2.54 : val;
         inches = Math.min(Math.max(inches, 0), maxInches);
         newSettings.warningThreshold = parseFloat(inches.toFixed(2));
@@ -426,33 +443,36 @@ function collectFormValues( updateFreqSelect, distanceUnitSelect, warningInput, 
         const raw = criticalInput.value.trim();
         const val = parseFloat(raw);
 
-        // ── NEW: reject invalid input ─────────────────────────────────────
+        // Reject blank or non-numeric input and restore last saved value
         if (raw === '' || isNaN(val)) {
             console.warn(`[Settings] Critical threshold contains invalid input: "${raw}"`);
-            // Restore the field to the last saved value
             const fallback = parseFloat(settings.criticalThreshold);
+            // Restore field to last saved value in the current display unit
             criticalInput.value = saveUnit === 'Centimeters'
                 ? (fallback * 2.54).toFixed(2)
                 : fallback.toFixed(2);
-            return null;  // signal: do not save
+            return null;  // null signals the caller not to save
         }
 
+        // Convert back to inches for storage, then clamp to valid sensor range
         let inches = saveUnit === 'Centimeters' ? val / 2.54 : val;
         inches = Math.min(Math.max(inches, 0), maxInches);
         newSettings.criticalThreshold = parseFloat(inches.toFixed(2));
     }
 
     // ── Enforce warning < critical ────────────────────────────────────────
+    // Both thresholds must be present to compare — one may have been omitted
     if (newSettings.warningThreshold !== undefined && newSettings.criticalThreshold !== undefined) {
         if (newSettings.warningThreshold >= newSettings.criticalThreshold) {
             console.warn(
                 `[Settings] Warning (${newSettings.warningThreshold} in) must be less than ` +
                 `critical (${newSettings.criticalThreshold} in) — correcting warning to critical - 0.5`
             );
+            // Auto-correct by pushing warning 0.5 inches below critical
             newSettings.warningThreshold = parseFloat(
                 (newSettings.criticalThreshold - 0.5).toFixed(2)
             );
-            // Reflect corrected value back into the field
+            // Reflect the corrected value back into the input field
             if (warningInput) {
                 warningInput.value = saveUnit === 'Centimeters'
                     ? (newSettings.warningThreshold * 2.54).toFixed(2)
@@ -461,7 +481,9 @@ function collectFormValues( updateFreqSelect, distanceUnitSelect, warningInput, 
         }
     }
 
+    // Read alarm and heartbeat values from their respective controls
     if (alarmEnabledCheckbox) newSettings.alarmEnabled = alarmEnabledCheckbox.checked;
+    // Slider value is 0–100, stored as 0.0–1.0
     if (alarmVolumeSlider)    newSettings.alarmVolume  = parseInt(alarmVolumeSlider.value) / 100;
 
     if (heartbeatEnabledCheckbox) newSettings.heartbeatEnabled  = heartbeatEnabledCheckbox.checked;

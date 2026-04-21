@@ -17,7 +17,7 @@ require('dotenv').config({ path: path.join(__dirname, 'ripple.env') });
 const app = express();
 
 const showErrors = true;
-const showErrorMsgs = false;
+const showErrorMsgs = true;
 
 console.log(" [Server] Error Reporting:")
 if(showErrors) {
@@ -43,14 +43,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(ROOT, 'SafePassSystem.html'));
 });
 
-// ── Web server ────────────────────────────────────────────────────────────────
+// Web server 
 const WEBSITEPORT = parseInt(process.env.WEBSITE_PORT);
 
-// ── MySQL table names (configured in .env) ────────────────────────────────────
+// MySQL table names (configured in .env)
 const TABLE_USERS       = process.env.DB_TABLE_USERS;
 const TABLE_POLE_STATUS = process.env.DB_TABLE_POLE_STATUS;
 
-// ── MQTT constants ─────────────────────────────────────────────────────────────
+// MQTT constants 
 const HOSTNAME = process.env.MQTT_HOSTNAME;
 const PORT     = process.env.MQTT_PORT;
 const connectUrl = `mqtts://${HOSTNAME}:${PORT}`;
@@ -68,7 +68,7 @@ const subPingRequestTopic  = process.env.MQTT_SUB_PING_RESULT;
 const TABLE_POLE1_IMAGE    = process.env.DB_TABLE_POLE1_IMAGE;
 const TABLE_POLE2_IMAGE    = process.env.DB_TABLE_POLE2_IMAGE;
 
-// ── MQTT connection ───────────────────────────────────────────────────────────
+// MQTT connection 
 const client = mqtt.connect(connectUrl, {
     keepalive: 5,           // Send keepalive every 5s so drops are detected quickly
     clean: true,
@@ -122,16 +122,16 @@ client.on('reconnect', () => {
 ** a ping request to the poles.
 **
 ** Pole status format: 3-character binary string
-**   Position 0 — main pole      (1 = active, 0 = inactive)
-**   Position 1 — secondary pole (1 = active, 0 = inactive)
-**   Position 2 — warning pole   (1 = active, 0 = inactive)
+**   Position 0 - main pole      (1 = active, 0 = inactive)
+**   Position 1 - secondary pole (1 = active, 0 = inactive)
+**   Position 2 - warning pole   (1 = active, 0 = inactive)
 **
 ** Known values:
-**   "000" — no pole responding
-**   "100" — main pole only
-**   "101" — main + warning pole
-**   "110" — main + secondary pole
-**   "111" — all poles responding
+**   "000" - no pole responding
+**   "100" - main pole only
+**   "101" - main + warning pole
+**   "110" - main + secondary pole
+**   "111" - all poles responding
 */
 client.on('message', (topic, message) => {
     if (topic !== subPingRequestTopic) return;
@@ -147,7 +147,7 @@ client.on('message', (topic, message) => {
     console.log(` [Pole Status] Automatic status update received: "${raw}"`);
 });
 
-// ── MySQL connection ──────────────────────────────────────────────────────────
+// MySQL connection 
 // Config stored separately so createConnection can be called again on reconnect
 const dbConfig = {
     host:            process.env.DB_HOST,
@@ -237,7 +237,7 @@ function scheduleReconnect() {
 connectMySQL();
 
 
-// ── API: Water level data ─────────────────────────────────────────────────────
+// API: Water level data 
 
 /* Returns up to 8 days of historical water level records for a given pole.
 ** Used on dashboard initialization to populate the chart.
@@ -287,7 +287,7 @@ app.get('/api/data', (req, res) => {
 });
 
 
-// ── API: Pole status ──────────────────────────────────────────────────────────
+// API: Pole status
 
 /* DB-only health check. Confirms MySQL and MQTT are live, then reads the
 ** most recent pole status row from the database.
@@ -402,7 +402,7 @@ app.get('/api/ping/status', async (req, res) => {
 /* Full active pole ping. Confirms MySQL and MQTT, then publishes a ping
 ** request to the poles and waits up to 45 seconds for a response.
 **
-** Use ONLY when the user presses the Ping button — this actively contacts
+** Use ONLY when the user presses the Ping button - this actively contacts
 ** the poles and should not be called on any automatic interval.
 **
 ** The persistent MQTT listener above handles saving the response to the DB,
@@ -553,21 +553,22 @@ app.get('/api/polestatus/latest', (req, res) => {
 });
 
 
-// ── API: Images ───────────────────────────────────────────────────────────────
+// API: Images 
 
-/* Fetches the latest raw image binary from one of the hardware image tables.
-** The RIPPLE system writes directly to pole1_image / pole2_image.
-** Table structure: [id | raw_binary | created_at]
-** Selects the most recent row (highest id) and returns the value in column index 1.
+/* Fetches the latest raw image binary and its timestamp from one of the
+** hardware image tables. The RIPPLE system writes directly to
+** pole1_image / pole2_image.
+** Table structure: [id | image_data | created_at]
 ** Parameters:
-**     string tableName  — TABLE_POLE1_IMAGE or TABLE_POLE2_IMAGE
+**     string tableName - TABLE_POLE1_IMAGE or TABLE_POLE2_IMAGE
 ** Return:
-**     Promise<Buffer|null>  raw image binary, or null on error / no rows
+**     Promise<{ imageData: Buffer, createdAt: Date }|null>
+**     Returns null on error or no rows.
 */
 function fetchRawImageFromDB(tableName) {
     return new Promise((resolve) => {
         db.query(
-            `SELECT * FROM ${tableName}`,
+            `SELECT image_data, created_at FROM ${tableName} ORDER BY created_at DESC LIMIT 1`,
             (err, results) => {
                 if (err) {
                     if (mysqlConnected) {
@@ -580,29 +581,59 @@ function fetchRawImageFromDB(tableName) {
                     console.warn(`[Fetch Images] No rows found in ${tableName}`);
                     return resolve(null);
                 }
-                // Column index 1 (0=id, 1=raw binary, 2=created_at)
-                const dbResult = results[0].image_data;
-                resolve(dbResult);
+                resolve({
+                    imageData:  results[0].image_data,
+                    createdAt:  results[0].created_at,   // MySQL Date object
+                });
             }
         );
     });
 }/* fetchRawImageFromDB() */
 
+/* Returns only the created_at timestamps for the latest image in each
+** pole table. Used by the dashboard on startup to compare DB freshness
+** against the on-disk copy without transferring full image data.
+** Parameters (query): none
+** Returns: { timestamps: [isoString|null, isoString|null] }
+**   Index 0 = Pole 1, Index 1 = Pole 2
+*/
+app.get('/api/images/timestamps', async (req, res) => {
+    const fetchTimestamp = (tableName) => new Promise((resolve) => {
+        db.query(
+            `SELECT created_at FROM ${tableName} ORDER BY created_at DESC LIMIT 1`,
+            (err, results) => {
+                if (err || !results || results.length === 0) return resolve(null);
+                // Convert MySQL Date to ISO string for JSON transport
+                resolve(results[0].created_at ? new Date(results[0].created_at).toISOString() : null);
+            }
+        );
+    });
+
+    const [ts1, ts2] = await Promise.all([
+        fetchTimestamp(TABLE_POLE1_IMAGE),
+        fetchTimestamp(TABLE_POLE2_IMAGE),
+    ]);
+
+    console.log(` [Image Timestamps] Pole 1: ${ts1 ?? 'none'}, Pole 2: ${ts2 ?? 'none'}`);
+    res.json({ timestamps: [ts1, ts2] });
+});
+
+
 /* Returns the most recently saved image for each sensor pole.
 ** Parameters (query): none
-** Returns: { images: [{ pole_id, image_data, captured_at }, ...] }
+** Returns: { images: [dataUri|null, dataUri|null], timestamps: [isoString|null, isoString|null] }
 */
 app.get('/api/images/latest', async (req, res) => {
-    const [raw1, raw2] = await Promise.all([
+    const [result1, result2] = await Promise.all([
         fetchRawImageFromDB(TABLE_POLE1_IMAGE),
         fetchRawImageFromDB(TABLE_POLE2_IMAGE)
     ]);
 
-    if (!raw1 && !raw2) {
+    if (!result1 && !result2) {
         return res.status(500).json({ error: 'Both image tables returned no data' });
     }
 
-    // Convert raw binary to base64 data URI — Buffer.from handles both
+    // Convert raw binary to base64 data URI - Buffer.from handles both
     // Buffer values (mysql2 BLOB) and string values gracefully
     const toDataUri = (raw) => {
         if (!raw) return null;
@@ -610,12 +641,19 @@ app.get('/api/images/latest', async (req, res) => {
         return `data:image/jpeg;base64,${b64}`;
     };
 
-    const images = [toDataUri(raw1), toDataUri(raw2)];
+    const images = [
+        toDataUri(result1?.imageData ?? null),
+        toDataUri(result2?.imageData ?? null),
+    ];
+    const timestamps = [
+        result1?.createdAt ? new Date(result1.createdAt).toISOString() : null,
+        result2?.createdAt ? new Date(result2.createdAt).toISOString() : null,
+    ];
 
-    console.log(` [Latest Image] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
-    console.log(` [Latest Image] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
+    console.log(` [Latest Image] Pole 1: ${result1 ? images[0].length + ' chars, taken ' + timestamps[0] : 'missing'}`);
+    console.log(` [Latest Image] Pole 2: ${result2 ? images[1].length + ' chars, taken ' + timestamps[1] : 'missing'}`);
 
-    res.json({ images });
+    res.json({ images, timestamps });
 });
 
 
@@ -633,7 +671,7 @@ app.get('/api/images/latest', async (req, res) => {
 ** Body (JSON): { images: [dataUri|null, dataUri|null] }
 **   dataUri format: "data:image/jpeg;base64,<b64data>"
 **
-** Returns: { saved: [string] }  — list of filenames successfully written
+** Returns: { saved: [string] }  - list of filenames successfully written
 */
 app.post('/api/images/save', (req, res) => {
     const { images } = req.body;
@@ -695,12 +733,12 @@ app.get('/api/imagerequest', async (req, res) => {
     console.log(' [Image Request] Publishing image request to RIPPLE system');
     client.publish(pubImageRequestTopic, 'IMAGE REQUEST', { qos: 1 });
 
-    // ── Wait for the DB-complete signal from the broker ───────────────────────
+    // Wait for the DB-complete signal from the broker
     // The RIPPLE system writes both images to the DB, then publishes "1" to
     // subImageStatusTopic. We wait for that signal before querying the DB.
     console.log(` [Image Request] Waiting for DB-complete signal on "${subImageStatusTopic}"...`);
 
-    // ── Start single-line countdown ───────────────────────────────────────────
+    // Start single-line countdown
     const stopCountdown = startCountdown('Image Request', imageRequestTimeout);
 
     const dbReady = await new Promise((resolve) => {
@@ -726,18 +764,18 @@ app.get('/api/imagerequest', async (req, res) => {
     });
 
     if (!dbReady) {
-        return res.status(504).json({ error: 'Image request timed out — no DB-complete signal received' });
+        return res.status(504).json({ error: 'Image request timed out - no DB-complete signal received' });
     }
 
-    // ── Read raw images from the hardware tables ──────────────────────────────
+    // Read raw images from the hardware tables 
     console.log(' [Image Request] Reading raw images from database...');
 
-    const [raw1, raw2] = await Promise.all([
+    const [result1, result2] = await Promise.all([
         fetchRawImageFromDB(TABLE_POLE1_IMAGE),
         fetchRawImageFromDB(TABLE_POLE2_IMAGE)
     ]);
 
-    if (!raw1 && !raw2) {
+    if (!result1 && !result2) {
         return res.status(500).json({ error: 'Both image tables returned no data' });
     }
 
@@ -749,15 +787,22 @@ app.get('/api/imagerequest', async (req, res) => {
         return `data:image/jpeg;base64,${b64}`;
     };
 
-    const images = [toDataUri(raw1), toDataUri(raw2)];
+    const images = [
+        toDataUri(result1?.imageData ?? null),
+        toDataUri(result2?.imageData ?? null),
+    ];
+    const timestamps = [
+        result1?.createdAt ? new Date(result1.createdAt).toISOString() : null,
+        result2?.createdAt ? new Date(result2.createdAt).toISOString() : null,
+    ];
 
-    console.log(` [Image Request] Pole 1 image: ${raw1 ? images[0].length + ' chars' : 'missing'}`);
-    console.log(` [Image Request] Pole 2 image: ${raw2 ? images[1].length + ' chars' : 'missing'}`);
+    console.log(` [Image Request] Pole 1 image: ${result1 ? images[0].length + ' chars, taken ' + timestamps[0] : 'missing'}`);
+    console.log(` [Image Request] Pole 2 image: ${result2 ? images[1].length + ' chars, taken ' + timestamps[1] : 'missing'}`);
 
-    res.json({ images });
+    res.json({ images, timestamps });
 });
 
-// ── API: Public client config ─────────────────────────────────────────────────
+// API: Public client config
 // Exposes only safe, non-sensitive values from .env to the browser.
 // Never include DB credentials, MQTT passwords, or hostnames here.
 app.get('/api/config', (req, res) => {
@@ -806,7 +851,7 @@ function startCountdown(label, totalMs, intervalMs = 1000) {
     console.error = wrap(originalError);
     console.info  = wrap(originalInfo);
 
-    // Returns a stop function — call it when the operation finishes or times out
+    // Returns a stop function - call it when the operation finishes or times out
     return () => {
         clearInterval(handle);
         // Restore original console methods
@@ -822,7 +867,7 @@ function startCountdown(label, totalMs, intervalMs = 1000) {
 app.listen(WEBSITEPORT, () => {
     console.log('');
     console.log(' ========================================================== ');
-    console.log('  RIPPLE Dashboard — Live');
+    console.log('  RIPPLE Dashboard - Live');
     console.log(' ========================================================== ');
     console.log('');
     console.log(` Server running at http://localhost:${WEBSITEPORT}`);

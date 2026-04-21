@@ -115,24 +115,40 @@
         <section class="card graph-card">
             <div class="card-header">
                 <h2 class="card-title">Water Level History</h2>
-                <div class="graph-controls">
-                    <div class="control-group">
-                        <label for="pole-select" class="control-label">Poles</label>
-                        <select id="pole-select" class="control-select">
-                            <option value="All Poles">All Poles</option>
-                            <option value="Pole 1">Pole 1</option>
-                            <option value="Pole 2">Pole 2</option>
-                        </select>
+                <div class="graph-header-right">
+                    <!-- Hover readout — populated by chart.js crosshair on mousemove -->
+                    <div class="chart-readout" id="chart-readout">
+                        <span class="readout-time" id="readout-time">--</span>
+                        <div class="readout-values">
+                            <span class="readout-pole readout-pole1">
+                                <span class="readout-dot" style="background:#CC2222"></span>
+                                Pole 1: <span id="readout-p1">--</span>
+                            </span>
+                            <span class="readout-pole readout-pole2">
+                                <span class="readout-dot" style="background:#2196F3"></span>
+                                Pole 2: <span id="readout-p2">--</span>
+                            </span>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label for="duration-select" class="control-label">Duration</label>
-                        <select id="duration-select" class="control-select">
-                            <option value="3 Hours">3 Hours</option>
-                            <option value="12 Hours"selected>12 Hours</option>
-                            <option value="1 Day">1 Day</option>
-                            <option value="3 Days">3 Days</option>
-                            <option value="1 Week">1 Week</option>
-                        </select>
+                    <div class="graph-controls">
+                        <div class="control-group">
+                            <label for="pole-select" class="control-label">Poles</label>
+                            <select id="pole-select" class="control-select">
+                                <option value="All Poles">All Poles</option>
+                                <option value="Pole 1">Pole 1</option>
+                                <option value="Pole 2">Pole 2</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="duration-select" class="control-label">Duration</label>
+                            <select id="duration-select" class="control-select">
+                                <option value="3 Hours">3 Hours</option>
+                                <option value="12 Hours" selected>12 Hours</option>
+                                <option value="1 Day">1 Day</option>
+                                <option value="3 Days">3 Days</option>
+                                <option value="1 Week">1 Week</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

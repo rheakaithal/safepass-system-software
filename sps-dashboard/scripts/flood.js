@@ -27,8 +27,11 @@
 **     int | null | 0
 */
 function predictTimeToFlood(dataPoints, criticalThreshold, currentLevel) {
+    // Need at least 2 points to calculate a rate of change
     if (dataPoints.length < 2) return null;
 
+    // Only look at the last 10 readings so the prediction reflects recent trend,
+    // not a long historical average that may have included a past flood event
     const recentPoints = dataPoints.slice(-10);
 
     let totalRateChange = 0;
@@ -39,6 +42,7 @@ function predictTimeToFlood(dataPoints, criticalThreshold, currentLevel) {
                         - new Date(recentPoints[i - 1].created_at).getTime();
         const waterDiff = recentPoints[i].waterlevel - recentPoints[i - 1].waterlevel;
 
+        // Skip any pair of records with identical timestamps to avoid division by zero
         if (timeDiff > 0) {
             totalRateChange += waterDiff / timeDiff;
             validIntervals++;
@@ -47,6 +51,7 @@ function predictTimeToFlood(dataPoints, criticalThreshold, currentLevel) {
 
     if (validIntervals === 0) return null;
 
+    // Average rate of rise in inches per millisecond over the recent window
     const averageRatePerMs = totalRateChange / validIntervals;
 
     // Use the caller-supplied current level so the prediction is consistent
@@ -55,12 +60,15 @@ function predictTimeToFlood(dataPoints, criticalThreshold, currentLevel) {
         currentLevel = recentPoints[recentPoints.length - 1].waterlevel;
     }
 
+    // Already flooded — return 0 as the special "flooding now" signal
     if (currentLevel >= criticalThreshold) return 0;
+    // Water is falling or flat — no flood predicted
     if (averageRatePerMs <= 0)              return null;
 
     const levelDifference    = criticalThreshold - currentLevel;
     const timeToFloodMinutes = Math.floor(levelDifference / averageRatePerMs / (1000 * 60));
 
+    // Cap at 2 hours — anything beyond that is too uncertain to be useful
     if (timeToFloodMinutes > 120) return null;
 
     // Clamp to 1 — a 0 return is reserved for "already flooding" above

@@ -26,22 +26,28 @@
 **     { oscillator, audioContext } | null
 */
 function playAlarmSound(volume = 0.7, duration = 2000) {
+    // Respects the user's alarm preference — return silently if disabled
     if (!settings.alarmEnabled) return null;
 
     try {
+        // Web Audio API context must be created fresh each call — reusing a
+        // closed context throws an error
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator   = audioContext.createOscillator();
         const gainNode     = audioContext.createGain();
 
+        // Route: oscillator → gain → speakers
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
 
+        // Alternate between 800 Hz and 1000 Hz to create an urgent two-tone effect
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(800,  audioContext.currentTime);
         oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.25);
         oscillator.frequency.setValueAtTime(800,  audioContext.currentTime + 0.5);
         oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.75);
 
+        // Start at the requested volume and fade out smoothly over the duration
         gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
 
@@ -139,17 +145,22 @@ function updateBorderPulse(isFlooding) {
 **     None
 */
 function checkFloodingStatus(pole1Level, pole2Level) {
+    // Snapshot the previous flooding state so we can detect transitions
     const pole1WasFlooding = alarmState.pole1Flooding;
     const pole2WasFlooding = alarmState.pole2Flooding;
 
+    // Update current flooding state based on latest water levels
     alarmState.pole1Flooding = pole1Level >= settings.criticalThreshold;
     alarmState.pole2Flooding = pole2Level >= settings.criticalThreshold;
 
     const anyFlooding = alarmState.pole1Flooding || alarmState.pole2Flooding;
     const wasFlooding = pole1WasFlooding || pole2WasFlooding;
 
+    // Always sync the border pulse to the current flooding state
     updateBorderPulse(anyFlooding);
 
+    // Only start the alarm on the transition from not-flooding → flooding
+    // to avoid restarting it on every poll tick while flooding is active
     if (anyFlooding && !wasFlooding) {
         const floodingPoles = [
             alarmState.pole1Flooding ? 'Pole 1' : null,
@@ -163,11 +174,13 @@ function checkFloodingStatus(pole1Level, pole2Level) {
         startContinuousAlarm();
     }
 
+    // Log warning-level readings (above warning threshold but not yet critical)
     const pole1Warning = pole1Level >= settings.warningThreshold && !alarmState.pole1Flooding;
     const pole2Warning = pole2Level >= settings.warningThreshold && !alarmState.pole2Flooding;
     if (pole1Warning) console.warn(`[Flood] Pole 1 at WARNING level: ${pole1Level.toFixed(2)} in (threshold: ${settings.warningThreshold} in)`);
     if (pole2Warning) console.warn(`[Flood] Pole 2 at WARNING level: ${pole2Level.toFixed(2)} in (threshold: ${settings.warningThreshold} in)`);
 
+    // Stop the alarm on the transition from flooding → not-flooding
     if (!anyFlooding && wasFlooding) {
         stopContinuousAlarm();
         console.info(`[Flood] Flooding subsided — Pole 1: ${pole1Level.toFixed(2)} in, Pole 2: ${pole2Level.toFixed(2)} in`);

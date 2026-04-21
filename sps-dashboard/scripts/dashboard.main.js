@@ -104,13 +104,15 @@ async function initializeDashboard() {
 **     None
 */
 function startHeartbeat() {
-    // Clear any running interval before creating a new one
+    // Clear any running interval before creating a new one so calling this
+    // after a settings change doesn't stack duplicate intervals
     if (heartbeatIntervalHandle) {
         clearInterval(heartbeatIntervalHandle);
         heartbeatIntervalHandle = null;
     }
 
-    // Run once immediately so the indicators show current state on load'
+    // Run once immediately so the ping card shows current state on load
+    // rather than waiting for the first interval tick
     checkSystemHealth();
     
     if (!settings.heartbeatEnabled) {
@@ -118,6 +120,7 @@ function startHeartbeat() {
         return;
     }
 
+    // Store the handle in globals.js so it can be cleared again if settings change
     heartbeatIntervalHandle = setInterval(checkSystemHealth, settings.heartbeatInterval);
     console.info(`[Init] Heartbeat interval set to ${settings.heartbeatInterval}ms`);
 }/* startHeartbeat() */

@@ -65,6 +65,8 @@ async function loadRemoteConfig() {
     try {
         const res  = await fetch('/api/config');
         const data = await res.json();
+        // Merge server values over the defaults so any key the server omits
+        // still falls back to a safe default value
         remoteConfig = { ...remoteConfig, ...data };
         console.info('[Config] Remote config loaded:' + 
             `\n- Soft Ping Timeout: ${remoteConfig.SOFT_PING_TIMEOUT / 1000} seconds` +
@@ -73,6 +75,7 @@ async function loadRemoteConfig() {
             `\n- Image Request Timeout: ${remoteConfig.IMAGE_REQUEST_TIMEOUT / 1000 / 60} minutes`
         );
     } catch (err) {
+        // Non-fatal — the hardcoded defaults above are used instead
         console.warn('[Config] Failed to load remote config — using defaults:', err.message);
     }
 }
@@ -98,6 +101,8 @@ const BTN_LOCK_MAX_AGE_MS = 3 * 60 * 1000;
 **     None
 */
 function _disableActionButtons(pingButton, imageButton) {
+    // Grey out and block both buttons so the user can't fire a second
+    // request while one is already in flight
     if (pingButton) {
         pingButton.disabled = true;
         pingButton.classList.add('btn-disabled');
@@ -106,6 +111,7 @@ function _disableActionButtons(pingButton, imageButton) {
         imageButton.disabled = true;
         imageButton.classList.add('btn-disabled');
     }
+    // Persist the lock with a timestamp so it can be auto-cleared if stale
     localStorage.setItem(BTN_LOCK_KEY,      'true');
     localStorage.setItem(BTN_LOCK_TIME_KEY, Date.now().toString());
     console.info('[ButtonLock] Buttons locked');
@@ -119,6 +125,7 @@ function _disableActionButtons(pingButton, imageButton) {
 **     None
 */
 function _enableActionButtons(pingButton, imageButton) {
+    // Re-enable and restore normal appearance
     if (pingButton) {
         pingButton.disabled = false;
         pingButton.classList.remove('btn-disabled');
@@ -127,6 +134,7 @@ function _enableActionButtons(pingButton, imageButton) {
         imageButton.disabled = false;
         imageButton.classList.remove('btn-disabled');
     }
+    // Remove both lock keys so _restoreButtonDisabledState starts clean next reload
     localStorage.removeItem(BTN_LOCK_KEY);
     localStorage.removeItem(BTN_LOCK_TIME_KEY);
     console.info('[ButtonLock] Buttons unlocked');
@@ -145,6 +153,7 @@ function _restoreButtonDisabledState(pingButton, imageButton) {
     const lockedAt  = parseInt(localStorage.getItem(BTN_LOCK_TIME_KEY) || '0', 10);
     const age       = Date.now() - lockedAt;
 
+    // Nothing to restore if no lock was set
     if (!locked) return;
 
     if (age > BTN_LOCK_MAX_AGE_MS) {
@@ -155,7 +164,8 @@ function _restoreButtonDisabledState(pingButton, imageButton) {
         return;
     }
 
-    // Lock is fresh — keep buttons disabled
+    // Lock is still fresh — keep buttons disabled so the in-flight request
+    // can't be re-triggered by navigating away and back
     console.info(`[ButtonLock] Active lock restored (age: ${Math.round(age / 1000)}s) — buttons remain disabled`);
     if (pingButton) {
         pingButton.disabled = true;

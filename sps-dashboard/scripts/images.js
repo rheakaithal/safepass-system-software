@@ -452,7 +452,7 @@ function initializeImageRequestButton() {
 
             console.info(`[Images] Received ${images.filter(Boolean).length} image(s) from RIPPLE system — validating...`);
 
-            // Validate JPEG magic bytes before writing to disk
+            // Validate JPEG header bytes before writing to disk
             const validatedImages = validateImages(images);
             if (!validatedImages[0] && !validatedImages[1]) {
                 console.warn('[Images] All images failed JPEG validation — aborting save');

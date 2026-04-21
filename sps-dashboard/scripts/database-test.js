@@ -66,6 +66,7 @@ const SIM_PORT = 80;
 const FAST_SAMPLE_THRESHOLD = 2.0;   // above this: 1-min interval
 const SLOW_INTERVAL_MIN     = 5;     // minutes between samples below threshold
 const FAST_INTERVAL_MIN     = 1;     // minutes between samples above threshold
+const MIN_READABLE_LEVEL    = 1.0;   // sensor does not report below this depth
 
 // Realistic delays (ms)
 const SOFT_PING_DELAY_MS    = 400;   // DB-only health check
@@ -110,8 +111,10 @@ function simulatedWaterLevel(timestampMs, poleId) {
     const t        = timestampMs / 1000;           // seconds
     const polePhase = poleId === 1 ? 0 : 0.4;     // poles are slightly out of phase
 
-    // ── Slow baseline: gentle 12-hour tide-like cycle, 0.3–1.0 in
-    const baseline = 0.65 + 0.35 * Math.sin((t / (12 * 3600)) * 2 * Math.PI + polePhase);
+    // ── Slow baseline: gentle 12-hour tide-like cycle, 1.1–1.8 in
+    // Kept above MIN_READABLE_LEVEL (1.0 in) at all times so the sensor
+    // always has data across the full chart window.
+    const baseline = 1.45 + 0.35 * Math.sin((t / (12 * 3600)) * 2 * Math.PI + polePhase);
 
     // ── Rain events: check nearby "event seeds" in a ±6 hour window
     // Seed rain events to a 6-hour grid so they don't overlap heavily
@@ -174,12 +177,17 @@ function generateMockHistory(poleId) {
 
     while (t <= now) {
         const level = simulatedWaterLevel(t, poleId);
-        records.push({
-            id:         id++,
-            pole_id:    poleId,
-            waterlevel: level,
-            created_at: new Date(t).toISOString(),
-        });
+
+        // Only emit a record if the level is at or above the sensor's
+        // minimum readable depth — below 1 inch the hardware returns nothing
+        if (level >= MIN_READABLE_LEVEL) {
+            records.push({
+                id:         id++,
+                pole_id:    poleId,
+                waterlevel: level,
+                created_at: new Date(t).toISOString(),
+            });
+        }
 
         // Next sample time depends on current level
         const intervalMs = level >= FAST_SAMPLE_THRESHOLD
@@ -236,12 +244,16 @@ setInterval(() => {
             : SLOW_INTERVAL_MIN * 60 * 1000;
 
         if (now - state.lastRecordAt >= intervalMs) {
-            state.latestRecord = {
-                id:         state.id++,
-                pole_id:    poleId,
-                waterlevel: level,
-                created_at: new Date(now).toISOString(),
-            };
+            // Only emit a record if the level is at or above the sensor's
+            // minimum readable depth — below 1 inch the hardware returns nothing
+            if (level >= MIN_READABLE_LEVEL) {
+                state.latestRecord = {
+                    id:         state.id++,
+                    pole_id:    poleId,
+                    waterlevel: level,
+                    created_at: new Date(now).toISOString(),
+                };
+            }
             state.lastRecordAt = now;
         }
     }
@@ -249,10 +261,25 @@ setInterval(() => {
 
 
 // ── Simulation state flags ────────────────────────────────────────────────────
-// Simulate always-connected infrastructure so the ping card shows green
+// All flags start enabled. Use terminal commands to toggle them at runtime.
+// See the command reference printed on startup for the full list.
 let simMysqlConnected = true;
 let simMqttConnected  = true;
-let simPoleStatus     = '111';   // all three poles responding
+// Individual pole online/offline flags — 1 = main, 2 = secondary, 3 = warning
+let simPoleOnline     = { 1: true, 2: true, 3: true };
+
+/* Derives the 3-character binary pole status string from the individual flags.
+** '1' = online, '0' = offline.  Format: "[main][secondary][warning]"
+** Parameters:
+**     None
+** Return:
+**     string  e.g. '111', '100', '010'
+*/
+function getSimPoleStatus() {
+    return (simPoleOnline[1] ? '1' : '0') +
+           (simPoleOnline[2] ? '1' : '0') +
+           (simPoleOnline[3] ? '1' : '0');
+}
 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -337,8 +364,12 @@ app.get('/api/config', (req, res) => {
 ** Returns the pre-generated 8-day history for the requested pole,
 ** filtered to the last 8 days and ordered ASC — identical shape to
 ** what the real database returns.
+** Returns 500 when MySQL is simulated as offline.
 */
 app.get('/api/initdata', (req, res) => {
+    if (!simMysqlConnected) {
+        return res.status(500).json({ error: 'MySQL is offline (simulated)' });
+    }
     const poleId      = parseInt(req.query.poleID);
     const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
     const data = (mockHistory[poleId] ?? [])
@@ -349,10 +380,12 @@ app.get('/api/initdata', (req, res) => {
 
 /* Mirrors /api/data
 ** Returns the single most recent live record for the requested pole.
-** If the live ticker hasn't emitted a record yet, falls back to the
-** last historic entry.
+** Returns 500 when MySQL is simulated as offline.
 */
 app.get('/api/data', (req, res) => {
+    if (!simMysqlConnected) {
+        return res.status(500).json({ error: 'MySQL is offline (simulated)' });
+    }
     const poleId = parseInt(req.query.poleID);
     const state  = liveState[poleId];
 
@@ -370,41 +403,88 @@ app.get('/api/data', (req, res) => {
 
 /* Mirrors /api/ping/status — DB-only health check used by the 10-second interval.
 ** Simulates the SELECT 1 + MQTT publish round-trip with a short delay.
+** Returns a 500 with the appropriate flags when any service is disabled.
 */
 app.get('/api/ping/status', async (req, res) => {
     await delay(SOFT_PING_DELAY_MS);
 
-    res.json({
-        success:    true,
-        mysql:      simMysqlConnected,
-        mqtt:       simMqttConnected,
-        mainPole:   true,
-        secPole:    true,
-        warnPole:   true,
-        poleStatus: simPoleStatus,
+    const mysql      = simMysqlConnected;
+    const mqtt       = simMqttConnected;
+    const poleStatus = getSimPoleStatus();
+    const errors     = [];
+
+    if (!mysql) errors.push('MySQL not connected');
+    if (!mqtt)  errors.push('MQTT not connected');
+
+    // If either core service is down, return early without pole status
+    if (!mysql || !mqtt) {
+        return res.status(500).json({ success: false, mysql, mqtt, errors });
+    }
+
+    const mainPole = simPoleOnline[1];
+    const secPole  = simPoleOnline[2];
+    const warnPole = simPoleOnline[3];
+
+    if (!mainPole) errors.push('Main pole not responding');
+    if (!secPole)  errors.push('Secondary pole not responding');
+    if (!warnPole) errors.push('Warning pole not responding');
+
+    const allPolesUp = mainPole && secPole && warnPole;
+
+    return res.status(allPolesUp ? 200 : 500).json({
+        success:    allPolesUp,
+        mysql:      true,
+        mqtt:       true,
+        mainPole,
+        secPole,
+        warnPole,
+        poleStatus,
         updated_at: new Date().toISOString(),
-        errors:     [],
+        errors,
     });
 });
 
 
 /* Mirrors /api/ping/full — active pole ping used by the Ping button only.
 ** Simulates the full MQTT publish → pole response round-trip delay.
+** Returns a 500 with appropriate flags when any service is disabled.
 */
 app.get('/api/ping/full', async (req, res) => {
     console.log(' [Sim] Full ping request received — simulating pole round-trip...');
     await delay(HARD_PING_DELAY_MS);
 
-    res.json({
-        success:    true,
-        mysql:      simMysqlConnected,
-        mqtt:       simMqttConnected,
-        mainPole:   true,
-        secPole:    true,
-        warnPole:   true,
-        poleStatus: simPoleStatus,
+    const mysql      = simMysqlConnected;
+    const mqtt       = simMqttConnected;
+    const poleStatus = getSimPoleStatus();
+    const errors     = [];
+
+    if (!mysql) errors.push('MySQL not connected');
+    if (!mqtt)  errors.push('MQTT not connected');
+
+    if (!mysql || !mqtt) {
+        return res.status(500).json({ success: false, mysql, mqtt, errors });
+    }
+
+    const mainPole = simPoleOnline[1];
+    const secPole  = simPoleOnline[2];
+    const warnPole = simPoleOnline[3];
+
+    if (!mainPole) errors.push('Main pole did not respond');
+    if (!secPole)  errors.push('Secondary pole did not respond');
+    if (!warnPole) errors.push('Warning pole did not respond');
+
+    const allPolesUp = mainPole && secPole && warnPole;
+
+    return res.status(allPolesUp ? 200 : 500).json({
+        success:    allPolesUp,
+        mysql:      true,
+        mqtt:       true,
+        mainPole,
+        secPole,
+        warnPole,
+        poleStatus,
         updated_at: new Date().toISOString(),
-        errors:     [],
+        errors,
     });
 });
 
@@ -413,7 +493,7 @@ app.get('/api/ping/full', async (req, res) => {
 ** Returns the last known pole status — used on dashboard init.
 */
 app.get('/api/polestatus/latest', (req, res) => {
-    res.json({ poleStatus: simPoleStatus, updated_at: new Date().toISOString() });
+    res.json({ poleStatus: getSimPoleStatus(), updated_at: new Date().toISOString() });
 });
 
 
@@ -518,4 +598,142 @@ app.listen(SIM_PORT, () => {
     console.log(' [Sim] All systems simulated — no MySQL or MQTT required');
     console.log(` [Sim] Sampling rule: <${FAST_SAMPLE_THRESHOLD} in → every ${SLOW_INTERVAL_MIN} min | ≥${FAST_SAMPLE_THRESHOLD} in → every ${FAST_INTERVAL_MIN} min`);
     console.log('');
+    printCommandHelp();
+});
+
+
+// ── Terminal command interface ─────────────────────────────────────────────────
+/* Prints the full command reference to the terminal.
+** Called on startup and when the user types 'help'.
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+function printCommandHelp() {
+    console.log(' ┌─────────────────────────────────────────────────────┐');
+    console.log(' │           RIPPLE Sim — Terminal Commands            │');
+    console.log(' ├─────────────────────────────────────────────────────┤');
+    console.log(' │  mysql off / mysql on      Disable / enable MySQL   │');
+    console.log(' │  mqtt off  / mqtt on       Disable / enable MQTT    │');
+    console.log(' │  pole1 off / pole1 on      Main pole offline/online │');
+    console.log(' │  pole2 off / pole2 on      Sec pole offline/online  │');
+    console.log(' │  pole3 off / pole3 on      Warn pole offline/online │');
+    console.log(' │  poles off / poles on      All poles offline/online │');
+    console.log(' │  status                    Print current sim state  │');
+    console.log(' │  help                      Show this reference      │');
+    console.log(' └─────────────────────────────────────────────────────┘');
+    console.log('');
+}
+
+/* Prints the current state of all simulation flags.
+** Parameters:
+**     None
+** Return:
+**     None
+*/
+function printSimStatus() {
+    // \x1b[34m = standard blue, matching the terminal colour set by color 0B in the .bat.
+    // Applied at the start of every console.log call because each call is a fresh
+    // output — colour from a previous line does not carry over automatically.
+    const B   = '\x1b[96m';
+    const GRN = '\x1b[32m';
+    const RED = '\x1b[31m';
+    const on  = (v) => v ? `${GRN}ONLINE${B}` : `${RED}OFFLINE${B}`;
+    console.log('');
+    console.log(`${B} [Sim] Current simulation state:`);
+    console.log(`${B} [Sim]   MySQL          : ${on(simMysqlConnected)}`);
+    console.log(`${B} [Sim]   MQTT           : ${on(simMqttConnected)}`);
+    console.log(`${B} [Sim]   Pole 1 (main)  : ${on(simPoleOnline[1])}`);
+    console.log(`${B} [Sim]   Pole 2 (sec)   : ${on(simPoleOnline[2])}`);
+    console.log(`${B} [Sim]   Pole 3 (warn)  : ${on(simPoleOnline[3])}`);
+    console.log(`${B} [Sim]   Pole status    : ${getSimPoleStatus()}`);
+    console.log('');
+}
+
+/* Parses and dispatches a single command string entered in the terminal.
+** Parameters:
+**     string line  raw input line from stdin
+** Return:
+**     None
+*/
+function handleCommand(line) {
+    const cmd = line.trim().toLowerCase();
+    if (!cmd) return;
+
+    switch (cmd) {
+        case 'mysql off':
+            simMysqlConnected = false;
+            console.log(' [Sim] MySQL marked OFFLINE — /api/data and /api/initdata will return 500');
+            break;
+        case 'mysql on':
+            simMysqlConnected = true;
+            console.log(' [Sim] MySQL marked ONLINE');
+            break;
+
+        case 'mqtt off':
+            simMqttConnected = false;
+            console.log(' [Sim] MQTT marked OFFLINE — ping endpoints will report MQTT failure');
+            break;
+        case 'mqtt on':
+            simMqttConnected = true;
+            console.log(' [Sim] MQTT marked ONLINE');
+            break;
+
+        case 'pole1 off':
+            simPoleOnline[1] = false;
+            console.log(` [Sim] Main pole (1) marked OFFLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+        case 'pole1 on':
+            simPoleOnline[1] = true;
+            console.log(` [Sim] Main pole (1) marked ONLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+
+        case 'pole2 off':
+            simPoleOnline[2] = false;
+            console.log(` [Sim] Secondary pole (2) marked OFFLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+        case 'pole2 on':
+            simPoleOnline[2] = true;
+            console.log(` [Sim] Secondary pole (2) marked ONLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+
+        case 'pole3 off':
+            simPoleOnline[3] = false;
+            console.log(` [Sim] Warning pole (3) marked OFFLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+        case 'pole3 on':
+            simPoleOnline[3] = true;
+            console.log(` [Sim] Warning pole (3) marked ONLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+
+        case 'poles off':
+            simPoleOnline[1] = simPoleOnline[2] = simPoleOnline[3] = false;
+            console.log(` [Sim] All poles marked OFFLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+        case 'poles on':
+            simPoleOnline[1] = simPoleOnline[2] = simPoleOnline[3] = true;
+            console.log(` [Sim] All poles marked ONLINE — pole status now: ${getSimPoleStatus()}`);
+            break;
+
+        case 'status':
+            printSimStatus();
+            break;
+
+        case 'help':
+            printCommandHelp();
+            break;
+
+        default:
+            console.log(` [Sim] Unknown command: "${cmd}" — type 'help' for the command list`);
+    }
+}
+
+// Read commands from stdin line by line.
+// setEncoding ensures multi-byte characters don't arrive split across chunks.
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', (chunk) => {
+    // A single chunk may contain multiple newline-separated commands if the
+    // user pastes input — split and handle each line individually
+    chunk.split('\n').forEach(line => handleCommand(line));
 });
