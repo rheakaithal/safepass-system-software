@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'rea
 import { AlertTriangle, CheckCircle, Hand, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { PREDEFINED_POLES, ALERT_WINDOW_HOURS } from './config';
 
-export function NativeAlertDashboard({ alerts, connected }) {
+export function NativeAlertDashboard({ alerts, connected, onClear }) {
   const [selectedPole, setSelectedPole] = useState('all');
   const [expandedPoles, setExpandedPoles] = useState({});
 
@@ -92,6 +92,11 @@ export function NativeAlertDashboard({ alerts, connected }) {
               <View style={styles.connectingDot} />
               <Text style={styles.connectingText}>Connecting...</Text>
             </View>
+          )}
+          {alerts.length > 0 && (
+            <TouchableOpacity onPress={onClear} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>Clear</Text>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -437,5 +442,20 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 12,
     color: '#94a3b8',
+  },
+  clearButton: {
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  clearButtonText: {
+    fontSize: 11,
+    color: '#94a3b8',
+    fontWeight: '600',
   },
 });

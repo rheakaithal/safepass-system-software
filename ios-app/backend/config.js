@@ -4,11 +4,13 @@
 
 // MQTT broker URL (plain MQTT for Node.js — note: App.js uses WSS variant)
 // Used in: subscriber.js, interactiveTest.js, testPublish.js → mqtt.connect()
-const MQTT_BROKER_URL = 'mqtt://broker.hivemq.com';
+const MQTT_BROKER_URL = 'mqtts://83ad0f202f85425e99ee81ecdda5e543.s1.eu.hivemq.cloud:8883';
 
 // MQTT connection options — reconnection + keepalive behaviour
 // Used in: subscriber.js, interactiveTest.js, testPublish.js → mqtt.connect()
 const MQTT_OPTIONS = {
+  username: 'testuser',
+  password: 'Team13Capstone',
   reconnectPeriod: 5000,  // retry every 5s after a disconnect
   connectTimeout: 30000,  // 30s to establish initial connection
   keepalive: 60,          // send MQTT ping every 60s to detect dead connections
@@ -17,8 +19,8 @@ const MQTT_OPTIONS = {
 // MQTT topics
 // Used in: subscriber.js → subscribe/publish, interactiveTest.js → publish/subscribe, testPublish.js → publish
 const TOPICS = {
-  SENSOR_WILDCARD: 'safepass/sensors/+/waterlevel', // wildcard sub for all poles
-  SENSOR_BASE:     'safepass/sensors',               // base path; append /<poleId>/waterlevel to publish
+  SENSOR_WILDCARD: 'sensors/+/waterlevel', // wildcard sub for all poles
+  SENSOR_BASE:     'sensors',               // base path; append /<poleId>/waterlevel to publish
   ALERTS:          'safepass/alerts',                // processed alerts → consumed by mobile app
   TOKENS:          'safepass/tokens',                // push token registration channel
 };

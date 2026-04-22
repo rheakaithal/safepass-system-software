@@ -42,17 +42,22 @@ client.on("message", (topic, message) => {
   }
 
   try {
-    const data = JSON.parse(message.toString());
-    const newStatus = classify(data.level);
+    console.log(`Received on [${topic}]:`, message.toString());
+    const level = parseFloat(message.toString());
+    if (isNaN(level)) { console.error("Invalid level value:", message.toString()); return; }
+
+    // Extract poleId from topic: sensors/<poleId>/waterlevel → normalize to "Pole N"
+    const poleId = `Pole ${topic.split('/')[1]}`;
+    const newStatus = classify(level);
     
     // Only process and publish if this status is different from the previous one
-    if (poleStates[data.poleId] !== newStatus) {
-      poleStates[data.poleId] = newStatus; // Update known state
+    if (poleStates[poleId] !== newStatus) {
+      poleStates[poleId] = newStatus; // Update known state
 
       // Process the raw data into an alert format
       const alert = {
-        poleId: data.poleId,
-        level: data.level,
+        poleId: poleId,
+        level: level,
         status: newStatus,
         timestamp: Date.now(),
       };
@@ -63,7 +68,7 @@ client.on("message", (topic, message) => {
       client.publish(TOPICS.ALERTS, JSON.stringify(alert), { qos: 1 });
 
       // Remotely Ping Registered External Phones
-      sendPushNotification(newStatus, alert.poleId, alert);
+      sendPushNotification(newStatus, poleId, alert);
     }
   } catch (error) {
     console.error("Failed to process message:", error);

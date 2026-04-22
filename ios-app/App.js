@@ -5,7 +5,10 @@ import { NativeAlertDashboard } from './NativeAlertDashboard';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, ALERT_HISTORY_LIMIT } from './config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MQTT_BROKER_URL, MQTT_OPTIONS, TOPICS, ALERT_HISTORY_LIMIT, ALERT_WINDOW_HOURS, DEMO_CLEAR_INTERVAL_MS } from './config';
+
+const ALERTS_STORAGE_KEY = 'safepass_alerts';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -19,6 +22,36 @@ export default function App() {
   const [alerts, setAlerts] = useState([]);
   const [expoPushToken, setExpoPushToken] = useState('');
   const [connected, setConnected] = useState(false);
+
+  const handleClear = () => {
+    setAlerts([]);
+    AsyncStorage.removeItem(ALERTS_STORAGE_KEY)
+      .catch(e => console.error('Failed to clear alerts:', e));
+  };
+
+  // Load persisted alerts on boot, filtered to the active window
+  useEffect(() => {
+    AsyncStorage.getItem(ALERTS_STORAGE_KEY).then(stored => {
+      if (!stored) return;
+      const cutoff = Date.now() - ALERT_WINDOW_HOURS * 60 * 60 * 1000;
+      const parsed = JSON.parse(stored)
+        .filter(a => new Date(a.timestamp).getTime() > cutoff)
+        .map(a => ({ ...a, timestamp: new Date(a.timestamp) }));
+      if (parsed.length > 0) setAlerts(parsed);
+    }).catch(e => console.error('Failed to load alerts from storage:', e));
+  }, []);
+
+  // Demo mode: auto-clear all alerts on a fixed interval
+  useEffect(() => {
+    if (!DEMO_CLEAR_INTERVAL_MS) return;
+    const timer = setInterval(() => {
+      console.log('Demo clear: wiping alert history');
+      setAlerts([]);
+      AsyncStorage.removeItem(ALERTS_STORAGE_KEY)
+        .catch(e => console.error('Failed to clear alerts from storage:', e));
+    }, DEMO_CLEAR_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     // 1. Connect to the Native MQTT Broker via wss
@@ -51,7 +84,12 @@ export default function App() {
         };
 
         // Prepend new alert to the top of the list
-        setAlerts((prevAlerts) => [newAlert, ...prevAlerts].slice(0, ALERT_HISTORY_LIMIT));
+        setAlerts((prevAlerts) => {
+          const updated = [newAlert, ...prevAlerts].slice(0, ALERT_HISTORY_LIMIT);
+          AsyncStorage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(updated))
+            .catch(e => console.error('Failed to persist alerts:', e));
+          return updated;
+        });
       } catch (e) {
         console.error('Failed to parse message:', e);
       }
@@ -71,6 +109,7 @@ export default function App() {
         <NativeAlertDashboard 
           alerts={alerts}
           connected={connected}
+          onClear={handleClear}
         />
       </ScrollView>
     </SafeAreaView>
