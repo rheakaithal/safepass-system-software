@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="iframe-content">
+    <div class="dashboard-grid-iframe">
+        <section class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2 class="card-title">Dashboard Settings</h2>
+            </div>
+            <div style="padding: var(--spacing-xl);">
+                <div style="max-width: 600px;">
+                    <h3 style="margin-bottom: var(--spacing-md); color: var(--primary-color);">Display Settings</h3>
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Update Frequency</label>
+                            <select id="updateFrequencySelect" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                                <option value="1000">1 second</option>
+                                <option value="5000">5 seconds</option>
+                                <option value="10000">10 seconds</option>
+                                <option value="30000">30 seconds</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Distance Units</label>
+                            <select id="distanceUnitSelect" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                                <option value="Inches">Inches</option>
+                                <option value="Centimeters">Centimeters</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 4px; color: var(--primary-color);">Threshold Settings</h3>
+                    <p style="margin-left: 28px; margin-top: 0px; color: var(--text-secondary); font-size: 13px; margin-bottom: var(--spacing-md);">Only effects dashboard. Will not change field threshold levels.</p>
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label id="warningLabel" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Warning Level (inches)</label>
+                            <input id="warningInput" type="number" value="3.0" step="0.1" min="0" max="12" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                        </div>
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label id="criticalLabel" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Critical Level (inches)</label>
+                            <input id="criticalInput" type="number" value="6.0" step="0.1" min="0" max="12" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: var(--spacing-md); color: var(--primary-color);">Alarm Settings</h3>
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="alarmEnabledCheckbox" checked style="margin-right: var(--spacing-sm); width: 20px; height: 20px; cursor: pointer;">
+                                <span style="font-weight: 500;">Enable Critical Flood Alarm</span>
+                            </label>
+                            <p style="margin-left: 28px; color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Sound alarm when any pole reaches critical threshold</p>
+                        </div>
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Alarm Volume</label>
+                            <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                                <input type="range" id="alarmVolumeSlider" min="0" max="100" value="70" style="flex: 1;">
+                                <span id="volumeDisplay" style="min-width: 40px; font-weight: 600;">70%</span>
+                            </div>
+                            <button id="testAlarmButton" style="margin-top: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer; font-size: 13px;">
+                                🔊 Test Alarm
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: var(--spacing-md); color: var(--primary-color);">Heartbeat Settings</h3>
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="heartbeatEnabledCheckbox" checked style="margin-right: var(--spacing-sm); width: 20px; height: 20px; cursor: pointer;">
+                                <span style="font-weight: 500;">Enable Heartbeat</span>
+                            </label>
+                            <p style="margin-left: 28px; color: var(--text-secondary); font-size: 13px; margin-top: 4px;">
+                                Periodically checks MySQL and MQTT connectivity and reads the latest
+                                pole status from the database. Does not send any request to the poles.
+                            </p>
+                        </div>
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">Heartbeat Interval</label>
+                            <select id="heartbeatIntervalSelect" style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                                <option value="15000">15 seconds</option>
+                                <option value="30000">30 seconds</option>
+                                <option value="45000" selected>45 seconds</option>
+                                <option value="60000">1 minute</option>
+                                <option value="120000">2 minutes</option>
+                                <option value="300000">5 minutes</option>
+                            </select>
+                            <p style="color: var(--text-secondary); font-size: 13px; margin-top: var(--spacing-xs);">
+                                How often the dashboard checks system health in the background.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ── Button Lock Reset ─────────────────────────────────────────── -->
+                    <div class="settings-section" style="margin-bottom: var(--spacing-lg);">
+                        <h3 class="settings-section-title" style="color: var(--primary-color);">Action Button Reset</h3>
+                        <p class="settings-description" style="margin-left: 28px; color: var(--text-secondary); font-size: 13px; margin-top: 4px;">
+                            If the Ping or Image Request buttons are stuck as disabled after a timeout,
+                            use this to manually unlock them.
+                        </p>
+                        <div class="settings-row">
+                            <button id="resetButtonLocks" type="button" style="margin-top: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer; font-size: 13px;">
+                                Reset Button Locks
+                            </button>
+                            <span id="resetButtonLocksStatus" style="font-size: 13px; color: #64748b;"></span>
+                        </div>
+                    </div>
+                    <button id='saveSettings' style="padding: var(--spacing-md) var(--spacing-xl); background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 600; cursor: pointer;">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Diagnostic Console -->
+        <section class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+                <h2 class="card-title">Debug Console</h2>
+                <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                    <label style="font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap;">Log Level</label>
+                    <select id="diagnostic-level" style="padding: 4px 8px; font-size: 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); background: var(--bg-secondary); cursor: pointer;">
+                        <option value="info">All (Info + Warn + Error)</option>
+                        <option value="warn">Warn + Error</option>
+                        <option value="error" selected>Error Only</option>
+                    </select>
+                    <button id="diagnostic-copy" style="padding: 4px 10px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer;">&#x2398; Copy</button>
+                    <button id="diagnostic-clear" style="padding: 4px 10px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer;">&#x2715; Clear</button>
+                    <button id="diagnostic-toggle" style="padding: 4px 10px; font-size: 12px; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 600;">&#x25BC; Hide Console</button>
+                </div>
+            </div>
+            <div id="diagnostic-panel">
+                <div id="diagnostic-output" style="
+                    background: #0f172a;
+                    color: #a3e635;
+                    padding: 12px 16px;
+                    min-height: 220px;
+                    max-height: 420px;
+                    overflow-y: auto;
+                    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+                "></div>
+            </div>
+        </section>
+    </div>
+    <!-- Load JavaScript modules in order -->
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/globals.js"></script>
+    <script src="scripts/alarm.js"></script>
+    <script src="scripts/flood.js"></script>
+    <script src="scripts/data.js"></script>
+    <script src="scripts/ping.js"></script>
+    <script src="scripts/images.js"></script>
+    <script src="scripts/chart.js"></script>
+    <script src="scripts/dashboard.main.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script>
+        // Initialize the diagnostic console panel once all modules are loaded.
+        // Must run after navigation.js so initializeDashboard() has already
+        // fired and any startup logs are already in the ring buffer.
+        initializeDiagnosticConsole();
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="iframe-content">
+    <div class="dashboard-grid-iframe">
+        <section class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2 class="card-title">Frequently Asked Questions</h2>
+                <button
+                    onclick="navigateToGuide()"
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px 18px;
+                        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+                        color: var(--text-inverse);
+                        border: none;
+                        border-radius: var(--border-radius-sm);
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all var(--transition-fast);
+                        box-shadow: var(--shadow-sm);
+                    "
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='var(--shadow-md)'"
+                    onmouseout="this.style.transform=''; this.style.boxShadow='var(--shadow-sm)'"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    User Guide
+                </button>
+            </div>
+            <script>
+                function navigateToGuide() {
+                    if (window.self === window.top) return;
+                    const parent = window.top;
+                    const frame  = parent.document.getElementById('content-frame');
+                    const title  = parent.document.getElementById('page-title');
+                    const sub    = parent.document.getElementById('page-subtitle');
+                    const links  = parent.document.querySelectorAll('.sidebar-link');
+                    if (frame) frame.src = 'UserGuide.html';
+                    if (title) title.textContent = 'User Guide';
+                    if (sub)   sub.textContent   = 'Complete Dashboard Documentation';
+                    links.forEach(l => l.classList.toggle('active', l.getAttribute('data-page') === 'UserGuide.html'));
+                }
+            </script>
+            <div style="padding: var(--spacing-xl);">
+                <div style="max-width: 800px;">
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How often is the data updated?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            The dashboard updates in real-time, with new sensor readings being fetched every second. 
+                            This ensures you always have the most current flood monitoring data.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What do the warning states mean?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            <strong>State 0 (Green):</strong> Normal conditions - water level below the warning threshold<br>
+                            <strong>State 1 (Yellow):</strong> Warning level - water level between the thresholds<br>
+                            <strong>State 2 (Red):</strong> Critical level - water level above the critical threshold
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How can I customize the dashboard?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            The dashboard has locally stored settings for each user. This allows for customization for
+                            any user. These settings include: <strong>Refresh Rate, Distance Unit, Threshold Levels, Alarm Settings,
+                            and Heartbeat Settings.</strong>
+                            <br><br>Please note that the Threshold Levels are dashboard-side only — they will not affect the levels on the RIPPLE system.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How accurate are the sensor readings?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Our sensors are calibrated to provide accuracy within ±0.1 inches. They are regularly 
+                            maintained and tested to ensure reliable flood monitoring data.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What should I do if I see a critical warning?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            If you see a critical (red) warning, follow your organization's emergency flood response 
+                            procedures immediately.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            Can I access historical data?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Yes! Use the duration selector in the graph card to view data from the past 3 hours 
+                            up to 1 week. Historical data can help identify patterns and trends.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What does the "Time to Flood" estimate mean?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            This is a predictive estimate based on the current rate of water level change. It indicates 
+                            how much time you have before flooding conditions are expected to occur if the current trend continues.
+                            Although this isn't a reliable way to detect the flooding of a particular area, it is only supposed to be
+                            an estimate.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            How do I request new images?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Click the "Request Images" button in the Live View card. The system will capture fresh 
+                            images from all monitoring cameras and display them within a few seconds.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What is the Heartbeat and what does it do?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            The Heartbeat is an automatic background health check that runs on a configurable interval (default: 45 seconds).
+                            It silently checks whether the MySQL database and MQTT broker are reachable, then reads the latest pole
+                            status from the database and updates the status indicators on the dashboard. 
+                            <br><br>
+                            <strong>Important:</strong> The Heartbeat only reads from the database — it never sends any request to the physical
+                            sensor poles. To actively contact the poles and get an immediate live response, use the <strong>Ping Sensors</strong> button instead.
+                            <br><br>
+                            The Heartbeat can be enabled or disabled and its interval adjusted from the <strong>Settings</strong> page under
+                            <em>Heartbeat Settings</em>. Disabling it is useful if you want to reduce background network traffic, but the
+                            status indicators will no longer update automatically.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What is the difference between the Heartbeat and the Ping Sensors button?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            These two features serve different purposes:
+                            <br><br>
+                            <strong>Heartbeat (automatic):</strong> Runs quietly in the background on a timer. It only queries the database
+                            for the last recorded pole status — no signal is ever sent to the hardware poles. This is the normal
+                            way the dashboard keeps its status indicators current.
+                            <br><br>
+                            <strong>Ping Sensors (manual):</strong> Triggered only when you click the button. It sends an active MQTT request
+                            directly to the sensor poles and waits up to 45 seconds for them to respond. Use this when you want to
+                            confirm in real time that the poles are alive and communicating, or after a suspected outage.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            What is the Debug Console on the Settings page?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            The Debug Console is an on-page log viewer intended for troubleshooting. It captures all internal
+                            messages generated by the dashboard — including data poll results, connection status changes, image
+                            requests, and any errors — and displays them in a scrollable panel at the bottom of the Settings page.
+                            <br><br>
+                            You can filter messages by severity using the <strong>Log Level</strong> dropdown:
+                            <br>
+                            <strong>All (Info + Warn + Error):</strong> Shows every message, including routine operational logs.<br>
+                            <strong>Warn + Error:</strong> Shows only warnings and errors — useful for spotting problems without the noise.<br>
+                            <strong>Error Only:</strong> Shows only errors — the default, recommended for day-to-day use.
+                            <br><br>
+                            The <strong>Copy</strong> button copies all currently visible log entries to your clipboard so they can be
+                            pasted into a support request or shared with your system administrator.
+                            The <strong>Clear</strong> button wipes the log. The console can be collapsed with the <strong>Hide/Show Console</strong> button
+                            and will remember its collapsed state between visits.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            The Ping or Request Images button is stuck and won't work. What do I do?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            Both action buttons are automatically disabled while a request is in flight to prevent duplicate
+                            requests from being sent. In rare cases — such as a network timeout or navigating away mid-request —
+                            a button can get stuck in the disabled state even though the request has already finished.
+                            <br><br>
+                            To fix this, go to the <strong>Settings</strong> page and scroll down to <em>Action Button Reset</em>.
+                            Click <strong>Reset Button Locks</strong> to immediately re-enable both buttons. This is safe to use at any
+                            time — it simply clears the lock without affecting any data or active connections.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary-color); margin-bottom: var(--spacing-sm);">
+                            Who should I contact for technical support?
+                        </h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; padding-left: var(--spacing-md); border-left: 3px solid var(--accent-color);">
+                            For technical issues with the dashboard or sensors, contact your system administrator or 
+                            IT support team. For emergency flood response, contact local emergency services. For any other
+                            issues, contact Safe Pass Systems at <a href="mailto:SafePassSystems@gmail.com">SafePassSystems@gmail.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

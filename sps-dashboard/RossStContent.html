@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ross Street Content</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js Date Adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body class="iframe-content">
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid-iframe">
+        <!-- Pole Status Cards -->
+        <section class="card pole-status-card">
+            <div class="card-header">
+                <h2 class="card-title">Pole Status</h2>
+                <div class="status-indicator online" id="pole-status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="poleStatusText">Live</span>
+                </div>
+            </div>
+            
+            <div class="pole-list">
+                <div class="pole-item">
+                    <div class="pole-info">
+                        <div class="pole-header">
+                            <h3 class="pole-name">Pole 1</h3>
+                            <div class="water-level-badge" id="pole1-lvl">-- </div>
+                        </div>
+                        <div class="flood-warning">
+                            <span class="warning-label">Est. Time to Flood</span>
+                            <span class="warning-value"></span>
+                        </div>
+                    </div>
+                    <img src="images/WarningState0.svg" alt="Pole 1 Status" class="warning-icon" id="pole1-image">
+                </div>
+
+                <div class="pole-item">
+                    <div class="pole-info">
+                        <div class="pole-header">
+                            <h3 class="pole-name">Pole 2</h3>
+                            <div class="water-level-badge" id="pole2-lvl">-- </div>
+                        </div>
+                        <div class="flood-warning">
+                            <span class="warning-label">Est. Time to Flood</span>
+                            <span class="warning-value"></span>
+                        </div>
+                    </div>
+                    <img src="images/WarningState0.svg" alt="Pole 2 Status" class="warning-icon" id="pole2-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- Ping Status Card -->
+        <section class="card ping-card">
+            <button class="ping-button" aria-label="Ping sensors">
+                <svg class="ping-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                <span>Ping Sensors</span>
+            </button>
+            <div class="ping-status">
+                <div class="status-indicator online" id="overall-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="systemStatus">System Online</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Images Card -->
+        <section class="card image-card">
+            <div class="card-header">
+                <h2 class="card-title">System Images</h2>
+                <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
+                    <span class="image-request-status" id="image-request-status"></span>
+                    <button class="image-request-button" id="image-request-button">
+                        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span>Request Images</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="image-viewer">
+                <img src="images/LocationImage.jpg" alt="Last Image from Pole" class="live-image" id="image">
+            </div>
+            
+            <div class="image-controls">
+                <button class="image-selector-btn active" data-image="images/LocationImage.jpg">
+                    <span class="btn-label">Location</span>
+                </button>
+                <button class="image-selector-btn" data-image="images/Pole1Image.jpg">
+                    <span class="btn-label">Pole 1</span>
+                </button>
+                <button class="image-selector-btn" data-image="images/Pole2Image.jpg">
+                    <span class="btn-label">Pole 2</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Graph Card -->
+        <section class="card graph-card">
+            <div class="card-header">
+                <h2 class="card-title">Water Level History</h2>
+                <div class="graph-header-right">
+                    <!-- Hover readout — populated by chart.js crosshair on mousemove -->
+                    <div class="chart-readout" id="chart-readout">
+                        <span class="readout-time" id="readout-time">--</span>
+                        <div class="readout-values">
+                            <span class="readout-pole readout-pole1">
+                                <span class="readout-dot" style="background:#CC2222"></span>
+                                Pole 1: <span id="readout-p1">--</span>
+                            </span>
+                            <span class="readout-pole readout-pole2">
+                                <span class="readout-dot" style="background:#2196F3"></span>
+                                Pole 2: <span id="readout-p2">--</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="graph-controls">
+                        <div class="control-group">
+                            <label for="pole-select" class="control-label">Poles</label>
+                            <select id="pole-select" class="control-select">
+                                <option value="All Poles">All Poles</option>
+                                <option value="Pole 1">Pole 1</option>
+                                <option value="Pole 2">Pole 2</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="duration-select" class="control-label">Duration</label>
+                            <select id="duration-select" class="control-select">
+                                <option value="3 Hours">3 Hours</option>
+                                <option value="12 Hours" selected>12 Hours</option>
+                                <option value="1 Day">1 Day</option>
+                                <option value="3 Days">3 Days</option>
+                                <option value="1 Week">1 Week</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="graph-container">
+                <canvas id="waterLevelChart"></canvas>
+            </div>
+        </section>
+    </div>
+    <!-- Load JavaScript modules in order -->
+    <!-- globals and settings must be first — all other modules depend on them -->
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/globals.js"></script>
+    <!-- Function modules (order within this group does not matter) -->
+    <script src="scripts/alarm.js"></script>
+    <script src="scripts/flood.js"></script>
+    <script src="scripts/data.js"></script>
+    <script src="scripts/ping.js"></script>
+    <script src="scripts/images.js"></script>
+    <script src="scripts/chart.js"></script>
+    <!-- Entry point — must come after all function modules -->
+    <script src="scripts/dashboard.main.js"></script>
+    <script src="scripts/navigation.js"></script>
+</body>
+</html>

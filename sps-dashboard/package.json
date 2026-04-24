@@ -1,0 +1,21 @@
+{
+  "name": "ripple-dashboard",
+  "version": "4.1.1",
+  "description": "RIPPLE Emergency Services Flood Monitoring Dashboard",
+  "main": "scripts/database.js",
+  "scripts": {
+    "start":       "node scripts/database.js",
+    "dev":         "nodemon scripts/database.js --watch scripts",
+    "install-check": "node -e \"require('./scripts/database.js')\" && echo All dependencies OK"
+  },
+  "dependencies": {
+    "cors":    "^2.8.5",
+    "dotenv":  "^16.0.0",
+    "express": "^4.18.0",
+    "mqtt":    "^5.0.0",
+    "mysql2":  "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
