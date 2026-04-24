@@ -108,17 +108,18 @@ select {
     padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-md);
     box-shadow: var(--shadow-lg);
     position: sticky;
     top: 0;
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;   /* sidebar itself never scrolls */
 }
 
 .sidebar-header {
     padding-bottom: var(--spacing-md);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;     /* logo never shrinks away */
 }
 
 .sidebar-logo {
@@ -128,6 +129,48 @@ select {
     filter: brightness(0) invert(1);
 }
 
+/* General section — locked, never scrolls */
+.sidebar-section-fixed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+/* Dashboards section — label is locked, only buttons scroll */
+.sidebar-section-scroll {
+    display: flex;
+    flex-direction: column;
+    flex: 1;            /* takes all remaining vertical space */
+    overflow: hidden;   /* clips the inner scroll area */
+    min-height: 0;      /* required for flex children to shrink below content size */
+}
+
+.sidebar-section-scroll-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    overflow-y: auto;
+    flex: 1;
+    /* thin custom scrollbar so it doesn't look clunky */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.sidebar-section-scroll-buttons::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-section-scroll-buttons::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-section-scroll-buttons::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+
+/* Keep the original class working for any other references */
 .sidebar-section {
     display: flex;
     flex-direction: column;
@@ -148,7 +191,7 @@ select {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--border-radius-sm);
     color: var(--text-inverse);
     text-decoration: none;
@@ -219,6 +262,7 @@ select {
     background-color: var(--bg-secondary);
     padding: 0;
     margin: 0;
+    overflow: visible;
 }
 
 .dashboard-grid-iframe {

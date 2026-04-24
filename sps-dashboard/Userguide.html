@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - RIPPLE</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/userguide.css">
+</head>
+<body class="iframe-content">
+    <div class="dashboard-grid-iframe">
+        <section class="card" style="grid-column: 1 / -1;">
+
+            <!-- ── Page header ──────────────────────────────────────────── -->
+            <div class="card-header" id="guide-top">
+                <div>
+                    <h2 class="card-title">User Guide</h2>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">
+                        RIPPLE Emergency Service Dashboard &mdash; Safe Pass Systems
+                    </p>
+                </div>
+            </div>
+
+            <div class="guide-body">
+
+                <!-- ── Table of contents ──────────────────────────────── -->
+                <div class="toc">
+                    <div class="toc-title">Contents</div>
+                    <ul class="toc-list">
+                        <li><span class="toc-num">1</span><a href="#sec-overview">Dashboard Overview</a></li>
+                        <li><span class="toc-num">2</span><a href="#sec-home">Home Page &amp; Location Cards</a></li>
+                        <li><span class="toc-num">3</span><a href="#sec-pole-status">Pole Status Card</a></li>
+                        <li><span class="toc-num">4</span><a href="#sec-ping">Ping Sensors</a></li>
+                        <li><span class="toc-num">5</span><a href="#sec-images">Live Images</a></li>
+                        <li><span class="toc-num">6</span><a href="#sec-chart">Water Level History Chart</a></li>
+                        <li><span class="toc-num">7</span><a href="#sec-alarms">Alarms &amp; Visual Alerts</a></li>
+                        <li><span class="toc-num">8</span><a href="#sec-settings">Settings</a></li>
+                        <li><span class="toc-num">9</span><a href="#sec-debug">Debug Console</a></li>
+                        <li><span class="toc-num">10</span><a href="#sec-troubleshoot">Troubleshooting</a></li>
+                    </ul>
+                </div>
+
+                <!-- ══════════════════════════════════════════════════════
+                     1 - OVERVIEW
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-overview">
+                    <div class="section-header">
+                        <span class="section-num">1</span>
+                        <span class="section-title">Dashboard Overview</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The RIPPLE dashboard is a real-time flood monitoring interface built by Safe Pass Systems for
+                        Texas A&amp;M University. It reads water level data from physical sensor poles in the field,
+                        displays live readings and historical trends, and raises visual and audio alarms when water
+                        levels reach dangerous thresholds.
+                    </p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-card-title">🏠 Home</div>
+                            <div class="feature-card-body">Overview of all monitoring locations with at-a-glance status cards. Your starting point.</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-card-title">📊 Location Dashboard</div>
+                            <div class="feature-card-body">Detailed live data for a specific location - pole status, images, chart, and ping controls.</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-card-title">⚙️ Settings</div>
+                            <div class="feature-card-body">Per-user preferences stored locally - units, thresholds, alarm volume, heartbeat interval, and more.</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-card-title">❓ FAQ</div>
+                            <div class="feature-card-body">Quick answers to common questions about the dashboard's features and behaviour.</div>
+                        </div>
+                    </div>
+
+                    <p class="guide-p">
+                        All pages load inside a central content frame managed by the sidebar navigation.
+                        Clicking any sidebar link updates the content area without reloading the entire page.
+                        Your settings are saved to your browser's local storage and persist across sessions.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     2 - HOME
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-home">
+                    <div class="section-header">
+                        <span class="section-num">2</span>
+                        <span class="section-title">Home Page &amp; Location Cards</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The Home page is the dashboard's landing screen. It shows one card per configured monitoring
+                        location, each displaying live sensor readings and an overall status badge. Cards refresh
+                        automatically every 5 seconds.
+                    </p>
+
+                    <div class="sub-label">Location card status colors</div>
+                    <p class="guide-p">
+                        The colored bar at the top of each card and the badge in the top-right corner both reflect
+                        the <em>worst</em> state across all poles at that location:
+                    </p>
+                    <p class="guide-p">
+                        <span class="state-pill pill-normal"><span class="state-dot" style="background:#10b981"></span>Normal</span> All poles below the warning threshold.<br>
+                        <span class="state-pill pill-warning"><span class="state-dot" style="background:#f59e0b"></span>Warning</span> At least one pole is between the warning and critical thresholds.<br>
+                        <span class="state-pill pill-critical"><span class="state-dot" style="background:#CC2222"></span>Critical</span> At least one pole has reached or exceeded the critical threshold.<br>
+                        <span class="state-pill pill-offline"><span class="state-dot" style="background:#94a3b8"></span>Offline</span> The server could not be reached.
+                    </p>
+
+                    <div class="sub-label">Navigating to a location dashboard</div>
+                    <p class="guide-p">
+                        Click anywhere on a location card to open its full dashboard. You can also use the sidebar links
+                        under the <strong>Dashboards</strong> section to navigate directly.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     3 - POLE STATUS
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-pole-status">
+                    <div class="section-header">
+                        <span class="section-num">3</span>
+                        <span class="section-title">Pole Status Card</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The Pole Status card is the primary real-time readout for a location. It shows the current
+                        water level, warning state icon, and an estimated time-to-flood for each sensor pole.
+                    </p>
+
+                    <div class="sub-label">Water level badge</div>
+                    <p class="guide-p">
+                        Each pole row displays its current water level with a colored badge. If the level is below
+                        1 inch, the badge reads <strong>"Less Than 1 [unit]"</strong> to indicate a near-dry reading.
+                        The unit (inches or centimetres) follows your preference set in Settings.
+                    </p>
+
+                    <div class="sub-label">Warning state icons</div>
+                    <p class="guide-p">
+                        The icon on the right of each pole row changes based on the current water level:
+                    </p>
+                    <p class="guide-p">
+                        <strong>Green icon (State 0):</strong> Water is below the warning threshold. Conditions are normal.<br>
+                        <strong>Yellow icon (State 1):</strong> Water is between the warning and critical thresholds. Monitor closely.<br>
+                        <strong>Red icon (State 2):</strong> Water has reached or exceeded the critical threshold. Take action immediately.
+                    </p>
+
+                    <div class="sub-label">Est. Time to Flood</div>
+                    <p class="guide-p">
+                        Below each pole name, the dashboard displays a predicted time until the water level reaches
+                        the critical threshold. This estimate is calculated from the rate of change over the last
+                        10 sensor readings.
+                    </p>
+
+                    <div class="callout callout-warn">
+                        <span class="callout-icon">⚠️</span>
+                        <span>The time-to-flood estimate is a rough trend projection, not a guaranteed forecast.
+                        It is only shown when the water is actively rising and the predicted time is within
+                        2 hours. Values under 10 minutes are highlighted in red and pulse to draw attention.</span>
+                    </div>
+
+                    <p class="guide-p">
+                        If the row displays <strong>"FLOODING NOW"</strong> in red, the pole has already reached the critical
+                        threshold and the continuous alarm will be active.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     4 - PING
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-ping">
+                    <div class="section-header">
+                        <span class="section-num">4</span>
+                        <span class="section-title">Ping Sensors</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The Ping card lets you actively verify that the sensor poles, MQTT broker, and MySQL database
+                        are all reachable. Two separate mechanisms keep the status indicators updated:
+                    </p>
+
+                    <div class="sub-label">Automatic Heartbeat (background)</div>
+                    <p class="guide-p">
+                        The heartbeat runs silently on a configurable timer (default: 45 seconds). It checks MySQL and
+                        MQTT connectivity, then reads the most recently recorded pole status from the database. It
+                        <em>never</em> sends any request to the physical poles - it only reads existing data. The interval
+                        and on/off state can be configured in Settings.
+                    </p>
+
+                    <div class="sub-label">Ping Sensors button (manual)</div>
+                    <p class="guide-p">
+                        Clicking <strong>Ping Sensors</strong> triggers an active MQTT message to the poles and waits up to
+                        45 seconds for a response. Use this when you need to confirm in real time that the hardware
+                        is alive, or to diagnose a suspected outage.
+                    </p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-num">1</span>
+                            <div class="step-body">Click <strong>Ping Sensors</strong>. Both action buttons will grey out while the request is active.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">2</span>
+                            <div class="step-body">The status indicators switch to <strong>Checking…</strong> while awaiting a response.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">3</span>
+                            <div class="step-body">After up to 45 seconds, the indicators update to reflect the live pole response.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">4</span>
+                            <div class="step-body">Buttons are re-enabled automatically once the ping completes or times out.</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-label">Status indicator states</div>
+                    <p class="guide-p">
+                        <strong style="color:#22c55e">● Online</strong> - All systems and poles responding.<br>
+                        <strong style="color:#f59e0b">● Degraded</strong> - One or more components are not responding (see the label for detail).<br>
+                        <strong style="color:#ef4444">● Offline</strong> - Core systems (MySQL or MQTT) are unreachable.<br>
+                        <strong style="color:#a3a3a3">● Checking</strong> - A ping is currently in progress.
+                    </p>
+
+                    <div class="callout callout-note">
+                        <span class="callout-icon">ℹ️</span>
+                        <span>If the Ping button stays greyed out after a request finishes, go to <strong>Settings → Action Button Reset</strong>
+                        and click <strong>Reset Button Locks</strong> to manually re-enable it.</span>
+                    </div>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     5 - IMAGES
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-images">
+                    <div class="section-header">
+                        <span class="section-num">5</span>
+                        <span class="section-title">Live Images</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The System Images card shows photos from the cameras mounted at the monitoring location.
+                        Three views are available via the selector buttons at the bottom of the card:
+                        <strong>Location</strong> (overview), <strong>Pole 1</strong>, and <strong>Pole 2</strong>.
+                    </p>
+
+                    <div class="sub-label">Requesting new images</div>
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-num">1</span>
+                            <div class="step-body">Click <strong>Request Images</strong> in the card header. A <em>Requesting…</em> badge appears.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">2</span>
+                            <div class="step-body">The server publishes an MQTT request to the RIPPLE system. The poles capture images and write them to the database.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">3</span>
+                            <div class="step-body">Once the database signals completion, the server reads the images and returns them to the dashboard.</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">4</span>
+                            <div class="step-body">Images are saved to disk on the server and displayed in the viewer. The badge shows <strong>Images Updated</strong> on success.</div>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-note">
+                        <span class="callout-icon">ℹ️</span>
+                        <span>The full image request can take up to 6 minutes. Both action buttons remain disabled for the duration.
+                        On reload, the most recently captured images are loaded automatically - no new request is needed.</span>
+                    </div>
+
+                    <div class="sub-label">Status badges</div>
+                    <p class="guide-p">
+                        <strong>Requesting…</strong> - Request is active.<br>
+                        <strong>Images Updated</strong> - New images were successfully captured and saved.<br>
+                        <strong>Request Failed / Timed Out</strong> - The request did not complete. Check system connectivity and try again.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     6 - CHART
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-chart">
+                    <div class="section-header">
+                        <span class="section-num">6</span>
+                        <span class="section-title">Water Level History Chart</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The chart plots water level readings over time for both poles. Data is loaded from the last
+                        8 days of records on startup, then updated on every live data poll. Timestamps between poles
+                        are unified through linear interpolation so both lines share the same time axis even if the
+                        poles report at slightly different rates.
+                    </p>
+
+                    <div class="sub-label">Duration selector</div>
+                    <p class="guide-p">
+                        Use the <strong>Duration</strong> dropdown in the chart header to change the visible time window:
+                        3 Hours, 12 Hours (default), 1 Day, 3 Days, or 1 Week. The time axis ticks snap to clean
+                        boundaries (e.g. whole hours) for readability.
+                    </p>
+
+                    <div class="sub-label">Pole selector</div>
+                    <p class="guide-p">
+                        Use the <strong>Poles</strong> dropdown to show all poles, Pole 1 only, or Pole 2 only. Hidden poles
+                        are also hidden from the hover readout panel.
+                    </p>
+
+                    <div class="sub-label">Hover crosshair &amp; readout</div>
+                    <p class="guide-p">
+                        Moving your cursor over the chart draws a vertical crosshair and populates the readout panel
+                        in the card header with the timestamp and exact water level for both poles at that point.
+                        The readout respects your current distance unit setting.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     7 - ALARMS
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-alarms">
+                    <div class="section-header">
+                        <span class="section-num">7</span>
+                        <span class="section-title">Alarms &amp; Visual Alerts</span>
+                    </div>
+
+                    <p class="guide-p">
+                        When any pole reaches the critical threshold the dashboard activates two simultaneous alerts
+                        to ensure the situation is noticed.
+                    </p>
+
+                    <div class="sub-label">Audio alarm</div>
+                    <p class="guide-p">
+                        A two-tone siren (alternating 800 Hz / 1000 Hz) plays on a 3-second loop for as long as
+                        critical flooding is detected. Volume is set in Settings. The alarm stops automatically when
+                        all poles fall back below the critical threshold.
+                    </p>
+
+                    <div class="callout callout-critical">
+                        <span class="callout-icon">🔴</span>
+                        <span>The alarm only triggers on the transition from non-flooding to flooding, not on every
+                        data poll tick. If you reload the page during an active flood event, the alarm will restart
+                        once the first data poll confirms that a pole is still above the critical threshold.</span>
+                    </div>
+
+                    <div class="sub-label">Border pulse</div>
+                    <p class="guide-p">
+                        A pulsing red border appears around the entire page body whenever critical flooding is active.
+                        This provides a persistent full-screen visual cue even if the audio is muted or the volume
+                        is turned down.
+                    </p>
+
+                    <div class="sub-label">Disabling the alarm</div>
+                    <p class="guide-p">
+                        Navigate to <strong>Settings → Alarm Settings</strong> and uncheck <strong>Enable Critical Flood Alarm</strong>.
+                        The border pulse will remain active as a silent visual-only alert. You can also reduce
+                        the alarm volume with the slider and test it with the <strong>Test Alarm</strong> button before saving.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     8 - SETTINGS
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-settings">
+                    <div class="section-header">
+                        <span class="section-num">8</span>
+                        <span class="section-title">Settings</span>
+                    </div>
+
+                    <p class="guide-p">
+                        All settings are stored in your browser's local storage. Changes do not affect any other 
+                        user or the physical RIPPLE hardware.
+                        Click <strong>Save Settings</strong> to apply; the button flashes green on success or red if
+                        a value failed validation.
+                    </p>
+
+                    <table class="settings-table">
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Description</th>
+                                <th>Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Update Frequency</td>
+                                <td>How often the dashboard polls the server for new water level data.</td>
+                                <td>1 second</td>
+                            </tr>
+                            <tr>
+                                <td>Distance Units</td>
+                                <td>Display units for all water level readings. Switching units converts existing values and chart axis labels immediately.</td>
+                                <td>Inches</td>
+                            </tr>
+                            <tr>
+                                <td>Warning Level</td>
+                                <td>Water level at which poles enter the yellow warning state. Must be lower than the critical level. Dashboard-side only - does not affect the hardware.</td>
+                                <td>3.0 in</td>
+                            </tr>
+                            <tr>
+                                <td>Critical Level</td>
+                                <td>Water level at which poles enter the red critical state and the alarm triggers. Dashboard-side only - does not affect the hardware.</td>
+                                <td>6.0 in</td>
+                            </tr>
+                            <tr>
+                                <td>Enable Alarm</td>
+                                <td>Enables or disables the audio alarm on critical flood detection. The visual border pulse always remains active.</td>
+                                <td>On</td>
+                            </tr>
+                            <tr>
+                                <td>Alarm Volume</td>
+                                <td>Volume of the alarm tone from 0% (silent) to 100% (maximum). Use the Test Alarm button to preview.</td>
+                                <td>70%</td>
+                            </tr>
+                            <tr>
+                                <td>Enable Heartbeat</td>
+                                <td>Enables the automatic background health check. When disabled, status indicators only update when Ping Sensors is clicked manually.</td>
+                                <td>On</td>
+                            </tr>
+                            <tr>
+                                <td>Heartbeat Interval</td>
+                                <td>How often the background health check runs. Lower values give faster status updates but increase server load.</td>
+                                <td>45 seconds</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="sub-label">Action Button Reset</div>
+                    <p class="guide-p">
+                        If the <strong>Ping Sensors</strong> or <strong>Request Images</strong> button becomes stuck in the disabled state
+                        after a timeout, click <strong>Reset Button Locks</strong> to re-enable both immediately. This is safe
+                        to use at any time.
+                    </p>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     9 - DEBUG CONSOLE
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-debug">
+                    <div class="section-header">
+                        <span class="section-num">9</span>
+                        <span class="section-title">Debug Console</span>
+                    </div>
+
+                    <p class="guide-p">
+                        The Debug Console appears at the bottom of the Settings page. It captures all internal
+                        log messages produced by the dashboard - data polls, connection events, image requests,
+                        alarm transitions, and errors - in a scrollable panel. Log messages persist across page
+                        navigation for the duration of your browser session.
+                    </p>
+
+                    <div class="sub-label">Log levels</div>
+                    <p class="guide-p">
+                        Use the <strong>Log Level</strong> dropdown to filter what's shown:
+                    </p>
+                    <p class="guide-p">
+                        <strong>All (Info + Warn + Error)</strong> - Every message, including routine operational logs. Useful when investigating unexpected behaviour.<br>
+                        <strong>Warn + Error</strong> - Only warnings and errors. Good for spotting intermittent issues without the noise of normal poll logs.<br>
+                        <strong>Error Only</strong> - Only hard errors. The recommended default for day-to-day monitoring.
+                    </p>
+
+                    <div class="sub-label">Controls</div>
+                    <p class="guide-p">
+                        <strong>Copy</strong> - Copies all visible log entries to your clipboard as plain text, formatted with timestamps and log levels. Useful for sharing with support.<br>
+                        <strong>Clear</strong> - Wipes the log buffer. New messages continue to be captured after clearing.<br>
+                        <strong>Hide / Show Console</strong> - Collapses or expands the panel. The collapsed state is remembered between visits.
+                    </p>
+
+                    <div class="callout callout-note">
+                        <span class="callout-icon">ℹ️</span>
+                        <span>When contacting Safe Pass Systems for technical support, set the Log Level to
+                        <strong>All</strong>, reproduce the issue, then use <strong>Copy</strong> to include the full log in your message.
+                        This gives the support team the context needed to diagnose the problem quickly.</span>
+                    </div>
+                </div>
+
+                <hr class="guide-divider">
+
+                <!-- ══════════════════════════════════════════════════════
+                     10 - TROUBLESHOOTING
+                ══════════════════════════════════════════════════════ -->
+                <div class="guide-section" id="sec-troubleshoot">
+                    <div class="section-header">
+                        <span class="section-num">10</span>
+                        <span class="section-title">Troubleshooting</span>
+                    </div>
+
+                    <div class="sub-label">Status shows "Offline" or "Degraded"</div>
+                    <p class="guide-p">
+                        Check that the server running the RIPPLE backend is online. If MySQL or MQTT shows as
+                        unreachable, contact your system administrator. The status label in the indicator gives
+                        the specific component that is failing (e.g. "MySQL Unreachable" or "Main Pole Unreachable").
+                    </p>
+
+                    <div class="sub-label">Chart shows no data or a flat line</div>
+                    <p class="guide-p">
+                        Confirm the server is reachable and that the selected duration window contains recorded
+                        data. On first deployment or after a database reset, historical records will not exist
+                        yet and the chart will be empty until new readings arrive.
+                    </p>
+
+                    <div class="sub-label">Alarm keeps sounding even though levels look normal</div>
+                    <p class="guide-p">
+                        Check that your Warning and Critical threshold settings match the values intended for
+                        this deployment. Settings are stored locally and may differ from what other users see.
+                        Reload the page. If a pole is truly above the critical threshold the alarm will
+                        restart after the first data poll.
+                    </p>
+
+                    <div class="sub-label">Ping or Image Request button is greyed out and won't respond</div>
+                    <p class="guide-p">
+                        Go to <strong>Settings → Action Button Reset → Reset Button Locks</strong>. See
+                        <a href="#sec-settings" style="color:var(--accent-color);">Section 8</a> for details.
+                    </p>
+
+                    <div class="sub-label">Images are not updating after requesting</div>
+                    <p class="guide-p">
+                        Image capture can take up to 6 minutes. If the badge shows <strong>Timed Out</strong> or
+                        <strong>Request Failed</strong>, verify that the RIPPLE hardware and MQTT broker are online using
+                        the Ping Sensors button. If the ping succeeds but image requests continue to fail,
+                        contact your system administrator.
+                    </p>
+
+                    <div class="sub-label">Settings don't appear to save</div>
+                    <p class="guide-p">
+                        If the Save Settings button flashes red, one of the threshold inputs contains an invalid
+                        value (blank or non-numeric). Correct the value and try again. If your browser has local
+                        storage disabled or in private/incognito mode, settings will not persist between sessions.
+                    </p>
+
+                    <div class="callout callout-note">
+                        <span class="callout-icon">ℹ️</span>
+                        <span>For issues not covered here, contact Safe Pass Systems at
+                        <a href="mailto:SafePassSystems@gmail.com" style="color:inherit; font-weight:600;">SafePassSystems@gmail.com</a>.
+                        Please include a copy of the Debug Console log (Settings → Debug Console → Copy) with your message.</span>
+                    </div>
+                </div>
+
+                <a href="#guide-top" class="back-to-top">↑ Back to top</a>
+
+            </div><!-- .guide-body -->
+        </section>
+    </div>
+</body>
+</html>

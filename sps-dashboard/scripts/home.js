@@ -98,7 +98,9 @@ async function fetchPole(poleID) {
 **     string  e.g. "3.25 inches" or "8.26 cm"
 */
 function formatLevel(inches) {
-    return `${convertDistance(inches)} ${getUnitLabel()}`;
+    return inches < 0.0
+        ? `0.00 ${getUnitLabel()}`
+        : `${convertDistance(inches)} ${getUnitLabel()}`;
 }
 
 /* Formats a created_at timestamp as a short time string.

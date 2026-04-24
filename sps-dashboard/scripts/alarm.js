@@ -104,8 +104,10 @@ function stopContinuousAlarm() {
 }/* stopContinuousAlarm() */
 
 
-/* Adds or removes a pulsing red inset border on the page body to give
+/* Adds or removes a pulsing red radial glow on the page body to give
 ** a full-screen visual warning when critical flooding is active.
+** Stacked inset box-shadows with increasing blur create the effect of
+** red light radiating inward from all four edges, fading to transparent.
 ** Parameters:
 **     bool isFlooding
 ** Return:
@@ -114,8 +116,20 @@ function stopContinuousAlarm() {
 function updateBorderPulse(isFlooding) {
     const body = document.body;
 
+    // Three layers of inset shadow, each with more blur and less opacity,
+    // so the glow bleeds inward and dissolves naturally toward the centre.
+    const glowPeak =
+        'inset 0 0  12px  4px rgba(220, 38, 38, 0.85), ' +
+        'inset 0 0  50px 10px rgba(220, 38, 38, 0.45), ' +
+        'inset 0 0 100px 20px rgba(220, 38, 38, 0.20)';
+
+    const glowDim =
+        'inset 0 0  12px  4px rgba(220, 38, 38, 0.35), ' +
+        'inset 0 0  50px 10px rgba(220, 38, 38, 0.15), ' +
+        'inset 0 0 100px 20px rgba(220, 38, 38, 0.06)';
+
     if (isFlooding) {
-        body.style.boxShadow = 'inset 0 0 0 8px rgba(220, 38, 38, 0.6)';
+        body.style.boxShadow = glowPeak;
         body.style.animation = 'borderPulse 1.5s ease-in-out infinite';
 
         if (!document.getElementById('borderPulseStyle')) {
@@ -123,8 +137,8 @@ function updateBorderPulse(isFlooding) {
             style.id = 'borderPulseStyle';
             style.textContent = `
                 @keyframes borderPulse {
-                    0%, 100% { box-shadow: inset 0 0 0 8px rgba(220, 38, 38, 0.8); }
-                    50%       { box-shadow: inset 0 0 0 8px rgba(220, 38, 38, 0.3); }
+                    0%, 100% { box-shadow: ${glowPeak}; }
+                    50%       { box-shadow: ${glowDim};  }
                 }
             `;
             document.head.appendChild(style);

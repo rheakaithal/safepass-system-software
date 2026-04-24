@@ -209,7 +209,7 @@ function connectMySQL() {
             return;
         }
         mysqlConnected = true;
-        console.log(' [MySQL] Connected to MySQL!');
+        console.log(` [MySQL] Connected to MySQL! (${dbConfig.host})`);
         if (mysqlReconnectTimer) {
             clearTimeout(mysqlReconnectTimer);
             mysqlReconnectTimer = null;
@@ -827,7 +827,7 @@ function startCountdown(label, totalMs, intervalMs = 1000) {
     let remaining = Math.ceil(totalMs / 1000);
 
     const tick = () => {
-        process.stdout.write(`\r [${label}] Waiting... ${remaining}s remaining`);
+        process.stdout.write(`\r [${label}] Waiting... ${remaining}s remaining                    `);
         remaining--;
     };
 

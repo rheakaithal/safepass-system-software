@@ -350,6 +350,7 @@ function initializeChart() {
                 y: {
                     beginAtZero: true,
                     max: 12,
+                    min: 0,
                     title: {
                         display: true,
                         text: `Water Level (${unitLabel})`,

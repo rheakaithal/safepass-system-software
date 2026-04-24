@@ -1,0 +1,295 @@
+/* ============================================
+   USER GUIDE PAGE
+   ============================================ */
+
+/* ── Guide-specific layout ─────────────────────────────────────── */
+.guide-body {
+    padding: var(--spacing-xl);
+    max-width: 860px;
+}
+
+/* ── Table of contents ─────────────────────────────────────────── */
+.toc {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.toc-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--spacing-md);
+}
+
+.toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.toc-list a {
+    font-size: 14px;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.toc-list a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.toc-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.toc-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    min-width: 20px;
+}
+
+/* ── Section headers ───────────────────────────────────────────── */
+.guide-section {
+    margin-bottom: var(--spacing-xl);
+    scroll-margin-top: var(--spacing-lg);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ── Body text ─────────────────────────────────────────────────── */
+.guide-p {
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin-bottom: var(--spacing-md);
+    font-size: 15px;
+}
+
+/* ── Subsection label ──────────────────────────────────────────── */
+.sub-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-lg) 0 var(--spacing-sm);
+}
+
+/* ── Callout boxes ─────────────────────────────────────────────── */
+.callout {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.callout-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.callout-note {
+    background: #eff6ff;
+    border-left: 3px solid var(--accent-color);
+    color: #1e40af;
+}
+
+.callout-warn {
+    background: #fffbeb;
+    border-left: 3px solid var(--warning-color);
+    color: #92400e;
+}
+
+.callout-critical {
+    background: #fef2f2;
+    border-left: 3px solid var(--danger-color);
+    color: #991b1b;
+}
+
+/* ── Feature cards grid ────────────────────────────────────────── */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.feature-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.feature-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.feature-card-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ── State indicator pills ─────────────────────────────────────── */
+.state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.state-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.pill-normal   { background: rgba(16,185,129,0.12); color: #059669; }
+.pill-warning  { background: rgba(245,158,11,0.12);  color: #d97706; }
+.pill-critical { background: rgba(204,34,34,0.12);   color: #b91c1c; }
+.pill-offline  { background: var(--bg-tertiary);     color: var(--text-tertiary); }
+
+/* ── Steps list ────────────────────────────────────────────────── */
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.step {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--accent-color);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.step-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+.step-body strong {
+    color: var(--text-primary);
+}
+
+/* ── Settings table ────────────────────────────────────────────── */
+.settings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.settings-table th {
+    text-align: left;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.settings-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    line-height: 1.55;
+    vertical-align: top;
+}
+
+.settings-table tr:last-child td {
+    border-bottom: none;
+}
+
+.settings-table td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+/* ── Back to top ───────────────────────────────────────────────── */
+.back-to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-decoration: none;
+    margin-top: var(--spacing-md);
+    transition: color var(--transition-fast);
+}
+
+.back-to-top:hover {
+    color: var(--primary-color);
+}
+
+/* ── Divider ───────────────────────────────────────────────────── */
+.guide-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: var(--spacing-xl) 0;
+}

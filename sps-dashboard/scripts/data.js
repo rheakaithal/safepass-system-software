@@ -192,8 +192,8 @@ function logPollResult(p1Level, p2Level) {
 **     string
 */
 function formatWaterLevelBadge(level, unitLabel) {
-    return level < 1.0
-        ? `Less Than ${convertDistance(1)} ${unitLabel}`
+    return level < 0.0
+        ? `0.00 ${unitLabel}`
         : `${convertDistance(level)} ${unitLabel}`;
 }/* formatWaterLevelBadge() */
 
