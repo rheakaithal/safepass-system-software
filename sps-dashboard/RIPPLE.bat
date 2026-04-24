@@ -42,7 +42,7 @@ echo  Checking Dependencies...
 timeout /t 2 > nul 
 
 :: ── Navigate to project directory ───────────────────────────────────────────
-cd /d "sps-dashboard"
+cd /d ".\sps-dashboard"
 if %ERRORLEVEL% neq 0 (
     echo 	[ERROR] Could not find project folder.
     echo        	Check that this path exists:
